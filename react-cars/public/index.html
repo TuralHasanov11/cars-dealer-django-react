@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+
+  <meta name="keywords" content="bootstrap, business, directory, listings, e-commerce, car dealer, city guide, real estate, job board, user account, multipurpose, ui kit, html5, css3, javascript, gallery, slider, touch">
+  <meta name="author" content="Tural Hasanov">
+  <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+
+    <!-- Favicon and Touch Icons-->
+  <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png">
+  <link rel="manifest" href="%PUBLIC_URL%/site.webmanifest">
+  <link rel="mask-icon" color="#5bbad5" href="%PUBLIC_URL%/safari-pinned-tab.svg">
+  <meta name="msapplication-TileColor" content="#766df4">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  
+  <title>React App</title>
+
+  <link rel="stylesheet" media="screen" href="%PUBLIC_URL%/assets/vendor/simplebar/dist/simplebar.min.css"/>
+  <link rel="stylesheet" media="screen" href="%PUBLIC_URL%/assets/vendor/tiny-slider/dist/tiny-slider.css"/>
+  <link rel="stylesheet" media="screen" href="%PUBLIC_URL%/assets/vendor/nouislider/dist/nouislider.min.css"/>
+  <!-- Main Theme Styles + Bootstrap-->
+  <link rel="stylesheet" media="screen" href="%PUBLIC_URL%/assets/css/theme.min.css">
+
+  <script>
+    (function () {
+      window.onload = function () {
+        var preloader = document.querySelector('.page-loading');
+        preloader.classList.remove('active');
+        setTimeout(function () {
+          preloader.remove();
+        }, 2000);
+      };
+    })();
+    
+  </script>
+  
+</head>
+<body class="bg-dark">
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+   <!-- Google Tag Manager (noscript)-->
+  <noscript>
+    <iframe src="http://www.googletagmanager.com/ns.html?id=GTM-WKV3GT5" height="0" width="0" style="display: none; visibility: hidden;"></iframe>
+  </noscript>
+    
+  <div class="page-loading active">
+      <div class="page-loading-inner">
+        <div class="page-spinner"></div><span>Loading...</span>
+      </div>
+    </div> 
+
+  <div id="root"></div>
+
+  <script src="%PUBLIC_URL%/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script> 
+  <script src="%PUBLIC_URL%/assets/vendor/simplebar/dist/simplebar.min.js"></script> 
+  <script src="%PUBLIC_URL%/assets/vendor/smooth-scroll/dist/smooth-scroll.polyfills.min.js"></script> 
+  <script src="%PUBLIC_URL%/assets/vendor/tiny-slider/dist/min/tiny-slider.js"></script> 
+  <script src="%PUBLIC_URL%/assets/vendor/jarallax/dist/jarallax.min.js"></script> 
+  <script src="%PUBLIC_URL%/assets/vendor/jarallax/dist/jarallax-element.min.js"></script> 
+  <script src="%PUBLIC_URL%/assets/js/theme.min.js'"></script>  
+
+</body>
+</html>
+
