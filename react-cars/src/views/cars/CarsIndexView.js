@@ -37,13 +37,14 @@ function CarsIndexView(){
             mainCtx.fetchLoadingToggle(false)
         })
 
-        return function cleanup() {
-            mainCtx.fetchLoadingToggle()
+        return () => {
+            setFilterData({})
         }
     },[])
 
     useEffect(()=>{
         filterCars()
+
     },[ filterData.brand, filterData.carModel, filterData.city, filterData.colors, filterData.carBodies,
         filterData.minEngine, filterData.maxEngine, filterData.gearLevers, filterData.transmissions, filterData.fuels,
         filterData.equipment, filterData.minPrice, filterData.maxPrice, filterData.barter, filterData.credit, 

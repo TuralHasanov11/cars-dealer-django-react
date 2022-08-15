@@ -62,6 +62,7 @@ export function CarsContextProvider(props){
     async function getCar(car){
         const {data} = await axiosInstance.get(`cars/${car}`)
         setCar(data)
+        return data
     }
 
     async function createCar(formData){

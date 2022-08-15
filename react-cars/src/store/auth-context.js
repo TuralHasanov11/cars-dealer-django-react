@@ -17,18 +17,18 @@ const AuthContext = createContext({
     getUser:()=>{},
     clearWishlist:()=>{},
     toggleCarToWishlist:()=>{},
+    passwordChange:()=>{},
 })
 
 export function AuthContextProvider(props){
 
-    const [accessToken, setAccessToken] = useState(cookies.get('access_token'))
-    const [refreshToken, setRefreshToken] = useState(cookies.get('refresh_token'))
+    const [accessToken, setAccessToken] = useState(localStorage.getItem('access_token'))
+    const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refresh_token'))
     const [user, setUser] = useState()
-    const [id, setId] = useState(cookies.get('user_id'))
+    const [id, setId] = useState(localStorage.getItem('user_id'))
     const isAuth = accessToken&&id&&user
 
     const [wishlist, setWishlist] = useState([])
-
 
     async function login(formData){
 
@@ -37,28 +37,19 @@ export function AuthContextProvider(props){
 				email: formData.email,
 				password: formData.password,
 			})
-
-            if(res.status==200){
                 
-                const {user_id} = JSON.parse(atob(res.data.access.split('.')[1]));
+            const {user_id} = JSON.parse(atob(res.data.access.split('.')[1]));
 
-                setId(user_id)
-                cookies.set('user_id', user_id)
+            setId(user_id)
+            localStorage.setItem('user_id', user_id)
 
-                setAccessToken(res.data.access)
-                cookies.set('access_token', res.data.access)
-        
-                setRefreshToken(res.data.refresh)
-                cookies.set('refresh_token', res.data.refresh)
+            setAccessToken(res.data.access)
+            localStorage.setItem('access_token', res.data.access)
+    
+            setRefreshToken(res.data.refresh)
+            localStorage.setItem('refresh_token', res.data.refresh)
 
-                axiosInstance.defaults.headers['Authorization'] = 'Bearer ' + res.data.access;
-
-                const userRes = await getUser()
-                
-                if(userRes.ok){
-                    return true
-                }
-            }
+            axiosInstance.defaults.headers['Authorization'] = 'Bearer ' + res.data.access;
 
         } catch (error) {
             return error
@@ -69,19 +60,20 @@ export function AuthContextProvider(props){
 
         try {
             
-            const res = await axiosInstance.post('users/register', {
+            const res = await axiosInstance.post('user/register', {
                 email: formData.email,
                 username: formData.username,
                 password: formData.password,
                 password2: formData.password2,
+                phone: formData.phone
             })
     
-            if(res.status==200){
+            if(await res.ok){
                 return res
             }
 
         } catch (error) {
-            console.log(error)
+            return error
         }
     }
 
@@ -106,15 +98,15 @@ export function AuthContextProvider(props){
     async function logout(){
 
         try {
-            // const res = await axiosInstance.post(`user/logout/blacklist`,{refresh_token:refreshToken})
-            cookies.remove('refresh_token')
-            cookies.remove('access_token')
-            cookies.remove('user_id')
+            const res = await axiosInstance.post(`user/logout/blacklist`,{refresh_token:refreshToken})
+            localStorage.removeItem('refresh_token')
+            localStorage.removeItem('access_token')
+            localStorage.removeItem('user_id')
             setId()
             setAccessToken()
             setRefreshToken()
 
-            return true
+            return res
 
         } catch (error) {
 
@@ -122,6 +114,21 @@ export function AuthContextProvider(props){
         }
     }
 
+    async function passwordChange(formData){
+
+        try {
+            
+            const res = await axiosInstance.post('user/change-password', {
+                old_password:formData.oldPassword, 
+                new_password1:formData.newPassword1, 
+                new_password2:formData.newPassword2
+            })    
+            return res
+
+        } catch (error) {
+            return error.response
+        }
+    }
 
     function toggleCarToWishlist(carId){
         if(wishlist.includes(carId)){
@@ -152,6 +159,7 @@ export function AuthContextProvider(props){
         login,
         logout,
         getUser,
+        passwordChange,
     }}>
         {props.children}
     </AuthContext.Provider>

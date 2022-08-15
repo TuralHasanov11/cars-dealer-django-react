@@ -1,72 +1,157 @@
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import CarsContext from '../../store/cars-context'
 import ItemsContext from "../../store/items-context";
 import AuthContext from "../../store/auth-context";
 import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
+import { useInput } from "../../hooks/use-input";
+import { validations } from "../../hooks/use-validation";
+import { fileStorage } from "../../firebase/config";
+import { ref, uploadBytes, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 
 export default function CreateForm(props){
 
-    const navigate = useNavigate()
     const carCtx = useContext(CarsContext)
     const itemsCtx = useContext(ItemsContext)
     const authCtx = useContext(AuthContext)
+    const [loading, setLoading] = useState(false)
 
-    const [brand, setBrand] = useState()
-    const [carModel, setCarModel] = useState()
-    const [city, setCity] = useState()
-    const [color, setColor] = useState()
-    const [carBody, setCarBody] = useState()
-    const [engine, setEngine] = useState()
-    const [gearLever, setGearLever] = useState()
-    const [transmission, setTransmission] = useState()
-    const [fuel, setFuel] = useState()
     const [equipment, setEquipment] = useState([])
-    const [distance, setDistance] = useState(0)
-    const [description, setDescription] = useState('')
-    const [madeAt, setMadeAt] = useState()
     const [barter, setBarter] = useState(false)
     const [credit, setCredit] = useState(false)
-    const [price, setPrice] = useState()
 
 
-    function onBrandChange(e){
+    const {
+        value: brand, 
+        isValid: brandIsValid,
+        hasError:brandHasError, 
+        valueChange: onBrandChange, 
+        reset:resetBrand,
+        messages:brandMessages,
+    } = useInput({validations:validations, rules:{required:true,}})
+
+    const {
+        value: carModel, 
+        isValid: carModelIsValid,
+        hasError:carModelHasError, 
+        valueChange: onCarModelChange, 
+        reset:resetCarModel,
+        messages:carModelMessages,
+    } = useInput({validations:validations, rules:{required:true,}})
+
+    const {
+        value: city, 
+        isValid: cityIsValid,
+        hasError:cityHasError, 
+        valueChange: onCityChange, 
+        reset:resetCity,
+        messages:cityMessages,
+    } = useInput({validations:validations, rules:{required:true,}})
+
+    const {
+        value: color, 
+        isValid: colorIsValid,
+        hasError:colorHasError, 
+        valueChange: onColorChange, 
+        reset:resetColor,
+        messages:colorMessages,
+    } = useInput({validations:validations, rules:{required:true,}})
+
+    const {
+        value: carBody, 
+        isValid: carBodyIsValid,
+        hasError:carBodyHasError, 
+        valueChange: onCarBodyChange, 
+        reset:resetCarBody,
+        messages:carBodyMessages,
+    } = useInput({validations:validations, rules:{required:true,}})
+
+    const {
+        value: engine, 
+        isValid: engineIsValid,
+        hasError:engineHasError, 
+        valueChange: onEngineChange, 
+        reset:resetEngine,
+        messages:engineMessages,
+    } = useInput({validations:validations, rules:{required:true,}})
+
+    const {
+        value: gearLever, 
+        isValid: gearLeverIsValid,
+        hasError:gearLeverHasError, 
+        valueChange: onGearLeverChange, 
+        reset:resetGearLever,
+        messages:gearLeverMessages,
+    } = useInput({validations:validations, rules:{required:true,}})
+
+    const {
+        value: transmission, 
+        isValid: transmissionIsValid,
+        hasError:transmissionHasError, 
+        valueChange: onTransmissionChange, 
+        reset:resetTransmission,
+        messages:transmissionMessages,
+    } = useInput({validations:validations, rules:{required:true,}})
+
+    const {
+        value: fuel, 
+        isValid: fuelIsValid,
+        hasError:fuelHasError, 
+        valueChange: onFuelChange, 
+        reset:resetFuel,
+        messages:fuelMessages,
+    } = useInput({validations:validations, rules:{required:true,}})
+
+
+    const {
+        value: distance, 
+        isValid: distanceIsValid,
+        hasError:distanceHasError, 
+        valueChange: onDistanceChange, 
+        valueBlur: onDistanceBlur,
+        reset:resetDistance,
+        messages:distanceMessages,
+    } = useInput({validations:validations, initialState:0,rules:{required:true,isInteger:true,min:0, max:1000000}})
+
+    const {
+        value: madeAt, 
+        isValid: madeAtIsValid,
+        hasError:madeAtHasError, 
+        valueChange: onMadeAtChange, 
+        reset:resetMadeAt,
+        messages:madeAtMessages,
+    } = useInput({validations:validations, rules:{required:true,isInteger:true,min:1980, max:new Date().getFullYear()}})
+
+    const {
+        value: price, 
+        isValid: priceIsValid,
+        hasError:priceHasError, 
+        valueChange: onPriceChange, 
+        valueBlur: onPriceBlur,
+        reset:resetPrice,
+        messages:priceMessages,
+    } = useInput({validations:validations, rules:{required:true,isInteger:true,min:200}})
+
+    const {
+        value: description, 
+        isValid: descriptionIsValid,
+        hasError:descriptionHasError, 
+        valueChange: onDescriptionChange, 
+        valueBlur: onDescriptionBlur,
+        reset:resetDescription,
+        messages:descriptionMessages,
+    } = useInput({validations:validations, rules:{nullable:true}})
+
+    const carImageFront = useRef()
+    const carImageBack = useRef()
+    const carImagePanel = useRef()
+    const carImageOther = useRef()
+    const carImages = []
+
+    function handleBrandChange(e){
+        onBrandChange(e)
         itemsCtx.getCarModels(e.target.value)
-        setBrand(e.target.value)
-    }
-
-    function onCarModelChange(e){
-        setCarModel(e.target.value)
-    }
-
-    function onCityChange(e){
-        setCity(e.target.value)
-    }
-
-    function onColorChange(e){
-        setColor(e.target.value)
-    }
-
-    function onCarBodyChange(e){
-        setCarBody(e.target.value)
-    }
-
-    function onEngineChange(e){
-        setEngine(e.target.value)
-        
-    }
-
-    function onGearLeverChange(e){
-        setGearLever(e.target.value)
-    }
-
-    function onTransmissionChange(e){
-        setTransmission(e.target.value)
-    }
-
-    function onFuelChange(e){
-        setFuel(e.target.value)
     }
 
     function onEquipmentItemToggle(e){
@@ -82,62 +167,126 @@ export default function CreateForm(props){
         })
     }
 
-    function onDescriptionChange(e){
-        setDescription(e.target.value)
+    
+    let formIsValid = (brandIsValid && carModelIsValid && cityIsValid && colorIsValid && carBodyIsValid && engineIsValid &&  gearLeverIsValid && 
+        transmissionIsValid && fuelIsValid && distanceIsValid && madeAtIsValid && priceIsValid && descriptionIsValid)
+
+    function resetForm(){
+        resetBrand()
+        resetCarModel()
+        resetCity()
+        resetColor()
+        resetCarBody()
+        resetEngine()
+        resetGearLever()
+        resetTransmission()
+        resetFuel()
+        setEquipment([])
+        resetDistance()
+        resetMadeAt()
+        setBarter(false)
+        setCredit(false)
+        resetPrice()
+        resetDescription()
     }
 
-    function onPriceChange(e){
-        setPrice(e.target.value)
-    }
+    function uploadCarImages(){
+        let carImagesContainer = [
+            {type:'front', image:carImageFront.files[0]},
+            {type:'back', image:carImageBack.files[0]},
+            {type:'panel', image:carImagePanel.files[0]},
+            {type:'other', image:carImageOther.files[0]}
+        ];
 
-    function onDistanceChange(e){
-        setDistance(e.target.value)
-    }
-
-    function onYearChange(e){
-        setMadeAt(e.target.value)
+        const storageRef, uploadTask
+        for (const item of carImagesContainer) {
+            storageRef = ref(fileStorage, `carFinder/cars/${item.image.name+(Math.random() + 1).toString(36).substring(7)}`);
+            uploadTask = uploadBytesResumable(storageRef, item.image);
+    
+            uploadTask.on('state_changed', 
+            (snapshot) => {
+              console.log(snapshot);
+            }, 
+            (error) => {
+                console.log(error);
+                setLoading(false);
+            }, 
+            async () => {
+                    await getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+                        carImages.push({type:item.type, url:downloadURL})
+                    });
+                }
+            );
+        }  
     }
 
     function formSubmit(event){
-        
+    
         event.preventDefault()
+        setLoading(true)
+
+        if(!formIsValid){
+            return
+        } 
+
+        if(uploadCarImages()){
+            carCtx.createCar({brand,car_model:carModel,city,color, car_body:carBody,
+                engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
+                barter, credit, distance, description, madeAt, carImages
+            }).then(res=>{
+                resetForm()
+                setLoading(false)
+                // props.createCar(res)
+            }).catch(e=>{
+                console.log(e)
+            })
+        }
+
+
         console.log({brand,car_model:carModel,city,color, car_body:carBody,
             engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
-            barter, credit, distance, description,madeAt
+            barter, credit, distance, description,madeAt, carImages
         })
         
-        carCtx.createCar({brand,car_model:carModel,city,color, car_body:carBody,
-            engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
-            barter, credit, distance, description,madeAt
-        }).then(res=>{
-            props.createCar(res)
-        }).catch(e=>{
-            // props.setMessage({
-            //     success:false,
-            //     message:'Car not shared!'
-            // })
-            console.log(e)
-        })
+        // carCtx.createCar({brand,car_model:carModel,city,color, car_body:carBody,
+        //     engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
+        //     barter, credit, distance, description,madeAt
+        // }).then(res=>{
+        //     resetForm()
+        //     setLoading(false)
+        //     props.createCar(res)
+        // }).catch(e=>{
+        //     // props.setMessage({
+        //     //     success:false,
+        //     //     message:'Car not shared!'
+        //     // })
+        //     console.log(e)
+        // })
     }
+
 
     return <form onSubmit={formSubmit}>
          <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="price">
             <h2 className="h4 text-light mb-4"><i className="fi-cash text-primary fs-5 mt-n1 me-2"></i>Price</h2>
             <label className="form-label text-light" htmlFor="price">Price <span className="text-danger">*</span></label>
-            <div className="d-sm-flex mb-2">
+            <div className="mb-2">
                 <select className="form-select form-select-light w-25 me-2 mb-2">
                     <option value="usd">&#36;</option>
                     <option value="eur">&#8364;</option>
                     <option value="azn">&#8380;</option>
                 </select>
-                <input value={price} onChange={onPriceChange} className="form-control form-control-light w-100 me-2 mb-2" type="number" id="price" min="200" step="50"/>
+                <input value={price} onChange={onPriceChange} onBlur={onPriceBlur} type="number" id="price" min="200" step="50"
+                    className={`form-control form-control-light w-100 me-2 mb-2 ${priceHasError?'is-invalid':'is-valid'}`}
+                />
+                {priceHasError ?  priceMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
             </div>
             <div className="form-check form-switch form-switch-light">
-                <input className="form-check-input" type="checkbox" value={barter} onChange={()=>setBarter(prev=>!prev)} id="barter"/>
+                <input type="checkbox" value={barter} onChange={()=>setBarter(prev=>!prev)} id="barter" className={`form-check-input`}
+                />
                 <label className="form-check-label" htmlFor="barter">Barter</label>
             </div>
             <div className="form-check form-switch form-switch-light">
-                <input className="form-check-input" type="checkbox" value={credit} onChange={()=>setCredit(prev=>!prev)} id="credit"/>
+                <input type="checkbox" value={credit} onChange={()=>setCredit(prev=>!prev)} id="credit" className={`form-check-input`}/>
                 <label className="form-check-label" htmlFor="credit">Credit</label>
             </div>
         </section>
@@ -147,75 +296,96 @@ export default function CreateForm(props){
             <div className="row pb-2">
                 <div className="col-sm-6 mb-3">
                     <label className="form-label text-light" htmlFor="brand">Make <span className="text-danger">*</span></label>
-                    <select className="form-select form-select-light" id="brand" defaultValue={brand} onChange={onBrandChange}>
+                    <select className={`form-select form-select-light ${!brandIsValid?'is-invalid':'is-valid'}`} id="brand" defaultValue={brand} onChange={handleBrandChange}>
                         <option value="">Select make</option>
                         {props.brands.map((brand, index)=>(<option key={index} value={brand.id}>{brand.name}</option>))}
                     </select>
+                    {brandHasError ?  brandMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 </div>
                 <div className="col-sm-6 mb-3">
                     <label className="form-label text-light" htmlFor="car_model">Model <span className="text-danger">*</span></label>
-                    <select className="form-select form-select-light" id="car_model" defaultValue={carModel} onChange={onCarModelChange}>
+                    <select className={`form-select form-select-light ${!carModelIsValid?'is-invalid':'is-valid'}`} id="car_model" defaultValue={carModel} onChange={onCarModelChange}>
                         <option value="" disabled={props.carModels.length==0}>Select model</option>
                         {props.carModels.map((model, index)=>(<option key={index} value={model.id}>{model.name}</option>))}
                     </select>
+                    {carModelHasError ?  carModelMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 </div>
                 <div className="col-md-3 col-sm-6 mb-3">
                     <label className="form-label text-light" htmlFor="made_at">Year <span className="text-danger">*</span></label>
-                    <select onChange={onYearChange} defaultValue={madeAt} className="form-select form-select-light" id="made_at">
+                    <select onChange={onMadeAtChange} defaultValue={madeAt} className={`form-select form-select-light ${!madeAtIsValid?'is-invalid':'is-valid'}`} id="made_at">
                         <option value="">Select year</option>
                         {props.years.map((year, index)=>(<option key={index} value={year}>{year}</option>))}
                     </select>
+                    {madeAtHasError ?  madeAtMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 </div>
                 <div className="col-md-3 col-sm-6 mb-3">
                     <label className="form-label text-light" htmlFor="distance">Distance <span className="text-danger">*</span></label>
-                    <input onChange={onDistanceChange} className="form-control form-control-light" type="number" id="distance" min="0" value={distance}/>
+                    <input value={distance} onChange={onDistanceChange} onBlur={onDistanceBlur} type="number" id="distance" min="0" 
+                        className={`form-control form-control-light ${distanceHasError?'is-invalid':'is-valid'}`}
+                    />
+                    {distanceHasError ?  distanceMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 </div>
             </div>
             <div className="border-top border-light mt-2 pt-4">
                 <div className="row pb-2">
                 <div className="col-md-6">
                     <label className="form-label text-light" htmlFor="car_body">Body type <span className="text-danger">*</span></label>
-                    <select onChange={onCarBodyChange} defaultValue={carBody} className="form-select form-select-light mb-3" id="car_body">
+                    <select onChange={onCarBodyChange} defaultValue={carBody} className={`form-select form-select-light mb-3 ${!carBodyIsValid?'is-invalid':'is-valid'}`} id="car_body">
                         <option value="">Select body type</option>
                         {props.carBodies.map((body, index)=>(<option key={index} value={body.id}>{body.name}</option>))}
                     </select>
+                    {carBodyHasError ?  carBodyMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
 
                     <label className="form-label text-light" htmlFor="fuel">Fuel type <span className="text-danger">*</span></label>
-                    <select onChange={onFuelChange} defaultValue={fuel} className="form-select form-select-light mb-3" id="fuel">
+                    <select onChange={onFuelChange} defaultValue={fuel} className={`form-select form-select-light mb-3 ${!fuelIsValid?'is-invalid':'is-valid'}`} id="fuel">
                         <option value="">Select fuel type</option>
                         {props.fuels.map((fuel, index)=>(<option key={index} value={fuel.id}>{fuel.name}</option>))}
                     </select>
+                    {fuelHasError ?  fuelMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
 
                     <label className="form-label text-light" htmlFor="engine">Engine <span className="text-danger">*</span></label>
-                    <select onChange={onEngineChange} defaultValue={engine} className="form-select form-select-light mb-3" id="engine">
+                    <select onChange={onEngineChange} defaultValue={engine} className={`form-select form-select-light mb-3 ${!engineIsValid?'is-invalid':'is-valid'}`} id="engine">
                         <option value="">Select engine</option>
                         {props.engines.map((engine, index)=>(<option key={index} value={engine.id}>{engine.volume}</option>))}
                     </select>
+                    {engineHasError ?  engineMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
 
                     <label className="form-label text-light" htmlFor="transmission">Transmission <span className="text-danger">*</span></label>
-                    <select onChange={onTransmissionChange} defaultValue={transmission} className="form-select form-select-light mb-3" id="transmission">
+                    <select onChange={onTransmissionChange} defaultValue={transmission} className={`form-select form-select-light mb-3 ${!transmissionIsValid?'is-invalid':'is-valid'}`} id="transmission">
                         <option value="">Select transmission</option>
                         {props.transmissions.map((transmission, index)=>(<option key={index} value={transmission.id}>{transmission.name}</option>))}
                     </select>
+                    {transmissionHasError ?  transmissionMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
 
                     <label className="form-label text-light" htmlFor="gear_lever">Gear lever <span className="text-danger">*</span></label>
-                    <select onChange={onGearLeverChange} defaultValue={gearLever} className="form-select form-select-light mb-3" id="gear_lever">
+                    <select onChange={onGearLeverChange} defaultValue={gearLever} className={`form-select form-select-light mb-3 ${!gearLeverIsValid?'is-invalid':'is-valid'}`} id="gear_lever">
                         <option value="">Select gear lever</option>
                         {props.gearLevers.map((lever, index)=>(<option key={index} value={lever.id}>{lever.name}</option>))}
                     </select>
+                    {gearLeverHasError ?  gearLeverMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
 
                     <label className="form-label text-light" htmlFor="color">Color <span className="text-danger">*</span></label>
-                    <select onChange={onColorChange} defaultValue={color} className="form-select form-select-light mb-3" id="color">
+                    <select onChange={onColorChange} defaultValue={color} className={`form-select form-select-light mb-3 ${!colorIsValid?'is-invalid':'is-valid'}`} id="color">
                         <option value="">Select color</option>
                         {props.colors.map((color, index)=>(<option key={index} value={color.id}>{color.name}</option>))}
                     </select>
+                    {colorHasError ?  colorMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
                 </div>
                 </div>
             </div>
             <div className="border-top border-light mt-2 pt-4">
                 <label className="form-label text-light" htmlFor="description">Description </label>
-                <textarea onChange={onDescriptionChange} defaultValue={description} className="form-control form-control-light" id="description" rows="5" placeholder="Describe your vehicle"></textarea>
-                <span className="form-text text-light opacity-50">{description.length>0?3000-description.length:3000} characters left</span>
+                <textarea onChange={onDescriptionChange} onBlur={onDescriptionBlur} defaultValue={description} 
+                    className={`form-control form-control-light ${descriptionHasError?'is-invalid':'is-valid'}`} 
+                    id="description" rows="5" placeholder="Describe your vehicle"></textarea>
+                {descriptionHasError ?  descriptionMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+                <span className="form-text text-light opacity-50">{description?.length>0?3000-description?.length:3000} characters left</span>
             </div>
         </section>
 
@@ -237,13 +407,16 @@ export default function CreateForm(props){
         </section>
 
         <section className="card card-light card-body shadow-sm p-4 mb-4" id="photos">
-            <h2 className="h4 text-light mb-4"><i className="fi-image text-primary fs-5 mt-n1 me-2"></i>Photos / video</h2>
+            <h2 className="h4 text-light mb-4"><i className="fi-image text-primary fs-5 mt-n1 me-2"></i>Photos</h2>
             <div className="alert alert-warning bg-faded-warning border-warning mb-4" role="alert">
                 <div className="d-flex"><i className="fi-alert-circle me-2 me-sm-3"></i>
                 <p className="fs-sm mb-1">The maximum photo size is 8 MB. Formats: jpeg, jpg, png. Put the main picture first.<br/>The maximum video size is 10 MB. Formats: mp4, mov.</p>
                 </div>
             </div>
-            {/* <input className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" multiple data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload photos / video&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/> */}
+            <input ref={carImageFront} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload front photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
+            <input ref={carImageBack} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload back photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
+            <input ref={carImagePanel} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload front panel photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
+            <input ref={carImageOther} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" multiple data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload additional photos&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
         </section>
 
         <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="location">
@@ -251,30 +424,17 @@ export default function CreateForm(props){
             <div className="row">
                 <div className="col-sm-8 mb-3">
                 <label className="form-label text-light" htmlFor="city">City <span className="text-danger">*</span></label>
-                <select onChange={onCityChange} defaultValue={city} className="form-select form-select-light" id="city" required>
+                <select onChange={onCityChange} defaultValue={city} className={`form-select form-select-light ${!cityIsValid?'is-invalid':'is-valid'}`} id="city">
                     <option value="">Choose city</option>
                     {props.cities.map((city, index)=>(<option key={index} value={city.id}>{city.name}</option>))}
                 </select>
+                {cityHasError ?  cityMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 </div>
             </div>
         </section>
 
-        {/* <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="contacts">
-            <h2 className="h4 text-light mb-4"><i className="fi-phone text-primary fs-5 mt-n1 me-2"></i>Contacts</h2>
-            <div className="row">
-                <div className="col-sm-6 mb-3">
-                    <label className="form-label text-light" htmlFor="username">Username <span className="text-danger">*</span></label>
-                    <input className="form-control form-control-light" type="text" id="username" value={authCtx.user.username} placeholder="Enter your first name" required/>
-                </div>
-                <div className="col-sm-6 mb-3">
-                    <label className="form-label text-light" htmlFor="phone">Phone number <span className="text-danger">*</span></label>
-                    <input className="form-control form-control-light" type="tel" id="phone" data-format="custom" data-delimiter="-" data-blocks="3 3 4" value={authCtx.user.phone} placeholder="000-000-0000"/>
-                </div>
-            </div>
-        </section> */}
-
         <div className="d-sm-flex justify-content-between pt-2">
-            <button type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button>
+            <button disabled={loading||!formIsValid} type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button>
         </div>
     </form>
            

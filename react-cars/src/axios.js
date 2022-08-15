@@ -1,7 +1,4 @@
 import axios from 'axios';
-import Cookies from "universal-cookie"
-
-const cookies = new Cookies()
 
 const baseURL = 'http://127.0.0.1:8000/api/';
 
@@ -9,8 +6,8 @@ const axiosInstance = axios.create({
 	baseURL: baseURL,
 	timeout: 5000,
 	headers: {
-		Authorization: cookies.get('access_token')
-			? 'Bearer ' + cookies.get('access_token')
+		Authorization: localStorage.getItem('access_token')
+			? 'Bearer ' + localStorage.getItem('access_token')
 			: null,
 		'Content-Type': 'application/json',
 		accept: 'application/json',
@@ -46,7 +43,7 @@ axiosInstance.interceptors.response.use(
 			error.response.status === 401 &&
 			error.response.statusText === 'Unauthorized'
 		) {
-			const refreshToken = cookies.get('refresh_token');
+			const refreshToken = localStorage.getItem('refresh_token');
 
 			if (refreshToken) {
 				const tokenParts = JSON.parse(atob(refreshToken.split('.')[1]));
@@ -57,9 +54,9 @@ axiosInstance.interceptors.response.use(
 					return axiosInstance
 						.post('user/token/refresh/', { refresh: refreshToken })
 						.then((response) => {
-							cookies.set('user_id',tokenParts.user_id)
-							cookies.set('access_token', response.data.access);
-							cookies.set('refresh_token', response.data.refresh);
+							localStorage.setItem('user_id',tokenParts.user_id)
+							localStorage.setItem('access_token', response.data.access);
+							localStorage.setItem('refresh_token', response.data.refresh);
 
 							axiosInstance.defaults.headers['Authorization'] =
 								'Bearer ' + response.data.access;

@@ -1,4 +1,5 @@
-import {useReducer} from 'react'
+import { useReducer } from 'react'
+import validationMessages from '../resources/en/validation'
 
 const inputStateReducer = (state, action) => {
 
@@ -6,7 +7,7 @@ const inputStateReducer = (state, action) => {
         case 'INPUT':
             return {value:action.value, touched: state.touched}
         case 'BLUR':
-            return {touched: state.touched}
+            return {value:state.value, touched: true}
         case 'RESET':
             return {value: '', touched:false}
         default:
@@ -19,12 +20,37 @@ const inputStateReducer = (state, action) => {
     }
 }
 
-const useInput = (validateValue)=>{
+export const useInput = ({validations, rules, initialState})=>{
 
-    const [inputState, dispatch] = useReducer(inputStateReducer,{})
-    const valueIsValid = validateValue(inputState.value)
-    const hasError = !valueIsValid && inputState.touched
+    const [inputState, dispatch] = useReducer(inputStateReducer,initialState!=''||initialState==0?{value: initialState}:{})
 
+    let messages = []
+
+    const validateValue = (value, rules) => {
+
+        if(value == undefined){
+            return false
+        }
+        
+        let isValid=true
+        for (const index in rules) {
+          if(validations[index](value, rules[index])){
+            
+            messages = messages.filter((el)=>(el.type !== index))
+            isValid = true
+          } else{
+            messages.push({type:index,text:validationMessages[index](rules[index])})
+            isValid = false
+          }
+        }
+        
+        return isValid
+    }
+
+
+    const valueIsValid = validateValue(inputState.value, rules)
+
+    const hasError = (valueIsValid==false) && (inputState.touched == true)
 
     function valueChange(event){
         dispatch({type:'INPUT', value:event.target.value})
@@ -43,10 +69,9 @@ const useInput = (validateValue)=>{
         value:inputState.value, 
         isValid: valueIsValid, 
         hasError, 
+        messages,
         valueChange, 
         valueBlur,
         reset
     }
 }
-
-export default useInput

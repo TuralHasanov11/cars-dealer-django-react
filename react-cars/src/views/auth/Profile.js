@@ -5,8 +5,6 @@ function Profile(){
 
     const authCtx = useContext(AuthContext)
 
-    const username = useRef(authCtx.user.username)
-
     return <>
         <h1 className="h2 text-light">Personal Info</h1>
         <div className="row pt-2">
@@ -16,12 +14,9 @@ function Profile(){
                         <div className="d-flex align-items-center justify-content-between">
                             <div className="pe-2 opacity-70">
                             <label className="form-label fw-bold text-light">Full name</label>
-                            <div className="text-light" id="name-value">{authCtx.user.username}</div>
+                            <div className="text-light" id="name-value">{authCtx.user?.username}</div>
                             </div>
                             <div className="me-n3" data-bs-toggle="tooltip" title="Edit"><a className="nav-link nav-link-light py-0" href="#name-collapse" data-bs-toggle="collapse"><i className="fi-edit"></i></a></div>
-                        </div>
-                        <div className="collapse" id="name-collapse" data-bs-parent="#personal-info">
-                            <input className="form-control form-control-light mt-3" type="text" data-bs-binded-element="#name-value" data-bs-unset-value="Not specified" ref={username}/>
                         </div>
                     </div>
 
@@ -29,7 +24,7 @@ function Profile(){
                         <div className="d-flex align-items-center justify-content-between">
                             <div className="pe-2 opacity-70">
                                 <label className="form-label fw-bold text-light">Email</label>
-                                <div className="text-light" id="email-value">{authCtx.user.email}</div>
+                                <div className="text-light" id="email-value">{authCtx.user?.email}</div>
                             </div>
                         </div>
                     </div>

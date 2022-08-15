@@ -41,10 +41,10 @@ function App() {
         <Route path='/cars/:id' exact element={ <CarView />}></Route>
         <Route path='/cars/:id/edit' exact element={ <AuthMiddleware><CarEditView /></AuthMiddleware> }></Route>
         <Route path="/user" element={<User />}>
-          <Route index element={<Profile />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="password-security" element={<Password />} />
-          <Route path="wishlist" element={<Wishlist />} />
+          <Route index element={<AuthMiddleware><Profile /></AuthMiddleware>} />
+          <Route path="profile" element={<AuthMiddleware><Profile /></AuthMiddleware> } />
+          <Route path="password-security" element={<AuthMiddleware><Password /></AuthMiddleware> } />
+          <Route path="wishlist" element={<AuthMiddleware><Wishlist /></AuthMiddleware>} />
           <Route path=":userId/cars" exact element={<UserCars />} />
         </Route>
         <Route path='*' element={<Navigate to='/' />}></Route>

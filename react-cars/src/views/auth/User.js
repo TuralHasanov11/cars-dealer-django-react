@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react'
-import {Routes, Navigate, Route, Outlet, Link, useParams, useSearchParams} from 'react-router-dom'
+import {Routes, Navigate, Route, Outlet, Link, useParams, useSearchParams, useLocation} from 'react-router-dom'
 import Loading from '../../components/inc/Loading'
 import AuthContext from '../../store/auth-context'
 import MainContext from '../../store/main-context'
@@ -13,6 +13,7 @@ function User(){
     const userCtx = useContext(UserContext)
     const {userId} = useParams()
     const [searchParams] = useSearchParams()
+
 
     function logout(e){
       e.preventDefault()
@@ -39,9 +40,9 @@ function User(){
         <div className="card card-body card-light border-0 shadow-sm pb-1 me-lg-1">
           <div className="d-flex d-md-block d-lg-flex align-items-start pt-lg-2 mb-4">
             <div className="pt-md-2 pt-lg-0 ps-3 ps-md-0 ps-lg-3">
-              <h2 className="fs-lg text-light mb-0">{authCtx.user.username}</h2>
+              <h2 className="fs-lg text-light mb-0">{userCtx.user?.username}</h2>
               <ul className="list-unstyled fs-sm mt-3 mb-0">
-                <li><div className="nav-link-light fw-normal"><i className="fi-phone opacity-60 me-2"></i>{authCtx.user?.profile_user?.phone}</div></li>
+                <li><div className="nav-link-light fw-normal"><i className="fi-phone opacity-60 me-2"></i>{userCtx.user?.profile_user?.phone}</div></li>
                 {userId == authCtx.id?( <li><a className="nav-link-light fw-normal" href={`mailto:${authCtx.user.email}`}><i className="fi-mail opacity-60 me-2"></i>{authCtx.user.email}</a></li>):''}
               </ul>
             </div>
@@ -55,7 +56,7 @@ function User(){
             </a>
             <div className="collapse d-md-block mt-3" id="account-nav">
               <div className="card-nav">
-                  <Link className="card-nav-link" to={`/user/${authCtx.id}/cars`}>
+                  <Link className="card-nav-link" to={`/user/${userCtx.user?.id}/cars`}>
                       <i className="fi-car me-2"></i>Cars
                   </Link>
                   {!userId || (userId == authCtx.id)?<>

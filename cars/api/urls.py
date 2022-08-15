@@ -26,6 +26,7 @@ urlpatterns = [
     path('user/logout/blacklist', accountViews.blackListToken, name='blacklist'), 
     path('user/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('user/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('user/change-password', accountViews.passwordChange, name='password_change'), 
     path('user/<int:id>', accountViews.accountDetail, name='user_detail'),
     path('user/<int:id>/cars', views.UserCarListView.as_view(), name='user_cars'),  
 ]

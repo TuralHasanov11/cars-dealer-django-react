@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
-class AccounthManager(BaseUserManager):
+class AccountManager(BaseUserManager):
     
     def create_user(self, email, username, password=None, **kwargs):
         
@@ -35,6 +35,12 @@ class AccounthManager(BaseUserManager):
         return user
 
 
+class Profile(models.Model):
+    phone= models.CharField(max_length=50, null=False, blank=False, unique=False)
+    
+    def __str__(self):
+        return self.phone    
+
 
 class Account(AbstractBaseUser):
     email = models.EmailField(verbose_name='email', null=False, blank=False, unique=True)
@@ -43,10 +49,11 @@ class Account(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    profile = models.OneToOneField(Profile, null=True, on_delete=models.CASCADE,  related_name='account_profile')
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
-    objects = AccounthManager()
+    objects = AccountManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -62,9 +69,3 @@ class Account(AbstractBaseUser):
         return True
 
 
-class Profile(models.Model):
-    phone= models.CharField(max_length=50, null=False, blank=False, unique=True)
-    user = models.OneToOneField(Account, null=False, on_delete=models.CASCADE,  related_name='profile_user')
-    
-    def __str__(self):
-        return self.phone    

@@ -28,7 +28,7 @@ function CarsEditView(){
                 itemsCtx.getGearLevers(),
                 itemsCtx.getTransmissions(),
                 itemsCtx.getFuels(),
-                itemsCtx.getCarModels(res[0].car_model.brand.id),
+                itemsCtx.getCarModels(res[0]?.car_model?.brand?.id),
             ]).then(()=>{
                 mainCtx.fetchLoadingToggle(false)
             })
@@ -51,7 +51,7 @@ function CarsEditView(){
     return (
         <div className="container mt-5 mb-md-4 py-5">
             <div className="row">
-                <div className="col-lg-8">
+                <div className="col-lg-10">
                     <nav className="mb-3 pt-md-3" aria-label="Breadcrumb">
                         <ol className="breadcrumb breadcrumb-light">
                             <li className="breadcrumb-item"><Link to="/">Home</Link></li>

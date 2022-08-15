@@ -3,69 +3,151 @@ import CarsContext from '../../store/cars-context'
 import ItemsContext from "../../store/items-context";
 import AuthContext from "../../store/auth-context";
 import PropTypes from 'prop-types';
+import { useInput } from "../../hooks/use-input";
+import { validations } from "../../hooks/use-validation";
 
 export default function EditForm(props){
 
     const carCtx = useContext(CarsContext)
     const itemsCtx = useContext(ItemsContext)
     const authCtx = useContext(AuthContext)
+    const [loading, setLoading] = useState(false)
 
+    const {
+        value: brand, 
+        isValid: brandIsValid,
+        hasError:brandHasError, 
+        valueChange: onBrandChange, 
+        messages:brandMessages,
+    } = useInput({validations:validations, initialState: props.car.car_model.brand.id ,rules:{required:true,}})
 
-    const [brand, setBrand] = useState(props.car.car_model.brand.id)
-    const [carModel, setCarModel] = useState(props.car.car_model.id)
-    const [city, setCity] = useState(props.car.city.id)
-    const [color, setColor] = useState(props.car.color.id)
-    const [carBody, setCarBody] = useState(props.car.car_body.id)
-    const [engine, setEngine] = useState(props.car.engine.id)
-    const [gearLever, setGearLever] = useState(props.car.gear_lever.id)
-    const [transmission, setTransmission] = useState(props.car.transmission.id)
-    const [fuel, setFuel] = useState(props.car.fuel.id)
-    const [equipment, setEquipment] = useState(props.car.equipment.map(el => el.id))
-    const [distance, setDistance] = useState(props.car.distance)
-    const [description, setDescription] = useState(props.car.description)
-    const [madeAt, setMadeAt] = useState(props.car.made_at)
+    const {
+        value: carModel, 
+        isValid: carModelIsValid,
+        hasError:carModelHasError, 
+        valueChange: onCarModelChange, 
+        messages:carModelMessages,
+    } = useInput({validations:validations, initialState:props.car.car_model.id,rules:{required:true,}})
+
+    const {
+        value: city, 
+        isValid: cityIsValid,
+        hasError:cityHasError, 
+        valueChange: onCityChange, 
+        messages:cityMessages,
+    } = useInput({validations:validations, initialState:props.car.city.id,rules:{required:true,}})
+
+    const {
+        value: color, 
+        isValid: colorIsValid,
+        hasError:colorHasError, 
+        valueChange: onColorChange, 
+        messages:colorMessages,
+    } = useInput({validations:validations, initialState:props.car.color.id,rules:{required:true,}})
+
+    const {
+        value: carBody, 
+        isValid: carBodyIsValid,
+        hasError:carBodyHasError, 
+        valueChange: onCarBodyChange, 
+        messages:carBodyMessages,
+    } = useInput({validations:validations, initialState:props.car.car_body.id,rules:{required:true,}})
+
+    const {
+        value: engine, 
+        isValid: engineIsValid,
+        hasError:engineHasError, 
+        valueChange: onEngineChange, 
+        messages:engineMessages,
+    } = useInput({validations:validations, initialState:props.car.engine.id,rules:{required:true,}})
+
+    const {
+        value: gearLever, 
+        isValid: gearLeverIsValid,
+        hasError:gearLeverHasError, 
+        valueChange: onGearLeverChange, 
+        messages:gearLeverMessages,
+    } = useInput({validations:validations, initialState:props.car.gear_lever.id,rules:{required:true,}})
+
+    const {
+        value: transmission, 
+        isValid: transmissionIsValid,
+        hasError:transmissionHasError, 
+        valueChange: onTransmissionChange, 
+        messages:transmissionMessages,
+    } = useInput({validations:validations, initialState:props.car.transmission.id,rules:{required:true,}})
+
+    const {
+        value: fuel, 
+        isValid: fuelIsValid,
+        hasError:fuelHasError, 
+        valueChange: onFuelChange, 
+        messages:fuelMessages,
+    } = useInput({validations:validations, initialState:props.car.fuel.id,rules:{required:true,}})
+
+    const {
+        value: distance, 
+        isValid: distanceIsValid,
+        hasError:distanceHasError, 
+        valueChange: onDistanceChange, 
+        valueBlur: onDistanceBlur,
+        messages:distanceMessages,
+    } = useInput({validations:validations, initialState:props.car.distance??0,  rules:{nullable:true,isInteger:true,between:[0,100000000]}})
+
+    const {
+        value: madeAt, 
+        isValid: madeAtIsValid,
+        hasError:madeAtHasError, 
+        valueChange: onMadeAtChange, 
+        messages:madeAtMessages,
+    } = useInput({validations:validations, initialState:props.car.made_at, rules:{required:true,isInteger:true,min:1980, max:new Date().getFullYear()}})
+
+    const {
+        value: price, 
+        isValid: priceIsValid,
+        hasError:priceHasError, 
+        valueChange: onPriceChange, 
+        valueBlur: onPriceBlur,
+        messages:priceMessages,
+    } = useInput({validations:validations, initialState:props.car.price, rules:{required:true,isInteger:true,min:200}})
+
+    const {
+        value: description, 
+        isValid: descriptionIsValid,
+        hasError:descriptionHasError, 
+        valueChange: onDescriptionChange, 
+        valueBlur: onDescriptionBlur,
+        messages:descriptionMessages,
+    } = useInput({validations:validations, initialState:props.car.description, rules:{nullable:true}})
+
     const [barter, setBarter] = useState(props.car.barter)
     const [credit, setCredit] = useState(props.car.credit)
-    const [price, setPrice] = useState(props.car.price)
 
 
-    function onBrandChange(e){
+    const [equipment, setEquipment] = useState(props.car.equipment.map(el => el.id))
+
+    function onEquipmentItemToggle(e){
+        let item = parseInt(e.target.value)
+        setEquipment(prev=>{
+            if(prev.includes(item)){
+                return prev.filter(function(value, index){ 
+                    return value != item;
+                });
+            }else{
+                return prev.concat([item])
+            }
+        })
+    }
+    
+    function handleBrandChange(e){
+        onBrandChange(e)
         itemsCtx.getCarModels(e.target.value)
-        setBrand(e.target.value)
     }
 
-    function onCarModelChange(e){
-        setCarModel(e.target.value)
-    }
+    
+    let formIsValid = (brandIsValid && carModelIsValid && cityIsValid && colorIsValid && carBodyIsValid && engineIsValid &&  gearLeverIsValid && 
+        transmissionIsValid && fuelIsValid && distanceIsValid && madeAtIsValid && priceIsValid && descriptionIsValid)
 
-    function onCityChange(e){
-        setCity(e.target.value)
-    }
-
-    function onColorChange(e){
-        setColor(e.target.value)
-    }
-
-    function onCarBodyChange(e){
-        setCarBody(e.target.value)
-    }
-
-    function onEngineChange(e){
-        setEngine(e.target.value)
-        
-    }
-
-    function onGearLeverChange(e){
-        setGearLever(e.target.value)
-    }
-
-    function onTransmissionChange(e){
-        setTransmission(e.target.value)
-    }
-
-    function onFuelChange(e){
-        setFuel(e.target.value)
-    }
 
     function onEquipmentItemToggle(e){
         let item = parseInt(e.target.value)
@@ -80,25 +162,13 @@ export default function EditForm(props){
         })
     }
 
-    function onDescriptionChange(e){
-        setDescription(e.target.value)
-    }
-
-    function onDistanceChange(e){
-        setDistance(e.target.value)
-    }
-
-    function onPriceChange(e){
-        setPrice(e.target.value)
-    }
-
-    function onYearChange(e){
-        setMadeAt(e.target.value)
-    }
-
     function formSubmit(event){
-        
         event.preventDefault()
+        setLoading(true)
+
+        if(!formIsValid){
+            return
+        } 
 
         console.log(props.car, {brand,car_model:carModel,city,color, car_body:carBody,
             engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
@@ -125,13 +195,16 @@ export default function EditForm(props){
         <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="price">
             <h2 className="h4 text-light mb-4"><i className="fi-cash text-primary fs-5 mt-n1 me-2"></i>Price</h2>
             <label className="form-label text-light" htmlFor="price">Price <span className="text-danger">*</span></label>
-            <div className="d-sm-flex mb-2">
+            <div className="mb-2">
                 <select className="form-select form-select-light w-25 me-2 mb-2">
                     <option value="usd">&#36;</option>
                     <option value="eur">&#8364;</option>
                     <option value="azn">&#8380;</option>
                 </select>
-                <input value={price} onChange={onPriceChange} className="form-control form-control-light w-100 me-2 mb-2" type="number" id="price" min="200" step="50"/>
+                <input value={price} onChange={onPriceChange} onBlur={onPriceBlur} type="number" id="price" min="200" step="50"
+                    className={`form-control form-control-light w-100 me-2 mb-2 ${priceHasError?'is-invalid':'is-valid'}`}
+                />
+                {priceHasError ?  priceMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
             </div>
             <div className="form-check form-switch form-switch-light">
                 <input className="form-check-input" type="checkbox" value={barter} checked={barter} onChange={()=>setBarter(prev=>!prev)} id="barter"/>
@@ -149,75 +222,96 @@ export default function EditForm(props){
             <div className="row pb-2">
                 <div className="col-sm-6 mb-3">
                     <label className="form-label text-light" htmlFor="brand">Make <span className="text-danger">*</span></label>
-                    <select className="form-select form-select-light" id="brand" defaultValue={brand} onChange={onBrandChange}>
+                    <select className={`form-select form-select-light ${!brandIsValid?'is-invalid':'is-valid'}`} id="brand" defaultValue={brand} onChange={handleBrandChange}>
                         <option value="">Select make</option>
                         {props.brands.map((brand, index)=>(<option key={index} value={brand.id}>{brand.name}</option>))}
                     </select>
+                    {brandHasError ?  brandMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 </div>
                 <div className="col-sm-6 mb-3">
                     <label className="form-label text-light" htmlFor="car_model">Model <span className="text-danger">*</span></label>
-                    <select className="form-select form-select-light" id="car_model" defaultValue={carModel} onChange={onCarModelChange}>
+                    <select className={`form-select form-select-light ${!carModelIsValid?'is-invalid':'is-valid'}`} id="car_model" defaultValue={carModel} onChange={onCarModelChange}>
                         <option value="" disabled={props.carModels.length==0}>Select model</option>
                         {props.carModels.map((model, index)=>(<option key={index} value={model.id}>{model.name}</option>))}
                     </select>
+                    {carModelHasError ?  carModelMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 </div>
                 <div className="col-md-3 col-sm-6 mb-3">
                     <label className="form-label text-light" htmlFor="made_at">Year <span className="text-danger">*</span></label>
-                    <select onChange={onYearChange} defaultValue={madeAt} className="form-select form-select-light" id="made_at">
+                    <select onChange={onMadeAtChange} defaultValue={madeAt} className={`form-select form-select-light ${!madeAtIsValid?'is-invalid':'is-valid'}`} id="made_at">
                         <option value="">Select year</option>
                         {props.years.map((year, index)=>(<option key={index} value={year}>{year}</option>))}
                     </select>
+                    {madeAtHasError ?  madeAtMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 </div>
                 <div className="col-md-3 col-sm-6 mb-3">
                     <label className="form-label text-light" htmlFor="distance">Distance <span className="text-danger">*</span></label>
-                    <input onChange={onDistanceChange} className="form-control form-control-light" type="number" id="distance" min="0" value={distance}/>
+                    <input value={distance} onChange={onDistanceChange} onBlur={onDistanceBlur} type="number" id="distance" min="0" 
+                        className={`form-control form-control-light ${distanceHasError?'is-invalid':'is-valid'}`}
+                    />
+                    {distanceHasError ?  distanceMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 </div>
             </div>
             <div className="border-top border-light mt-2 pt-4">
                 <div className="row pb-2">
                 <div className="col-md-6">
                     <label className="form-label text-light" htmlFor="car_body">Body type <span className="text-danger">*</span></label>
-                    <select onChange={onCarBodyChange} defaultValue={carBody} className="form-select form-select-light mb-3" id="car_body">
+                    <select onChange={onCarBodyChange} defaultValue={carBody} className={`form-select form-select-light mb-3 ${!carBodyIsValid?'is-invalid':'is-valid'}`} id="car_body">
                         <option value="">Select body type</option>
                         {props.carBodies.map((body, index)=>(<option key={index} value={body.id}>{body.name}</option>))}
                     </select>
+                    {carBodyHasError ?  carBodyMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
 
                     <label className="form-label text-light" htmlFor="fuel">Fuel type <span className="text-danger">*</span></label>
-                    <select onChange={onFuelChange} defaultValue={fuel} className="form-select form-select-light mb-3" id="fuel">
+                    <select onChange={onFuelChange} defaultValue={fuel} className={`form-select form-select-light mb-3 ${!fuelIsValid?'is-invalid':'is-valid'}`} id="fuel">
                         <option value="">Select fuel type</option>
                         {props.fuels.map((fuel, index)=>(<option key={index} value={fuel.id}>{fuel.name}</option>))}
                     </select>
+                    {fuelHasError ?  fuelMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
 
                     <label className="form-label text-light" htmlFor="engine">Engine <span className="text-danger">*</span></label>
-                    <select onChange={onEngineChange} defaultValue={engine} className="form-select form-select-light mb-3" id="engine">
+                    <select onChange={onEngineChange} defaultValue={engine} className={`form-select form-select-light mb-3 ${!engineIsValid?'is-invalid':'is-valid'}`} id="engine">
                         <option value="">Select engine</option>
                         {props.engines.map((engine, index)=>(<option key={index} value={engine.id}>{engine.volume}</option>))}
                     </select>
+                    {engineHasError ?  engineMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
 
                     <label className="form-label text-light" htmlFor="transmission">Transmission <span className="text-danger">*</span></label>
-                    <select onChange={onTransmissionChange} defaultValue={transmission} className="form-select form-select-light mb-3" id="transmission">
+                    <select onChange={onTransmissionChange} defaultValue={transmission} className={`form-select form-select-light mb-3 ${!transmissionIsValid?'is-invalid':'is-valid'}`} id="transmission">
                         <option value="">Select transmission</option>
                         {props.transmissions.map((transmission, index)=>(<option key={index} value={transmission.id}>{transmission.name}</option>))}
                     </select>
+                    {transmissionHasError ?  transmissionMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
 
                     <label className="form-label text-light" htmlFor="gear_lever">Gear lever <span className="text-danger">*</span></label>
-                    <select onChange={onGearLeverChange} defaultValue={gearLever} className="form-select form-select-light mb-3" id="gear_lever">
+                    <select onChange={onGearLeverChange} defaultValue={gearLever} className={`form-select form-select-light mb-3 ${!gearLeverIsValid?'is-invalid':'is-valid'}`} id="gear_lever">
                         <option value="">Select gear lever</option>
                         {props.gearLevers.map((lever, index)=>(<option key={index} value={lever.id}>{lever.name}</option>))}
                     </select>
+                    {gearLeverHasError ?  gearLeverMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
 
                     <label className="form-label text-light" htmlFor="color">Color <span className="text-danger">*</span></label>
-                    <select onChange={onColorChange} defaultValue={color} className="form-select form-select-light mb-3" id="color">
+                    <select onChange={onColorChange} defaultValue={color} className={`form-select form-select-light mb-3 ${!colorIsValid?'is-invalid':'is-valid'}`} id="color">
                         <option value="">Select color</option>
                         {props.colors.map((color, index)=>(<option key={index} value={color.id}>{color.name}</option>))}
                     </select>
+                    {colorHasError ?  colorMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+
                 </div>
                 </div>
             </div>
             <div className="border-top border-light mt-2 pt-4">
                 <label className="form-label text-light" htmlFor="description">Description </label>
-                <textarea onChange={onDescriptionChange} defaultValue={description} className="form-control form-control-light" id="description" rows="5" placeholder="Describe your vehicle"></textarea>
-                <span className="form-text text-light opacity-50">{description.length>0?3000-description.length:3000} characters left</span>
+                <textarea onChange={onDescriptionChange} onBlur={onDescriptionBlur} defaultValue={description} 
+                    className={`form-control form-control-light ${descriptionHasError?'is-invalid':'is-valid'}`} 
+                    id="description" rows="5" placeholder="Describe your vehicle"></textarea>
+                {descriptionHasError ?  descriptionMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+                <span className="form-text text-light opacity-50">{description?.length>0?3000-description?.length:3000} characters left</span>
             </div>
         </section>
 
@@ -253,30 +347,17 @@ export default function EditForm(props){
             <div className="row">
                 <div className="col-sm-8 mb-3">
                 <label className="form-label text-light" htmlFor="city">City <span className="text-danger">*</span></label>
-                <select onChange={onCityChange} defaultValue={city} className="form-select form-select-light" id="city" required>
+                <select onChange={onCityChange} defaultValue={city} className={`form-select form-select-light ${!cityIsValid?'is-invalid':'is-valid'}`} id="city">
                     <option value="">Choose city</option>
                     {props.cities.map((city, index)=>(<option key={index} value={city.id}>{city.name}</option>))}
                 </select>
+                {cityHasError ?  cityMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 </div>
             </div>
         </section>
 
-        {/* <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="contacts">
-            <h2 className="h4 text-light mb-4"><i className="fi-phone text-primary fs-5 mt-n1 me-2"></i>Contacts</h2>
-            <div className="row">
-                <div className="col-sm-6 mb-3">
-                    <label className="form-label text-light" htmlFor="username">Username <span className="text-danger">*</span></label>
-                    <input className="form-control form-control-light" type="text" id="username" value={authCtx.user.username} placeholder="Enter your first name" required/>
-                </div>
-                <div className="col-sm-6 mb-3">
-                    <label className="form-label text-light" htmlFor="phone">Phone number <span className="text-danger">*</span></label>
-                    <input className="form-control form-control-light" type="tel" id="phone" data-format="custom" data-delimiter="-" data-blocks="3 3 4" value={authCtx.user.phone} placeholder="000-000-0000"/>
-                </div>
-            </div>
-        </section> */}
-
         <div className="d-sm-flex justify-content-between pt-2">
-            <button type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button>
+            <button disabled={loading||!formIsValid} type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button>
         </div>
     </form>
 }

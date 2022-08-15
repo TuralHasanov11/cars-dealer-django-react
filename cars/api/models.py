@@ -103,10 +103,6 @@ class Fuel(models.Model):
         return self.name
 
 
-# ---- CAR IMAGES ----
-# class CarImage(models.Model):
-    
-
 class Car(models.Model):
     CURRENCIES = [
         ('azn', 'AZN'),
@@ -148,6 +144,11 @@ class CarEquipment(models.Model):
     class Meta:
         unique_together = (('car', 'equipment'),)
 
+class CarImage(models.Model):
+    TYPES = ['front', 'back', 'panel', 'other']
+    url=models.URLField(unique=True, null=False, blank=False)
+    car=models.ForeignKey(Car,on_delete=models.CASCADE, related_name="car_images")
+    type = models.CharField(max_length=20, choices=TYPES, default='front')
 
 # @receiver(pre_delete, sender=Car)
 # def car_pre_delete_receiver(sender, instance, **kwargs):

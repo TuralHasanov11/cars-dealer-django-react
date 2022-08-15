@@ -7,6 +7,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+#root{
+ height: 100% !important;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -80,4 +84,9 @@ code {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
+}
+
+
+button:disabled{
+  cursor:not-allowed !important;
 }

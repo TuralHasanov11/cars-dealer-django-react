@@ -37,10 +37,10 @@ function Header(){
                                     <div className="fs-xs py-2">{authCtx.user?.profile_user?.phone}<br/>{authCtx.user.email}</div>
                                 </div>
                             </div>
-                            <NavLink className="dropdown-item" to="/user/profile"><i className="fi-user me-2"></i>Personal Info</NavLink>
-                            <NavLink className="dropdown-item" to="/user/password-security"><i className="fi-lock me-2"></i>Password &amp; Security</NavLink>
-                            <NavLink className="dropdown-item" to={`/user/${authCtx.id}/cars`}><i className="fi-car me-2"></i>My Cars</NavLink>
-                            <NavLink className="dropdown-item" to="/user/wishlist"><i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">4</span></NavLink>
+                            <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/profile"><i className="fi-user me-2"></i>Personal Info</NavLink>
+                            <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/password-security"><i className="fi-lock me-2"></i>Password &amp; Security</NavLink>
+                            <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${authCtx.id}/cars`}><i className="fi-car me-2"></i>My Cars</NavLink>
+                            <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/wishlist"><i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">4</span></NavLink>
                             <div className="dropdown-divider"></div>
                             <div className="dropdown-item" onClick={logout}><button disabled={loading} className='btn btn-primary btn-sm ms-2'><i className="fi-logout me-2"></i> Sign Out</button></div>
                         </div>
@@ -51,8 +51,8 @@ function Header(){
 
                 <div className="collapse navbar-collapse order-lg-2" id="navbarNav">
                     <ul className="navbar-nav navbar-nav-scroll" style={{'maxHeight':'35rem'}}>
-                        <li className="nav-item"><NavLink className="nav-link" to='/'>Home</NavLink></li>
-                        <li className="nav-item"><NavLink className="nav-link" to='/cars'>Cars</NavLink></li>
+                        <li className="nav-item"><NavLink className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link inactive')} to='/'>Home</NavLink></li>
+                        <li className="nav-item"><NavLink className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link inactive')} to='/cars'>Cars</NavLink></li>
                         {authCtx.isAuth?<>
                             <li className="nav-item dropdown d-lg-none mx-2">
                                 <a className="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -62,10 +62,10 @@ function Header(){
                                     <div className="ps-3">
                                         <div className="fs-xs py-2">{authCtx.user?.profile_user?.phone}<br/>{authCtx.user.email}</div>
                                     </div>
-                                    <NavLink className="dropdown-item" to="/user/profile"><i className="fi-user me-2"></i>Personal Info</NavLink>
-                                    <NavLink className="dropdown-item" to="/user/password-security"><i className="fi-lock me-2"></i>Password &amp; Security</NavLink>
-                                    <NavLink className="dropdown-item" to={`/user/${authCtx.id}/cars`}><i className="fi-car me-2"></i>My Cars</NavLink>
-                                    <NavLink className="dropdown-item" to="/user/wishlist"><i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">4</span></NavLink>
+                                    <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/profile"><i className="fi-user me-2"></i>Personal Info</NavLink>
+                                    <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/password-security"><i className="fi-lock me-2"></i>Password &amp; Security</NavLink>
+                                    <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${authCtx.id}/cars`}><i className="fi-car me-2"></i>My Cars</NavLink>
+                                    <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/wishlist"><i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">4</span></NavLink>
                                     <div className="dropdown-divider"></div>
                                     <div className="dropdown-item" onClick={logout}><button disabled={loading} className='btn btn-primary btn-sm ms-2'><i className="fi-logout me-2"></i> Sign Out</button></div>
                                 </div>

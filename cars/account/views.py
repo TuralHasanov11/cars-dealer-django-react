@@ -13,7 +13,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import Account
-from .serializers import AccountSecondarySerializer, AccountSerializer, RegistrationSerializer
+from .serializers import AccountSecondarySerializer, AccountSerializer, PasswordChangeSerializer, RegistrationSerializer
 
 
 @api_view(['POST'])
@@ -22,9 +22,9 @@ def register(request):
 
     serializer = RegistrationSerializer(data=request.data)
     
-    if serializer.is_valid(raise_exception=True):
-        user = serializer.save()
-        return Response(status=status.HTTP_201_CREATED)
+    serializer.is_valid(raise_exception=True)
+    user = serializer.save()
+    return Response(status=status.HTTP_201_CREATED)
         
 
 @api_view(['POST'])
@@ -79,6 +79,18 @@ def accountDetail(request, id):
         serializer = AccountSecondarySerializer(account)
     
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def passwordChange(request):
+
+    serializer = PasswordChangeSerializer(request.user, data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    
+    return Response({'message':'Password is changed'})
+
     
 
 

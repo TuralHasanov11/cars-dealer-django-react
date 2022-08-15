@@ -33,6 +33,35 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
         return user
 
+class PasswordChangeSerializer(serializers.ModelSerializer):
+    new_password1 = serializers.CharField(style={'input_type':'password'}, write_only=True)
+    new_password2 = serializers.CharField(style={'input_type':'password'}, write_only=True)
+    old_password = serializers.CharField(style={'input_type':'password'}, write_only=True)
+
+    class Meta:
+        model=Account
+        fields = ['old_password', 'new_password1', 'new_password2']
+
+    def validate(self, data):
+        old_password = data['old_password']
+        new_password1 = data['new_password1']
+        new_password2 = data['new_password2']
+
+        if not self.instance.check_password(old_password):
+            raise serializers.ValidationError("Old password is incorrect!")
+
+        if not new_password1 == new_password2:    
+            raise serializers.ValidationError("New Password and Password confirmation do not match!")
+
+        return data
+
+    def save(self, **kwargs):
+        try:
+            self.instance.set_password(self.validated_data['new_password1'])
+            return self.instance.save()
+        except:
+            raise serializers.ValidationError("Failed to change password!")
+
 class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
