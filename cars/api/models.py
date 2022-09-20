@@ -128,7 +128,7 @@ class Car(models.Model):
     gear_lever = models.ForeignKey(GearLever, on_delete=models.PROTECT, related_name='gear_lever')
     transmission = models.ForeignKey(Transmission, on_delete=models.PROTECT, related_name='transmission')
     fuel = models.ForeignKey(Fuel, on_delete=models.PROTECT, related_name='fuel')
-    equipment = models.ManyToManyField(Equipment,related_name="equipment",through="CarEquipment",)
+    equipment = models.ManyToManyField(Equipment,related_name="car_equipment")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -136,20 +136,9 @@ class Car(models.Model):
     def is_new(self):
         return self.distance == 0
 
-
-class CarEquipment(models.Model):
-    car = models.ForeignKey(Car, related_name="car", on_delete=models.CASCADE,)
-    equipment = models.ForeignKey(Equipment, related_name="carequipment", on_delete=models.PROTECT,)
-
-    class Meta:
-        unique_together = (('car', 'equipment'),)
-
 class CarImage(models.Model):
     TYPES = ['front', 'back', 'panel', 'other']
-    url=models.URLField(unique=True, null=False, blank=False)
+    image=models.ImageField(upload_to="media/cars")
     car=models.ForeignKey(Car,on_delete=models.CASCADE, related_name="car_images")
     type = models.CharField(max_length=20, choices=TYPES, default='front')
 
-# @receiver(pre_delete, sender=Car)
-# def car_pre_delete_receiver(sender, instance, **kwargs):
-#     instance.equipment.clear()
