@@ -1,8 +1,5 @@
-import {useState, createContext, useMemo} from 'react'
-import Cookies from "universal-cookie"
+import {useState, createContext} from 'react'
 import axiosInstance from '../axios'
-
-const cookies = new Cookies()
 
 const AuthContext = createContext({
     user:{},

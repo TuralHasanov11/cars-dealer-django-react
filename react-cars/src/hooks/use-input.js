@@ -28,7 +28,7 @@ export const useInput = ({validations, rules, initialState})=>{
 
     const validateValue = (value, rules) => {
 
-        if(value == undefined){
+        if(value === undefined){
             return false
         }
         
