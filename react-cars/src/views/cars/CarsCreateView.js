@@ -68,7 +68,6 @@ function CarsCreateView(){
                     <div className="mb-4">
                         {/* <Message message={message} setMessage={setMessage}/> */}
                     </div>
-
                     <CarCreateForm 
                         brands={itemsCtx.brands}
                         carModels={itemsCtx.carModels}
