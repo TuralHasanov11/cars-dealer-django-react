@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useState } from "react"
 import CarsContext from "../../store/cars-context"
 
-function Sorting({onOrderChange}){
+function Sorting(){
 
     const {filterData, setFilterData} = useContext(CarsContext)
 
@@ -10,7 +10,6 @@ function Sorting({onOrderChange}){
     function onOrderChangeHandler(e){
         setOrdering(e.target.value)
         setFilterData({...filterData, ordering:e.target.value})
-        onOrderChange()
     }
 
     return (

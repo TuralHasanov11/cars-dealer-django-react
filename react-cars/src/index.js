@@ -10,12 +10,10 @@ import reportWebVitals from './reportWebVitals';
 import { AuthContextProvider } from './store/auth-context';
 import { ItemsContextProvider } from './store/items-context';
 import { CarsContextProvider } from './store/cars-context';
-import {MainContextProvider} from './store/main-context'
 import { UserContextProvider } from './store/user-context';
 import {MessagesContextProvider} from './store/messages-context'
 
 ReactDOM.render(
-  <MainContextProvider>
     <AuthContextProvider>
     <ItemsContextProvider>
       <CarsContextProvider>
@@ -32,8 +30,7 @@ ReactDOM.render(
         </UserContextProvider>      
       </CarsContextProvider>
     </ItemsContextProvider>
-  </AuthContextProvider>
-  </MainContextProvider>,
+  </AuthContextProvider>,
   document.getElementById('root')
 );
 

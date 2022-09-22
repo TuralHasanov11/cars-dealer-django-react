@@ -35,13 +35,6 @@ class AccountManager(BaseUserManager):
         return user
 
 
-class Profile(models.Model):
-    phone= models.CharField(max_length=50, null=False, blank=False, unique=False)
-    
-    def __str__(self):
-        return self.phone    
-
-
 class Account(AbstractBaseUser):
     email = models.EmailField(verbose_name='email', null=False, blank=False, unique=True)
     username= models.CharField(max_length=50, null=False, blank=False)
@@ -49,7 +42,6 @@ class Account(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    profile = models.OneToOneField(Profile, null=True, on_delete=models.CASCADE,  related_name='account_profile')
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
@@ -69,3 +61,9 @@ class Account(AbstractBaseUser):
         return True
 
 
+class Profile(models.Model):
+    phone= models.CharField(max_length=50, null=False, blank=False, unique=False)
+    user = models.OneToOneField(Account, null=True, on_delete=models.CASCADE,  related_name='account_profile')
+    
+    def __str__(self):
+        return self.phone    

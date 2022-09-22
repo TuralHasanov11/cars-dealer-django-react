@@ -1,20 +1,19 @@
 import { useContext, useState } from 'react'
 import {NavLink, useNavigate} from 'react-router-dom'
 import AuthContext from '../../store/auth-context'
-
+import useLogout from "../../hooks/useLogout"
 
 function Header(){
 
     const authCtx = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
+    const logout = useLogout()
 
-    async function logout(){
+    async function signOut(){
         setLoading(true)
-        await authCtx.logout().then(()=>{
-            setLoading(false)
-            document.location.replace('/')
-        })
+        await logout();
+        navigate('/');
     }
 
     return (
@@ -42,7 +41,7 @@ function Header(){
                             <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${authCtx.id}/cars`}><i className="fi-car me-2"></i>My Cars</NavLink>
                             <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/wishlist"><i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">4</span></NavLink>
                             <div className="dropdown-divider"></div>
-                            <div className="dropdown-item" onClick={logout}><button disabled={loading} className='btn btn-primary btn-sm ms-2'><i className="fi-logout me-2"></i> Sign Out</button></div>
+                            <div className="dropdown-item" onClick={signOut}><button disabled={loading} className='btn btn-primary btn-sm ms-2'><i className="fi-logout me-2"></i> Sign Out</button></div>
                         </div>
                     </div>
                 </>:<>
@@ -67,7 +66,7 @@ function Header(){
                                     <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${authCtx.id}/cars`}><i className="fi-car me-2"></i>My Cars</NavLink>
                                     <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/wishlist"><i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">4</span></NavLink>
                                     <div className="dropdown-divider"></div>
-                                    <div className="dropdown-item" onClick={logout}><button disabled={loading} className='btn btn-primary btn-sm ms-2'><i className="fi-logout me-2"></i> Sign Out</button></div>
+                                    <div className="dropdown-item" onClick={signOut}><button disabled={loading} className='btn btn-primary btn-sm ms-2'><i className="fi-logout me-2"></i> Sign Out</button></div>
                                 </div>
                             </li>
                         </>:<>                        

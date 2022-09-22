@@ -28,7 +28,7 @@ class CarSearchFilterBackend(filters.BaseFilterBackend):
                 queryset=queryset.filter(distance__gte=q['min_distance'])
             if q.get('max_distance'):
                 queryset=queryset.filter(distance__lte=q['max_distance'])
-            if q.get('is_new'):
+            if q.get('is_new') == 'true':
                 queryset=queryset.filter(distance=0)
             if q.get('min_price'):
                 queryset=queryset.filter(price__gte=q['min_price'])

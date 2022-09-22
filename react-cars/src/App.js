@@ -13,38 +13,29 @@ import Profile from './views/auth/Profile'
 import Password from './views/auth/Password'
 import UserCars from './views/auth/UserCarsView'
 import Wishlist from './views/auth/Wishlist'
-import { useContext, useEffect } from 'react';
-import MainContext from './store/main-context';
-import AuthContext from './store/auth-context';
 import AuthMiddleware from './middleware/AuthMiddleware'
 
 function App() {
-
-  const authCtx = useContext(AuthContext)
-  const mainCtx = useContext(MainContext)
-  
-  useEffect(async ()=>{
-    await authCtx.getUser().then(()=>{
-      mainCtx.fetchLoadingToggle(false)
-    }).catch(()=>{
-      mainCtx.fetchLoadingToggle(false)
-    })
-  },[])
-
 
   return <>
   <Default>
     <Routes>
         <Route path='/' exact element={ <HomeView />}></Route>
-        <Route path='/cars' exact element={ <CarsView />}></Route>
-        <Route path='/cars/create' exact element={ <AuthMiddleware><CarCreateView /></AuthMiddleware>}></Route>
-        <Route path='/cars/:id' exact element={ <CarView />}></Route>
-        <Route path='/cars/:id/edit' exact element={ <AuthMiddleware><CarEditView /></AuthMiddleware> }></Route>
+        <Route path="/cars">
+          <Route path='' exact element={ <CarsView />}></Route>
+          <Route path=':id' exact element={ <CarView />}></Route>
+          <Route element={<AuthMiddleware />}>
+            <Route path='create' exact element={ <CarCreateView /> }></Route>
+            <Route path=':id/edit' exact element={ <CarEditView /> }></Route>
+          </Route>
+        </Route>
         <Route path="/user" element={<User />}>
-          <Route index element={<AuthMiddleware><Profile /></AuthMiddleware>} />
-          <Route path="profile" element={<AuthMiddleware><Profile /></AuthMiddleware> } />
-          <Route path="password-security" element={<AuthMiddleware><Password /></AuthMiddleware> } />
-          <Route path="wishlist" element={<AuthMiddleware><Wishlist /></AuthMiddleware>} />
+          <Route element={<AuthMiddleware />}>
+            <Route index element={<Profile />} />
+            <Route path="profile" element={<Profile /> } />
+            <Route path="password-security" element={<Password /> } />
+            <Route path="wishlist" element={<Wishlist />} />
+          </Route>
           <Route path=":userId/cars" exact element={<UserCars />} />
         </Route>
         <Route path='*' element={<Navigate to='/' />}></Route>

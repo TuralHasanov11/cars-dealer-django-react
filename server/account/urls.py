@@ -7,6 +7,7 @@ app_name='account'
 urlpatterns = [
     path('register', views.register, name='register'), 
     path('logout/blacklist', views.blackListToken, name='blacklist'), 
+    path('login', views.LoginView.as_view(), name="login"),
     path('token', views.AccountTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('change-password', views.passwordChange, name='password_change'), 

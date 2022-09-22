@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import axiosInstance from "../axios";
+import axios from "../axios";
 
 const CarsContext = createContext({
     cars:{},
@@ -32,8 +32,8 @@ export function CarsContextProvider(props){
         maxDistance:'',
         minMadeAt:'',
         maxMadeAt:'',
-        barter:'',
-        credit:'',
+        barter:false,
+        credit:false,
         minPrice:'',
         maxPrice:'',
         colors:[],
@@ -50,24 +50,24 @@ export function CarsContextProvider(props){
 
 
     async function getCars(query={}){
-        const {data} = await axiosInstance.get(`cars`,{params:query})
+        const {data} = await axios.get(`auto/cars`,{params:query})
         setCars(data)
     }
 
     async function getLatestCars(query={}){
-        const {data} = await axiosInstance.get(`cars`,{params:{page_size:10}})
+        const {data} = await axios.get(`auto/cars`,{params:{page_size:10}})
         setLatestCars(data)
     }
 
     async function getCar(car){
-        const {data} = await axiosInstance.get(`cars/${car}`)
+        const {data} = await axios.get(`auto/cars/${car}`)
         setCar(data)
         return data
     }
 
     async function createCar(formData){
         try {
-            const res = await axiosInstance.post(`cars`, formData)
+            const res = await axios.post(`auto/cars`, formData)
             
             if(res.ok){
                 return res
@@ -79,7 +79,7 @@ export function CarsContextProvider(props){
 
     async function updateCar(car, formData){
         try {
-            const res = await axiosInstance.put(`cars/${car.id}`,formData)
+            const res = await axios.put(`auto/cars/${car.id}`,formData)
             
             if(res.ok){
                 return res
@@ -91,7 +91,7 @@ export function CarsContextProvider(props){
 
     async function deleteCar(car){
         try {
-            const res = await axiosInstance.delete(`cars/${car.id}`)
+            const res = await axios.delete(`auto/cars/${car.id}`)
 
             if(res.ok){
                 setCar({})

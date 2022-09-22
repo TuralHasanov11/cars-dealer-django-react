@@ -1,8 +1,7 @@
-import { useContext, useEffect } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import CarsContext from '../../store/cars-context'
 import EditForm from '../../components/cars/EditForm'
-import MainContext from "../../store/main-context"
 import ItemsContext from "../../store/items-context"
 import Loading from "../../components/inc/Loading"
 
@@ -10,11 +9,11 @@ function CarsEditView(){
 
     const {id} = useParams()
     const carsCtx = useContext(CarsContext)
-    const mainCtx = useContext(MainContext)
     const itemsCtx = useContext(ItemsContext)
+    const [loading, setLoading] = useState(false)
 
     useEffect(async()=>{
-        mainCtx.fetchLoadingToggle()
+        setLoading(true)
         await Promise.all([
             carsCtx.getCar(id),
         ]).then(async(res)=>{
@@ -30,13 +29,11 @@ function CarsEditView(){
                 itemsCtx.getFuels(),
                 itemsCtx.getCarModels(res[0]?.car_model?.brand?.id),
             ]).then(()=>{
-                mainCtx.fetchLoadingToggle(false)
+                setLoading(false)
             })
         })
 
-        return function cleanup() {
-            mainCtx.fetchLoadingToggle()
-        }
+        return function cleanup() {}
     },[id])
 
 
@@ -44,7 +41,7 @@ function CarsEditView(){
 
     }
 
-    if(mainCtx.fetchLoading){
+    if(loading){
         return <Loading/>
     }
 

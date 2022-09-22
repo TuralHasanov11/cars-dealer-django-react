@@ -1,13 +1,6 @@
 from rest_framework import serializers
-from cars import models 
-
-class CarUserSerializer(serializers.ModelSerializer):
-    profile_user = ProfileSerializer(many=False)
-
-    class Meta:
-        model=Account
-        fields = ['id', 'username', 'profile_user']
-
+from cars import models
+from account import serializers as accountSerializers  
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,7 +21,10 @@ class EquipmentSerializer(serializers.ModelSerializer):
         model = models.Equipment
         fields = ['id','name']
 
-
+class CarImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CarImage
+        fields = ['id','image', 'type', 'is_front', 'is_back', 'is_panel']
 
 class CarBodySerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,6 +69,7 @@ class CarListSerializer(serializers.ModelSerializer):
     engine = serializers.StringRelatedField(many=False)
     gear_lever = serializers.StringRelatedField(many=False)
     fuel = serializers.StringRelatedField(many=False)
+    car_images = CarImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Car
@@ -86,16 +83,16 @@ class CarListSerializer(serializers.ModelSerializer):
 class CarDetailSerializer(serializers.ModelSerializer):
 
     car_model = CarModelSerializer(many=False, read_only=True)
-    user = CarUserSerializer(many=False, read_only=True)
-    city = CitySerializer(many=False)
-    engine = EngineSerializer(many=False)
-    car_body = CarBodySerializer(many=False)
-    color = ColorSerializer(many=False)
-    fuel = FuelSerializer(many=False)
-    gear_lever = GearLeverSerializer(many=False)
-    transmission = TransmissionSerializer(many=False)
+    user = accountSerializers.AccountSecondarySerializer(many=False, read_only=True)
+    city = serializers.StringRelatedField(many=False)
+    engine = serializers.StringRelatedField(many=False)
+    gear_lever = serializers.StringRelatedField(many=False)
+    fuel = serializers.StringRelatedField(many=False)
+    gear_lever = serializers.StringRelatedField(many=False)
+    transmission = serializers.StringRelatedField(many=False)
     is_new = serializers.SerializerMethodField()
     equipment = EquipmentSerializer(many=True, read_only=True)
+    car_images = CarImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Car

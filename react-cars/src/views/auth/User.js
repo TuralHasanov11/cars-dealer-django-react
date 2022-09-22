@@ -1,19 +1,17 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import {Routes, Navigate, Route, Outlet, Link, useParams, useSearchParams, useLocation} from 'react-router-dom'
 import Loading from '../../components/inc/Loading'
 import AuthContext from '../../store/auth-context'
-import MainContext from '../../store/main-context'
 import UserContext from '../../store/user-context'
 
 
 function User(){
 
     const authCtx = useContext(AuthContext)
-    const mainCtx = useContext(MainContext)
     const userCtx = useContext(UserContext)
     const {userId} = useParams()
     const [searchParams] = useSearchParams()
-
+    const [loading, setLoading] = useState(false)
 
     function logout(e){
       e.preventDefault()
@@ -21,13 +19,13 @@ function User(){
 
     useEffect(async()=>{
       if(userId!=undefined){
-        mainCtx.fetchLoadingToggle()
+        setLoading(true)
         userCtx.getUserAndCars(userId, Object.fromEntries([...searchParams]))
-        mainCtx.fetchLoadingToggle(false)
+        setLoading(false)
       }
     },[userId, searchParams])
 
-    return mainCtx.fetchLoading?<Loading/>:<div className="container pt-5 pb-lg-4 mt-5 mb-sm-2">
+    return loading?<Loading/>:<div className="container pt-5 pb-lg-4 mt-5 mb-sm-2">
     <nav className="mb-4 pt-md-3" aria-label="Breadcrumb">
       <ol className="breadcrumb breadcrumb-light">
         <li className="breadcrumb-item"><Link to="/">Home</Link></li>

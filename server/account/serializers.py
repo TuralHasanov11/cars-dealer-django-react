@@ -71,16 +71,16 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class AccountSerializer(serializers.ModelSerializer):
 
-    profile_user = ProfileSerializer(many=False)
+    account_profile = ProfileSerializer(many=False)
 
     class Meta:
         model=settings.AUTH_USER_MODEL
-        fields = ['id', 'username', 'email', 'profile_user']
+        fields = ['id', 'username', 'email', 'account_profile']
 
 class AccountSecondarySerializer(serializers.ModelSerializer):
 
-    profile_user = ProfileSerializer(many=False)
+    account_profile = ProfileSerializer(many=False)
 
     class Meta:
         model=settings.AUTH_USER_MODEL
-        fields = ['id', 'username', 'profile_user']
+        fields = ['id', 'username', 'account_profile']

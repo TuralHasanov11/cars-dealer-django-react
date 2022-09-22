@@ -6,8 +6,6 @@ import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { useInput } from "../../hooks/use-input";
 import { validations } from "../../hooks/use-validation";
-import { fileStorage } from "../../firebase/config";
-import { ref, uploadBytes, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 
 export default function CreateForm(props){
@@ -190,35 +188,6 @@ export default function CreateForm(props){
         resetDescription()
     }
 
-    function uploadCarImages(){
-        let carImagesContainer = [
-            {type:'front', image:carImageFront.files[0]},
-            {type:'back', image:carImageBack.files[0]},
-            {type:'panel', image:carImagePanel.files[0]},
-            {type:'other', image:carImageOther.files[0]}
-        ];
-
-        const storageRef, uploadTask
-        for (const item of carImagesContainer) {
-            storageRef = ref(fileStorage, `carFinder/cars/${item.image.name+(Math.random() + 1).toString(36).substring(7)}`);
-            uploadTask = uploadBytesResumable(storageRef, item.image);
-    
-            uploadTask.on('state_changed', 
-            (snapshot) => {
-              console.log(snapshot);
-            }, 
-            (error) => {
-                console.log(error);
-                setLoading(false);
-            }, 
-            async () => {
-                    await getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-                        carImages.push({type:item.type, url:downloadURL})
-                    });
-                }
-            );
-        }  
-    }
 
     function formSubmit(event){
     
@@ -229,18 +198,16 @@ export default function CreateForm(props){
             return
         } 
 
-        if(uploadCarImages()){
-            carCtx.createCar({brand,car_model:carModel,city,color, car_body:carBody,
-                engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
-                barter, credit, distance, description, madeAt, carImages
-            }).then(res=>{
-                resetForm()
-                setLoading(false)
-                // props.createCar(res)
-            }).catch(e=>{
-                console.log(e)
-            })
-        }
+        carCtx.createCar({brand,car_model:carModel,city,color, car_body:carBody,
+            engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
+            barter, credit, distance, description, madeAt, carImages
+        }).then(res=>{
+            resetForm()
+            setLoading(false)
+            // props.createCar(res)
+        }).catch(e=>{
+            console.log(e)
+        })
 
 
         console.log({brand,car_model:carModel,city,color, car_body:carBody,

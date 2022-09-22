@@ -1,13 +1,14 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, permissions as rest_permissions
+from rest_framework import generics
 from cars import models, serializers, pagination, backends, permissions
 
      
 class CarListCreateView(generics.ListCreateAPIView):
-    permission_classes = [rest_permissions.ReadOnly|permissions.CarWritePermission]
+    permission_classes = [permissions.CarReadOnlyPermission|permissions.CarWritePermission]
     pagination_class = pagination.CarPagination
     ordering_fields = ['created_at', 'price', 'distance', 'made_at']
     filter_backends = [backends.CarSearchFilterBackend]
+    ordering = ['-created_at']
 
     def get_queryset(self):
         return models.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine').prefetch_related('car_images')
@@ -24,30 +25,14 @@ class CarListCreateView(generics.ListCreateAPIView):
         if self.request.POST:
             return serializers.CarCreateUpdateSerializer
         return serializers.CarListSerializer
-
-
-class UserCarListView(generics.ListAPIView):
-
-    permission_classes = [rest_permissions.ReadOnly]
-    pagination_class = pagination.CarPagination
-    ordering_fields = ['created_at', 'price', 'distance', 'made_at']
-    serializer_class = serializers.CarListSerializer
-
-    def get_queryset(self):
-        queryset = models.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine').prefetch_related('car_images')
-        if(self.request.user.id == self.kwargs['id']):
-            q = self.request.query_params or None
-            if q and q.get('is_pending'):
-                return queryset.filter(is_active=False)
-        return queryset
         
 
 class CarGetUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [rest_permissions.ReadOnly|permissions.CarWritePermission]
+    permission_classes = [permissions.CarReadOnlyPermission|permissions.CarWritePermission]
 
     def get_queryset(self):
         if self.request.method == "GET":
-            return models.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine', 'car_body', 'color', 'fuel', 'transmission', 'user', 'car_images')
+            return models.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine', 'car_body', 'color', 'fuel', 'transmission', 'user__account_profile').prefetch_related('car_images')
         return models.Car.cars
 
     def get_object(self):
@@ -61,7 +46,7 @@ class CarGetUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     def get_serializer_class(self):
         if self.request.POST:
             return serializers.CarCreateUpdateSerializer
-        return serializers.CarListSerializer
+        return serializers.CarDetailSerializer
 
 
 class BrandListView(generics.ListAPIView):

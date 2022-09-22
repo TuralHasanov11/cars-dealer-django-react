@@ -133,7 +133,7 @@ class Fuel(models.Model):
 
 class CarManager(models.Manager):
     def get_queryset(self):
-        return super(CarManager, self).get_queryset().filter(is_active=True).order_by('-created_at')
+        return super(CarManager, self).get_queryset().filter(is_active=True)
 
 class Car(models.Model):
     class Currencies(models.TextChoices):
@@ -159,7 +159,7 @@ class Car(models.Model):
     gear_lever = models.ForeignKey(GearLever, on_delete=models.PROTECT, related_name='gear_lever')
     transmission = models.ForeignKey(Transmission, on_delete=models.PROTECT, related_name='transmission')
     fuel = models.ForeignKey(Fuel, on_delete=models.PROTECT, related_name='fuel')
-    equipment = models.ManyToManyField(Equipment,related_name="car_equipment")
+    equipment = models.ManyToManyField(Equipment, related_name="car_equipment")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -175,9 +175,9 @@ class CarImage(models.Model):
         BACK = 'back', _('Back View')
         PANEL = 'panel', _('Front Panel View')
         OTHER = 'other', _('Others')
-    image=models.ImageField(upload_to="media/cars")
-    car=models.ForeignKey(Car,on_delete=models.CASCADE, related_name="car_images")
-    type = models.CharField(max_length=20, choices=ImageTypes.choices, default=ImageTypes.FRONT)
+    image= models.ImageField(upload_to="cars")
+    car= models.ForeignKey(Car,on_delete=models.CASCADE, related_name="car_images")
+    type= models.CharField(max_length=20, choices=ImageTypes.choices, default=ImageTypes.FRONT)
 
     @property
     def is_front(self):

@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import axiosInstance from "../axios";
+import axios from "../axios";
 
 const ItemsContext = createContext({
     brands:[],
@@ -40,81 +40,128 @@ export function ItemsContextProvider(props){
     const [transmissions, setTransmissions] = useState([])
     const [fuels, setFuels] = useState([])
     const [years, setYears] = useState([2013,2021,2022])
-    const [selectedBrand, setSelectedBrand] = useState([])
-
 
     async function getItems(){
-        await axiosInstance.all(['brands', 'cities', 'colors', 'car-bodies', 'engines', 
-                'equipment', 'gear-levers', 'transmissions', 'fuels'
+        try {
+            await Promise.all([
+                getBrands(), 
+                getCities(), 
+                getColors(), 
+                getCarBodies(),
+                getEngines(),
+                getEquipment(),
+                getGearLevers(),
+                getTransmissions(),
+                getFuels()
             ])
-            .then(axiosInstance.spread((...responses)=>{
-                setBrands(responses[0])
-                setCities(responses[1])
-                setColors(responses[2])
-                setCarBodies(responses[3])
-                setEngines(responses[4])
-                setEquipment(responses[5])
-                setGearLevers(responses[6])
-                setTransmissions(responses[7])
-                setFuels(responses[8])
-            }))
-            .catch((e)=>{
-                console.log(e)
-            })
+        } catch (error) {
+            console.log(error.response)
+            throw error
+        }
     }
 
     async function getBrands(){
-        const {data} = await axiosInstance.get(`brands`)
-        setBrands(data)
+        try {
+            const {data} = await axios.get(`auto/brands`)
+            setBrands(data)
+        } catch (error) {
+            console.log(error.response)
+            throw error
+        }
     }
 
     async function getCarModels(brandId){
-        if(brandId!=''){
-            const {data} = await axiosInstance.get(`brands/${brandId}/models`)
-            setCarModels(data)
-        }else{
-            setCarModels([])
+        try {
+            if(brandId!=''){
+                const {data} = await axios.get(`auto/brands/${brandId}/models`)
+                setCarModels(data)
+            }else{
+                setCarModels([])
+            }
+        } catch (error) {
+            console.log(error.response)
+            throw error
         }
     }
 
     async function getCities(){
-        const {data} = await axiosInstance.get(`cities`)
-        setCities(data)
+        try {
+            const {data} = await axios.get(`auto/cities`)
+            setCities(data)
+        } catch (error) {
+            console.log(error.response)
+            throw error
+        }
     }
 
     async function getColors(){
-        const {data} = await axiosInstance.get(`colors`)
-        setColors(data)
+       try {
+            const {data} = await axios.get(`auto/colors`)
+            setColors(data)
+       } catch (error) {
+            console.log(error.response)
+            throw error
+       }
     }
 
     async function getCarBodies(){
-        const {data} = await axiosInstance.get(`car-bodies`)
-        setCarBodies(data)
+        try {
+            const {data} = await axios.get(`auto/car-bodies`)
+            setCarBodies(data)
+        } catch (error) {
+            console.log(error.response)
+            throw error
+        }
     }
 
     async function getEngines(){
-        const {data} = await axiosInstance.get(`engines`)
-        setEngines(data)
+        try {
+            const {data} = await axios.get(`auto/engines`)
+            setEngines(data)
+        } catch (error) {
+            console.log(error.response)
+            throw error
+        }
     }
 
     async function getEquipment(){
-        const {data} = await axiosInstance.get(`equipment`)
-        setEquipment(data)
+        try {
+            const {data} = await axios.get(`auto/equipment`)
+            setEquipment(data)
+        } catch (error) {
+            console.log(error.response)
+            throw error
+        }
     }
 
     async function getGearLevers(){
-        const {data} = await axiosInstance.get(`gear-levers`)
-        setGearLevers(data)
+        try {
+            const {data} = await axios.get(`auto/gear-levers`)
+            setGearLevers(data)
+        } catch (error) {
+            console.log(error.response)
+            throw error
+        }
     }
 
     async function getTransmissions(){
-        const {data} = await axiosInstance.get(`transmissions`)
-        setTransmissions(data)
+        try {
+            const {data} = await axios.get(`auto/transmissions`)
+            setTransmissions(data)
+        } catch (error) {
+            console.log(error.response)
+            throw error
+        }
     }
 
     async function getFuels(){
-        const {data} = await axiosInstance.get(`fuels`)
-        setFuels(data)
+        try {
+            const {data} = await axios.get(`auto/fuels`)
+            setFuels(data)
+        } catch (error) {
+            console.log(error.response)
+            throw error
+        }
     }
     
 

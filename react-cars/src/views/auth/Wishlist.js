@@ -1,7 +1,6 @@
 import { useContext } from "react";
-import { Link } from "react-router-dom";
 import AuthContext from "../../store/auth-context";
-import CarCard from '../../components/ui/cards/CarCard'
+import CarHorizontalCard from "../../components/ui/cards/CarHorizontal";
 
 function Wishlist(){
 
@@ -13,7 +12,7 @@ function Wishlist(){
         <div role={'button'} className="nav-link-light fw-bold" onClick={authCtx.clearWishlist}><i className="fi-x fs-xs mt-n1 me-2"></i>Clear all</div>
       </div>
       {authCtx.wishlist.map((car, index)=>(
-        <CarCard key={index} car={car}/>
+        <CarHorizontalCard key={index} car={car}/>
       ))}
     </>
 }
