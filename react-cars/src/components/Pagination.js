@@ -1,7 +1,4 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-
 function Pagination({currentPage, count, links, perPage, totalPages, onPageChange}){
 
     let pages = Array.from({length: totalPages}, (_, i) => i + 1)
@@ -13,7 +10,7 @@ function Pagination({currentPage, count, links, perPage, totalPages, onPageChang
     return (
         <nav aria-label="Pagination">
             <ul className="pagination pagination-light mb-0">
-                {currentPage-1 > 0?
+                {currentPage-1 > 0 &&
                     <>
                         <li className="page-item">
                             <button className="page-link" onClick={()=>onPageChangeHandler(1)}><i className="fi-chevrons-left"></i></button>
@@ -21,8 +18,7 @@ function Pagination({currentPage, count, links, perPage, totalPages, onPageChang
                         <li className="page-item">
                             <button className="page-link" onClick={()=>onPageChangeHandler(currentPage-1)}><i className="fi-chevron-left"></i></button>
                         </li>
-                    </>
-                    :''}
+                    </>}
                 <li className="page-item d-sm-none text-nowrap"><span className="page-link page-link-static">{currentPage} / {totalPages}</span></li>
                 {pages.map((page, index)=>{
                     if(page==currentPage){
@@ -31,7 +27,7 @@ function Pagination({currentPage, count, links, perPage, totalPages, onPageChang
                         return <li key={index} className="page-item d-none d-sm-block"><button className="page-link" onClick={()=>onPageChangeHandler(page)}>{page}</button></li>
                     }
                 })}
-                {currentPage < totalPages?
+                {currentPage < totalPages && 
                     <>
                         <li className="page-item d-none d-sm-block">
                             <button className="page-link" onClick={()=>onPageChangeHandler(currentPage+1)}><i className="fi-chevron-right"></i></button>
@@ -39,8 +35,7 @@ function Pagination({currentPage, count, links, perPage, totalPages, onPageChang
                         <li className="page-item d-none d-sm-block">
                             <button className="page-link" onClick={()=>onPageChangeHandler(totalPages)}><i className="fi-chevrons-right"></i></button>
                         </li>
-                    </>
-                    :''}
+                    </>}
             </ul>
         </nav>
     )

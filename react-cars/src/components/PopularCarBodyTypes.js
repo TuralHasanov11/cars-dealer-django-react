@@ -5,7 +5,7 @@ import CarsContext from "../store/cars-context";
 
 function PopularCarBodyTypes({carBodies}){
 
-  const carsCtx = useContext(CarsContext)
+  const {filterData, setFilterData} = useContext(CarsContext)
 
     return (
       <section className="container pb-5 mb-md-4">
@@ -18,7 +18,7 @@ function PopularCarBodyTypes({carBodies}){
             <div className="col" key={index}>
               <div className="card card-body card-light card-hover bg-transparent border-0 px-0 pt-0 text-center">
                 <img className="d-block mx-auto mb-3" src="/assets/img/car-finder/icons/sedan.svg" width="160" alt={body.name}/>
-                <Link onClick={()=>(carsCtx.setFilterData({...carsCtx.filterData, carBodies:[body.id]}))} className="nav-link-light stretched-link fw-bold" to={`/cars?car_body=${body.id}`}>{body.name}</Link> 
+                <Link onClick={()=>(setFilterData({...filterData, carBodies:[body.id]}))} className="nav-link-light stretched-link fw-bold" to={`/cars?car_body=${body.id}`}>{body.name}</Link> 
               </div>
             </div>
           ))}

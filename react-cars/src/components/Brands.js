@@ -6,7 +6,7 @@ import CarsContext from '../store/cars-context'
 
 function Brands({brands}){
 
-    const carsCtx = useContext(CarsContext)
+    const {filterData, setFilterData} = useContext(CarsContext)
 
 
     return (
@@ -14,7 +14,7 @@ function Brands({brands}){
         <div className="row g-2 g-sm-4">
             {brands.map((brand, index)=>(
                 <div className="col-3 col-sm-2 col-xl-1 mb-4 pb-2" key={index}>
-                    <Link onClick={()=>(carsCtx.setFilterData({...carsCtx.filterData, brand:brand.id}))} className="opacity-40 opacity-transition d-table mx-auto" to={`cars?brand=${brand.id}`}>
+                    <Link onClick={()=>(setFilterData({...filterData, brand:brand.id}))} className="opacity-40 opacity-transition d-table mx-auto" to={`cars?brand=${brand.id}`}>
                         <img src="/assets/img/car-finder/brands/opel.svg" width="86" alt={brand.name}/>
                     </Link>
                 </div>

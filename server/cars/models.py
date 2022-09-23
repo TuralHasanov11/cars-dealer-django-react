@@ -143,6 +143,7 @@ class Car(models.Model):
 
     YEAR_CHOICES = [(r,r) for r in range(1984, datetime.date.today().year+1)]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False,related_name='user')
+    wishlist = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="user_wishlist")
     made_at = models.IntegerField(_('year'), choices=YEAR_CHOICES, default=datetime.date.today().year)
     currency = models.CharField(max_length=3,choices=Currencies.choices, default=Currencies.AZN,)
     price = models.IntegerField(null=False, blank=False, validators = [validators.MinValueValidator(500)])

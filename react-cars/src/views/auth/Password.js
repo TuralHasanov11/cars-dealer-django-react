@@ -5,7 +5,7 @@ import AuthContext from "../../store/auth-context";
 
 function Password(){
 
-    const authCtx = useContext(AuthContext)
+    const {changePassword} = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
 
 
@@ -49,7 +49,7 @@ function Password(){
           return
         } 
   
-        await authCtx.passwordChange({oldPassword, newPassword1, newPassword2})
+        await changePassword({oldPassword, newPassword1, newPassword2})
           .then((res)=>{
             resetOldPassword()
             resetNewPassword1()

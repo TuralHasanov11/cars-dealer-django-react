@@ -66,6 +66,19 @@ def blackListToken(request):
 
 
 @rest_decorators.api_view(['GET'])
+@rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
+def user(request):
+    try:
+        account = models.Account.objects.select_related('profile_user').prefetch_related('user_wishlist').get(id=request.user.id)
+    except models.Account.DoesNotExist:
+        return response.Response(status=status.HTTP_404_NOT_FOUND)
+
+    serializer = serializers.AccountSerializer(account)
+    
+    return response.Response(serializer.data)
+
+
+@rest_decorators.api_view(['GET'])
 @rest_decorators.permission_classes([])
 def accountDetail(request, id):
     try:
@@ -73,10 +86,7 @@ def accountDetail(request, id):
     except models.Account.DoesNotExist:
         return response.Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.user.is_authenticated and request.user.id == int(id):
-        serializer = serializers.AccountSerializer(account)
-    else:
-        serializer = serializers.AccountSecondarySerializer(account)
+    serializer = serializers.AccountSecondarySerializer(account)
     
     return response.Response(serializer.data)
 
@@ -120,3 +130,50 @@ class UserCarListView(generics.ListAPIView):
             if q and q.get('is_pending'):
                 return queryset.filter(is_active=False)
         return queryset
+
+
+class WishlistView(generics.ListAPIView):
+    permission_classes = [carPermissions.CarReadOnlyPermission, rest_permissions.IsAuthenticated]
+    pagination_class = pagination.CarPagination
+    serializer_class = carSerializers.CarListSerializer
+    ordering = ('-created_at')
+
+    def get_queryset(self):
+        queryset = carModels.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine').prefetch_related('car_images').filter(wishlist__id=self.request.user.id)
+        return queryset
+
+
+@rest_decorators.api_view(['POST'])
+@rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
+def wishlistAdd(request, id):
+    try:
+        car = carModels.Car.cars.get(id=id)
+        request.user.wishlist.add(car)
+        return response.Response({'car_id':car.id})
+    except carModels.Car.DoesNotExist:
+        return response.Response(status=status.HTTP_404_NOT_FOUND)
+    except:
+        return response.Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@rest_decorators.api_view(['POST'])
+@rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
+def wishlistRemove(request, id):
+    try:
+        car = carModels.Car.cars.get(id=id)
+        request.user.wishlist.remove(car)
+        return response.Response({'car_id':car.id})
+    except carModels.Car.DoesNotExist:
+        return response.Response(status=status.HTTP_404_NOT_FOUND)
+    except:
+        return response.Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@rest_decorators.api_view(['POST'])
+@rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
+def wishlistClear(request):
+    try:
+        request.user.wishlist.clear()
+        return response.Response({'message':'wishlist cleared'})
+    except:
+        return response.Response(status=status.HTTP_400_BAD_REQUEST)

@@ -35,14 +35,9 @@ export default function Car({car, deleteCar}){
                         <div className="ps-1"><span className="tns-current-slide fs-5 fw-bold"></span><span className="fs-5 fw-bold">/</span><span className="tns-total-slides fs-5 fw-bold"></span></div>
                     </div>
                     <div className="tns-carousel-inner" data-carousel-options="{&quot;navAsThumbnails&quot;: true, &quot;navContainer&quot;: &quot;#thumbnails&quot;, &quot;gutter&quot;: 12, &quot;responsive&quot;: {&quot;0&quot;:{&quot;controls&quot;: false},&quot;500&quot;:{&quot;controls&quot;: true}}}">
-                        <div><img className="rounded-3" src="/assets/img/car-finder/single/gallery/01.jpg" alt="Image"/></div>
-                        <div><img className="rounded-3" src="/assets/img/car-finder/single/gallery/02.jpg" alt="Image"/></div>
-                        <div><img className="rounded-3" src="/assets/img/car-finder/single/gallery/03.jpg" alt="Image"/></div>
-                        <div><img className="rounded-3" src="/assets/img/car-finder/single/gallery/04.jpg" alt="Image"/></div>
-                        <div><img className="rounded-3" src="/assets/img/car-finder/single/gallery/05.jpg" alt="Image"/></div>
-                        <div><img className="rounded-3" src="/assets/img/car-finder/single/gallery/06.jpg" alt="Image"/></div>
-                        <div><img className="rounded-3" src="/assets/img/car-finder/single/gallery/07.jpg" alt="Image"/></div>
-                        <div><img className="rounded-3" src="/assets/img/car-finder/single/gallery/08.jpg" alt="Image"/></div>
+                        {car?.car_images?.map(image => (
+                            <div><img className="rounded-3" src={image.image} alt={image.image}/></div>
+                        ))}
                     </div>
                 </div>
                 <ul className="tns-thumbnails" id="thumbnails">

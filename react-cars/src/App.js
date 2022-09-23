@@ -14,9 +14,17 @@ import Password from './views/auth/Password'
 import UserCars from './views/auth/UserCarsView'
 import Wishlist from './views/auth/Wishlist'
 import AuthMiddleware from './middleware/AuthMiddleware'
+import { useContext, useEffect } from 'react';
+import AuthContext from './store/auth-context';
 
 function App() {
 
+  const authCtx = useContext(AuthContext)
+
+  useEffect(()=>{
+    authCtx.getUser()
+  }, [])
+  
   return <>
   <Default>
     <Routes>
@@ -32,7 +40,6 @@ function App() {
         <Route path="/user" element={<User />}>
           <Route element={<AuthMiddleware />}>
             <Route index element={<Profile />} />
-            <Route path="profile" element={<Profile /> } />
             <Route path="password-security" element={<Password /> } />
             <Route path="wishlist" element={<Wishlist />} />
           </Route>

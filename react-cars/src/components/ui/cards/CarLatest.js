@@ -1,7 +1,22 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import AuthContext from '../../../store/auth-context';
+import CarsContext from '../../../store/cars-context';
 
 export default function CarLatest({car}) {
+
+  const {wishlist, toggleCarToWishlist, user: authUser} = useContext(AuthContext)
+    const {deleteCar} = useContext(CarsContext)
+
+
+    function deleteCarHandler(){
+      if(car.user.id === authUser.id){
+          deleteCar(car)
+      }else{
+          return
+      }
+    }
+
   return (
     <div>
     <div className="card card-light card-hover h-100">
@@ -12,10 +27,32 @@ export default function CarLatest({car}) {
           {car.credit?<span data-bs-toggle="tooltip" data-bs-placement="left" title="Credit" className={`d-table my-1 badge bg-warning`}>%</span>:''}
         </div>
         <div className="content-overlay end-0 top-0 pt-3 pe-3">
-          <button className="btn btn-icon btn-light btn-xs text-primary rounded-circle" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Add to Wishlist"><i className="fi-heart"></i></button>
-        </div><img src={car.car_images.find(el => el.is_front === true)?.image}/>
+        <button onClick={()=>{toggleCarToWishlist(car)}} className="btn btn-icon btn-light btn-xs text-primary rounded-circle" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title={wishlist.includes(car)?"Add to Wishlist":"Remove from Wishlist"}>
+          {wishlist.includes(car)?<i className="fi-heart"></i>:<i className="fi-heart"></i>}
+        </button>        
+        </div>
+        <img src={car.car_images.find(el => el.is_front === true)?.image}/>
       </div>
-      <div className="card-body">
+      <div className="card-body position-relative">
+      {car?.user.id === authUser.id&&(
+          <div className="dropdown position-absolute zindex-5 top-0 end-0 mt-3 me-3">
+              <button className="btn btn-icon btn-translucent-light btn-xs rounded-circle" type="button" id="contextMenu2" data-bs-toggle="dropdown" aria-expanded="false"><i className="fi-dots-vertical"></i></button>
+              <ul className="dropdown-menu dropdown-menu-dark my-1" aria-labelledby="contextMenu2">
+              <li>
+                  <Link to={`/cars/${car.id}/edit`} className="dropdown-item"><i className="fi-edit me-2"></i>Edit</Link>
+              </li>
+              <li>
+                  <button className="dropdown-item" type="button"><i className="fi-flame me-2"></i>Promote</button>
+              </li>
+              <li>
+                  <button className="dropdown-item" type="button"><i className="fi-power me-2"></i>Deactivate</button>
+              </li>
+              <li>
+                  <button onClick={deleteCarHandler} className="dropdown-item" type="button"><i className="fi-trash me-2"></i>Delete</button>
+              </li>
+              </ul>
+          </div>
+          )}
         <div className="d-flex align-items-center justify-content-between pb-1"><span className="fs-sm text-light me-3">{car.made_at}</span>
         </div>
         <h3 className="h6 mb-1"><Link className="nav-link-light" to={`/cars/${car.id}`}>{car.car_model.brand.name + ' ' + car.car_model.name}</Link></h3>

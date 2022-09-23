@@ -11,6 +11,11 @@ urlpatterns = [
     path('token', views.AccountTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('change-password', views.passwordChange, name='password_change'), 
+    path('user', views.user, name='user'),
     path('<int:id>', views.accountDetail, name='user_detail'),
-    path('<int:id>/cars', views.UserCarListView.as_view(), name='user_cars'),  
+    path('<int:id>/cars', views.UserCarListView.as_view(), name='user_cars'), 
+    path('wishlist', views.WishlistView.as_view(), name='wishlist'), 
+    path('wishlist/<int:id>/add', views.wishlistAdd, name='wishlist_add'), 
+    path('wishlist/<int:id>/remove', views.wishlistRemove, name='wishlist_remove'), 
+    path('wishlist/clear', views.wishlistClear, name='wishlist_clear'),
 ]

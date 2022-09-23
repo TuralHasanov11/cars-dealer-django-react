@@ -7,20 +7,21 @@ import UserContext from '../../store/user-context'
 
 function User(){
 
-    const authCtx = useContext(AuthContext)
-    const userCtx = useContext(UserContext)
+    const {user: authUser, wishlist} = useContext(AuthContext)
+    const {getUserAndCars, user} = useContext(UserContext)
     const {userId} = useParams()
     const [searchParams] = useSearchParams()
     const [loading, setLoading] = useState(false)
 
-    function logout(e){
-      e.preventDefault()
-    }
-
-    useEffect(async()=>{
-      if(userId!=undefined){
+    useEffect(()=>{
+      if(userId !== undefined){
         setLoading(true)
-        userCtx.getUserAndCars(userId, Object.fromEntries([...searchParams]))
+
+        async function getUserAndCarsHandler(){
+          await getUserAndCars(userId, Object.fromEntries([...searchParams]))
+        }
+        
+        getUserAndCarsHandler()
         setLoading(false)
       }
     },[userId, searchParams])
@@ -38,14 +39,14 @@ function User(){
         <div className="card card-body card-light border-0 shadow-sm pb-1 me-lg-1">
           <div className="d-flex d-md-block d-lg-flex align-items-start pt-lg-2 mb-4">
             <div className="pt-md-2 pt-lg-0 ps-3 ps-md-0 ps-lg-3">
-              <h2 className="fs-lg text-light mb-0">{userCtx.user?.username}</h2>
+              <h2 className="fs-lg text-light mb-0">{user?.username}</h2>
               <ul className="list-unstyled fs-sm mt-3 mb-0">
-                <li><div className="nav-link-light fw-normal"><i className="fi-phone opacity-60 me-2"></i>{userCtx.user?.profile_user?.phone}</div></li>
-                {userId == authCtx.id?( <li><a className="nav-link-light fw-normal" href={`mailto:${authCtx.user.email}`}><i className="fi-mail opacity-60 me-2"></i>{authCtx.user.email}</a></li>):''}
+                <li><div className="nav-link-light fw-normal"><i className="fi-phone opacity-60 me-2"></i>{user?.profile_user?.phone}</div></li>
+                {userId == authUser?.id?( <li><a className="nav-link-light fw-normal" href={`mailto:${authUser?.user?.email}`}><i className="fi-mail opacity-60 me-2"></i>{authUser?.user?.email}</a></li>):''}
               </ul>
             </div>
           </div>
-            {!userId || (userId == authCtx.id)?(<Link className="btn btn-primary btn-lg w-100 mb-3" to="/cars/create">
+            {!userId || (userId == authUser?.id)?(<Link className="btn btn-primary btn-lg w-100 mb-3" to="/cars/create">
               <i className="fi-plus me-2"></i>Create a car
             </Link>):''}
             
@@ -54,10 +55,10 @@ function User(){
             </a>
             <div className="collapse d-md-block mt-3" id="account-nav">
               <div className="card-nav">
-                  <Link className="card-nav-link" to={`/user/${userCtx.user?.id}/cars`}>
+                  <Link className="card-nav-link" to={`/user/${user?.id}/cars`}>
                       <i className="fi-car me-2"></i>Cars
                   </Link>
-                  {!userId || (userId == authCtx.id)?<>
+                  {(!userId || (userId === authUser?.id)) && <>
                     <Link className="card-nav-link"  to="/user/profile">
                       <i className="fi-user me-2"></i>Personal Info
                   </Link>
@@ -66,12 +67,9 @@ function User(){
                   </Link>
                   
                   <Link className="card-nav-link" to="/user/wishlist">
-                      <i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">{authCtx.wishlist?.length}</span>
+                      <i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">{wishlist?.length}</span>
                   </Link>
-                  <a className="card-nav-link" onClick={logout}>
-                      <i className="fi-logout me-2"></i>Sign Out
-                  </a>
-                  </>:''}
+                  </>}
               </div>
             </div>
         </div>

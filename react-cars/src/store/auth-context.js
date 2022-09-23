@@ -1,5 +1,5 @@
 import {useState, createContext} from 'react'
-import axiosInstance from '../axios'
+import {axiosPrivate} from '../axios'
 
 const AuthContext = createContext({
     user:{},
@@ -13,6 +13,7 @@ const AuthContext = createContext({
     getUser: ()=>{},
     clearWishlist: ()=>{},
     toggleCarToWishlist: ()=>{},
+    changePassword: ()=>{}
 })
 
 export function AuthContextProvider(props){
@@ -32,18 +33,19 @@ export function AuthContextProvider(props){
         }
 
         try {
-            const {data} = await axiosInstance.get(`auth/${id}`)
+            const {data} = await axiosPrivate.get(`auth/user`)
             setUser({...user, ...data})
+            setWishlist(data.user_wishlist)
         } catch (error) {
             throw error
         }
     }
 
-    function toggleCarToWishlist(carId){
-        if(wishlist.includes(carId)){
-            clearWishlist(carId)
+    function toggleCarToWishlist(car){
+        if(wishlist.includes(car)){
+            clearWishlist(car)
         }else{
-            wishlist.push(carId)
+            wishlist.push(car)
         }
     }
 
@@ -53,6 +55,10 @@ export function AuthContextProvider(props){
         }else{
             setWishlist((prev)=>prev.filter(car=>{return item !== car}))
         }
+    }
+
+    function changePassword(){
+
     }
 
     return <AuthContext.Provider value={{
@@ -67,6 +73,7 @@ export function AuthContextProvider(props){
         clearWishlist,
         toggleCarToWishlist,
         getUser,
+        changePassword
     }}>
         {props.children}
     </AuthContext.Provider>

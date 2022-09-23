@@ -3,7 +3,7 @@ import AuthContext from "../../store/auth-context"
 
 function Profile(){
 
-    const authCtx = useContext(AuthContext)
+    const {user} = useContext(AuthContext)
 
     return <>
         <h1 className="h2 text-light">Personal Info</h1>
@@ -14,7 +14,7 @@ function Profile(){
                         <div className="d-flex align-items-center justify-content-between">
                             <div className="pe-2 opacity-70">
                             <label className="form-label fw-bold text-light">Full name</label>
-                            <div className="text-light" id="name-value">{authCtx.user?.username}</div>
+                            <div className="text-light" id="name-value">{user?.username}</div>
                             </div>
                             <div className="me-n3" data-bs-toggle="tooltip" title="Edit"><a className="nav-link nav-link-light py-0" href="#name-collapse" data-bs-toggle="collapse"><i className="fi-edit"></i></a></div>
                         </div>
@@ -24,7 +24,7 @@ function Profile(){
                         <div className="d-flex align-items-center justify-content-between">
                             <div className="pe-2 opacity-70">
                                 <label className="form-label fw-bold text-light">Email</label>
-                                <div className="text-light" id="email-value">{authCtx.user?.email}</div>
+                                <div className="text-light" id="email-value">{user?.email}</div>
                             </div>
                         </div>
                     </div>
@@ -32,7 +32,7 @@ function Profile(){
                         <div className="d-flex align-items-center justify-content-between">
                             <div className="pe-2 opacity-70">
                             <label className="form-label fw-bold text-light">Phone number</label>
-                            <div className="text-light" id="phone-value">{authCtx.user?.profile_user?.phone}</div>
+                            <div className="text-light" id="phone-value">{user?.account_profile?.phone}</div>
                             </div>
                             {/* <div className="me-n3" data-bs-toggle="tooltip" title="Edit"><a className="nav-link nav-link-light py-0" href="#phone-collapse" data-bs-toggle="collapse"><i className="fi-edit"></i></a></div> */}
                         </div>
