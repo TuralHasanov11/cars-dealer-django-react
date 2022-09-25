@@ -68,3 +68,6 @@ class CarAdmin(admin.ModelAdmin):
     ]
     list_display= ("user", "made_at", "currency", "price", "distance", "is_active", "car_model", "color", "engine", 'created_at')
     ordering= ("-created_at", )
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request)

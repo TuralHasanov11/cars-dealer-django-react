@@ -1,13 +1,9 @@
 import Header from '../components/inc/Header'
 import Footer from '../components/inc/Footer'
 import Auth from '../components/auth/Auth'
-import { useContext } from 'react'
-import AuthContext from '../store/auth-context'
 
 
 function Default(props){
-
-    const {isAuth} = useContext(AuthContext)
 
     return  <>
     

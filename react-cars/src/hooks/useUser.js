@@ -7,9 +7,13 @@ const useUser = () => {
 
     const getUser = async () => {
       try {
-        const {data} = await axiosPrivate.get(`auth/user`)
-          setUser({...user, ...data})
-          setWishlist(data.user_wishlist)
+          await Promise.all([
+            await axiosPrivate.get(`auth/user`),
+            await axiosPrivate.get(`auth/wishlist`)
+          ]).then(res => {
+            setUser({...user, ...res[0].data})
+            setWishlist(res[1].data)
+          })
         } catch (error) {
           console.log(error.response)
         }

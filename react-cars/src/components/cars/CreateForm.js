@@ -1,8 +1,5 @@
 import { useContext, useRef, useState } from "react";
-import CarsContext from '../../store/cars-context'
 import ItemsContext from "../../store/items-context";
-import AuthContext from "../../store/auth-context";
-import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 import { useInput } from "../../hooks/use-input";
@@ -11,9 +8,7 @@ import { validations } from "../../hooks/use-validation";
 
 export default function CreateForm(props){
 
-    const carCtx = useContext(CarsContext)
     const itemsCtx = useContext(ItemsContext)
-    const authCtx = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
     const axiosPrivate = useAxiosPrivate()
     const [equipment, setEquipment] = useState([])
@@ -157,7 +152,7 @@ export default function CreateForm(props){
         setEquipment(prev=>{
             if(prev.includes(item)){
                 return prev.filter(function(value, index){ 
-                    return value != item;
+                    return value !== item;
                 });
             }else{
                 return prev.concat([item])
@@ -198,7 +193,6 @@ export default function CreateForm(props){
             return
         }
         
-        console.log(equipment.map(el=>parseInt(el)))
         const formData = new FormData();
         formData.append("brand", brand);
         formData.append("car_model", carModel)
@@ -215,21 +209,17 @@ export default function CreateForm(props){
         formData.append("credit", credit)
         formData.append("distance", distance)
         formData.append("description", description)
-        formData.append("madeAt", madeAt)
-        formData.append("car_images", [
-            {type:"front", image:carImageFront.current.files[0]},
-            {type:"back", image:carImageBack.current.files[0]},
-            {type:"panel", image:carImagePanel.current.files[0]},
-            ...Array.prototype.slice.call(carImageOther.current.files).map(el=> {
-                return {type:"other", image:el}
-            })
-        ])
+        formData.append("made_at", madeAt)
+        formData.append("front_image", carImageFront.current.files[0]) 
+        formData.append("back_image", carImageBack.current.files[0])
+        formData.append("panel_image", carImagePanel.current.files[0])
+        formData.append("other_images", ...Array.prototype.slice.call(carImageOther.current.files))
 
         try {
             axiosPrivate.defaults.headers.common['Content-Type'] = 'multipart/form-data';
             const res = await axiosPrivate.post(`auto/cars`, formData)
             
-            if(res.ok){
+            if(res.status===201){
                 // resetForm()
                 setLoading(false)
                 // props.createCar(res)
@@ -388,10 +378,10 @@ export default function CreateForm(props){
                 <p className="fs-sm mb-1">The maximum photo size is 8 MB. Formats: jpeg, jpg, png. Put the main picture first.<br/>The maximum video size is 10 MB. Formats: mp4, mov.</p>
                 </div>
             </div>
-            <input ref={carImageFront} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload front photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
-            <input ref={carImageBack} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload back photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
-            <input ref={carImagePanel} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload front panel photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
-            <input ref={carImageOther} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" multiple data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload additional photos&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
+            <input ref={carImageFront} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload front photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
+            <input ref={carImageBack} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload back photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
+            <input ref={carImagePanel} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload front panel photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
+            <input ref={carImageOther} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" multiple data-max-file-size="10MB" accept="image/png, image/jpeg" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload additional photos&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
         </section>
 
         <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="location">

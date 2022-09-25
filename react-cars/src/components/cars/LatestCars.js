@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import CarLatest from '../ui/cards/CarLatest';
 import CarVerticalCard from '../ui/cards/CarVertical';
 
 function LatestCars({cars}){

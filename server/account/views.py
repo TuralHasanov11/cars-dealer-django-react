@@ -35,6 +35,7 @@ class CookieTokenRefreshView(jwt_views.TokenRefreshView):
                 samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
             )
             del response.data['refresh']
+        response["X-CSRFToken"] = request.COOKIES.get('csrftoken')
         return super().finalize_response(request, response, *args, **kwargs)
     serializer_class = CookieTokenRefreshSerializer
 
@@ -67,11 +68,8 @@ def loginView(request):
                 httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                 samesite = "None"
             )
-
-            print(res.cookies)
-            
-            csrf.get_token(request)
             res.data = data
+            res["X-CSRFToken"] = csrf.get_token(request)
             return res
         else:
             return response.Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
@@ -100,7 +98,7 @@ def register(request):
                 httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                 samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
             )
-            csrf.get_token(request)
+            res["X-CSRFToken"] = csrf.get_token(request)
             res.data = data
             return res
         else:
@@ -127,7 +125,7 @@ def blackListToken(request):
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
 def user(request):
     try:
-        account = models.Account.objects.select_related('account_profile').prefetch_related('user_wishlist').get(id=request.user.id)
+        account = models.Account.objects.select_related('account_profile').get(id=request.user.id)
     except models.Account.DoesNotExist:
         return response.Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -190,7 +188,6 @@ class UserCarListView(generics.ListAPIView):
 
 class WishlistView(generics.ListAPIView):
     permission_classes = [carPermissions.CarReadOnlyPermission, rest_permissions.IsAuthenticated]
-    pagination_class = pagination.CarPagination
     serializer_class = carSerializers.CarListSerializer
     ordering = ('-created_at')
 
@@ -204,11 +201,11 @@ class WishlistView(generics.ListAPIView):
 def wishlistAdd(request, id):
     try:
         car = carModels.Car.cars.get(id=id)
-        request.user.wishlist.add(car)
+        request.user.user_wishlist.add(car)
         return response.Response({'car_id':car.id})
     except carModels.Car.DoesNotExist:
         return response.Response(status=status.HTTP_404_NOT_FOUND)
-    except:
+    except Exception as err:
         return response.Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -217,7 +214,7 @@ def wishlistAdd(request, id):
 def wishlistRemove(request, id):
     try:
         car = carModels.Car.cars.get(id=id)
-        request.user.wishlist.remove(car)
+        request.user.user_wishlist.remove(car)
         return response.Response({'car_id':car.id})
     except carModels.Car.DoesNotExist:
         return response.Response(status=status.HTTP_404_NOT_FOUND)
@@ -229,7 +226,7 @@ def wishlistRemove(request, id):
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
 def wishlistClear(request):
     try:
-        request.user.wishlist.clear()
+        request.user.user_wishlist.clear()
         return response.Response({'message':'wishlist cleared'})
     except:
         return response.Response(status=status.HTTP_400_BAD_REQUEST)

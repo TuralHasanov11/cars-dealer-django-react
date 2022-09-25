@@ -4,7 +4,7 @@ import AuthContext from '../../store/auth-context'
 
 function Footer(){
 
-    const {isAuth, user} = useContext(AuthContext)
+    const {user} = useContext(AuthContext)
 
     return (
         <footer className="footer bg-faded-light">
@@ -20,7 +20,7 @@ function Footer(){
                             <li><Link className="nav-link-light" to="/cars/create">Sell your car</Link></li>
                         </ul>
                     </div>
-                    {isAuth && <div className="col-lg-3 col-md-4 col-sm-6 mb-2 mb-sm-4">
+                    {user && <div className="col-lg-3 col-md-4 col-sm-6 mb-2 mb-sm-4">
                         <h3 className="fs-base text-light">Profile</h3>
                         <ul className="list-unstyled fs-sm">
                             <li><Link className="nav-link-light" to={`/user/${user?.id}`}>My account</Link></li>

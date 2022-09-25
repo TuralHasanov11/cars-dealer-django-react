@@ -80,7 +80,7 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model=get_user_model()
         fields = ['id', 'username', 'email', 
-            'account_profile', 'user_wishlist'
+            'account_profile'
         ]
 
 

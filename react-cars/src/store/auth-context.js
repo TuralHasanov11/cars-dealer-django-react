@@ -7,13 +7,13 @@ const AuthContext = createContext({
     accessToken:null,
     refreshToken:null,
     wishlist:[],
+    csrfToken:null,
     setUser:()=>{},
     setAccessToken: ()=>{},
     setRefreshToken: ()=>{},
     getUser: ()=>{},
-    clearWishlist: ()=>{},
-    toggleCarToWishlist: ()=>{},
-    changePassword: ()=>{}
+    setCSRFToken:()=>{},
+    setWishlist:()=>{}
 })
 
 export function AuthContextProvider(props){
@@ -21,30 +21,11 @@ export function AuthContextProvider(props){
     const [accessToken, setAccessToken] = useState()
     const [refreshToken, setRefreshToken] = useState()
     const [user, setUser] = useState()
+    const [csrfToken, setCSRFToken] = useState()
     // const isAuth = accessToken&&id&&user
-    const isAuth = accessToken
+    const isAuth = user
 
     const [wishlist, setWishlist] = useState([])
-
-    function toggleCarToWishlist(car){
-        if(wishlist.includes(car)){
-            clearWishlist(car)
-        }else{
-            wishlist.push(car)
-        }
-    }
-
-    function clearWishlist(item=null){
-        if(!item){
-            setWishlist([])
-        }else{
-            setWishlist((prev)=>prev.filter(car=>{return item !== car}))
-        }
-    }
-
-    function changePassword(){
-
-    }
 
     return <AuthContext.Provider value={{
         user,
@@ -54,10 +35,10 @@ export function AuthContextProvider(props){
         setRefreshToken,
         refreshToken,
         wishlist,
+        csrfToken,
+        setCSRFToken,
         setUser,
-        clearWishlist,
-        toggleCarToWishlist,
-        changePassword
+        setWishlist,
     }}>
         {props.children}
     </AuthContext.Provider>

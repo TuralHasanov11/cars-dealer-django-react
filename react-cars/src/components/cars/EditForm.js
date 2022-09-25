@@ -1,7 +1,5 @@
 import { useContext, useRef, useState } from "react";
-import CarsContext from '../../store/cars-context'
 import ItemsContext from "../../store/items-context";
-import AuthContext from "../../store/auth-context";
 import PropTypes from 'prop-types';
 import { useInput } from "../../hooks/use-input";
 import { validations } from "../../hooks/use-validation";
@@ -9,9 +7,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 export default function EditForm(props){
 
-    const carCtx = useContext(CarsContext)
     const itemsCtx = useContext(ItemsContext)
-    const authCtx = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
     const axiosPrivate = useAxiosPrivate()
 
@@ -165,7 +161,6 @@ export default function EditForm(props){
             return
         }
         
-        console.log(equipment.map(el=>parseInt(el)))
         const formData = new FormData();
         formData.append("brand", brand);
         formData.append("car_model", carModel)
@@ -182,21 +177,17 @@ export default function EditForm(props){
         formData.append("credit", credit)
         formData.append("distance", distance)
         formData.append("description", description)
-        formData.append("madeAt", madeAt)
-        formData.append("car_images", [
-            {type:"front", image:carImageFront.current.files[0]},
-            {type:"back", image:carImageBack.current.files[0]},
-            {type:"panel", image:carImagePanel.current.files[0]},
-            ...Array.prototype.slice.call(carImageOther.current.files).map(el=> {
-                return {type:"other", image:el}
-            })
-        ])
+        formData.append("made_at", madeAt)
+        formData.append("front_image", carImageFront.current.files[0]) 
+        formData.append("back_image", carImageBack.current.files[0])
+        formData.append("panel_image", carImagePanel.current.files[0])
+        formData.append("other_images", ...Array.prototype.slice.call(carImageOther.current.files))
 
         try {
             axiosPrivate.defaults.headers.common['Content-Type'] = 'multipart/form-data';
             const res = await axiosPrivate.put(`auto/cars/${props.car.id}`, formData)
             
-            if(res.ok){
+            if(res.status===200){
                 // resetForm()
                 setLoading(false)
                 // props.createCar(res)

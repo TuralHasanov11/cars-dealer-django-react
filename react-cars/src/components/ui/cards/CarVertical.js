@@ -2,10 +2,11 @@ import { useContext } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../../../store/auth-context";
 import CarsContext from "../../../store/cars-context";
+import WishlistButton from "../WishlistButton";
 
 export default function CarVerticalCard({car}){
 
-    const {wishlist, toggleCarToWishlist, user: authUser} = useContext(AuthContext)
+    const {user: authUser} = useContext(AuthContext)
     const {deleteCar} = useContext(CarsContext)
 
 
@@ -25,9 +26,7 @@ export default function CarVerticalCard({car}){
         {car?.credit?<span data-bs-toggle="tooltip" data-bs-placement="left" title="Credit" className={`d-table my-1 badge bg-warning`}>%</span>:''}
       </div>
       <div className="content-overlay end-0 top-0 pt-3 pe-3">
-        <button onClick={()=>{toggleCarToWishlist(car)}} className="btn btn-icon btn-light btn-xs text-primary rounded-circle" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title={wishlist.includes(car)?"Add to Wishlist":"Remove from Wishlist"}>
-          {wishlist.includes(car)?<i className="fi-heart"></i>:<i className="fi-heart"></i>}
-        </button>
+        <WishlistButton car={car} />
       </div>
       <div className="tns-carousel-inner">
         <img src={car?.car_images.find(el => el.is_front === true)?.image}/>

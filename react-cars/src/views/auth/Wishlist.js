@@ -1,10 +1,21 @@
 import { useContext } from "react";
 import AuthContext from "../../store/auth-context";
 import CarHorizontalCard from "../../components/ui/cards/CarHorizontal";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate"
 
 function Wishlist(){
 
-    const {wishlist, clearWishlist} = useContext(AuthContext)
+    const {wishlist, setWishlist} = useContext(AuthContext)
+    const axiosPrivate = useAxiosPrivate()
+
+    async function clearWishlist(item=null){
+      try {
+        await axiosPrivate.post(`/auth/wishlist/clear`)
+        setWishlist([])
+      } catch (error) {
+        console.log(error)
+      }
+    } 
 
     return <>
       <div className="d-flex align-items-center justify-content-between mb-4 pb-2">

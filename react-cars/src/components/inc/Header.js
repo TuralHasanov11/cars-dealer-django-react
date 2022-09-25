@@ -5,7 +5,7 @@ import useLogout from "../../hooks/useLogout"
 
 function Header(){
 
-    const {user, isAuth, wishlist} = useContext(AuthContext)
+    const {user, wishlist} = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
     const logout = useLogout()
@@ -24,7 +24,7 @@ function Header(){
                     <span className="navbar-toggler-icon"></span>
                 </button>
                 <NavLink className="btn btn-primary btn-sm ms-2 order-lg-3" to="/cars/create"><i className="fi-plus me-2"></i>Sell car</NavLink>
-                {isAuth?<>
+                {user?<>
                     <div className="dropdown d-none d-lg-block order-lg-3 my-n2 me-3 mx-2">
                         <NavLink className="d-block py-2" to={`/user/${user?.id}`}>
                             {user?.username}
@@ -52,7 +52,7 @@ function Header(){
                     <ul className="navbar-nav navbar-nav-scroll" style={{'maxHeight':'35rem'}}>
                         <li className="nav-item"><NavLink className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link inactive')} to='/'>Home</NavLink></li>
                         <li className="nav-item"><NavLink className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link inactive')} to='/cars'>Cars</NavLink></li>
-                        {isAuth?<>
+                        {user?<>
                             <li className="nav-item dropdown d-lg-none mx-2">
                                 <a className="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     {user?.username}

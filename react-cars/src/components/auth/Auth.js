@@ -100,6 +100,7 @@ function Auth(){
         const response = await axios.post(LOGIN_URL,
           JSON.stringify({email, password}), { withCredentials: true });
         authCtx.setAccessToken(response?.data?.access_token)
+        authCtx.setCSRFToken(response?.headers.get("X-CSRFToken"))
         getUser(response?.data?.access_token)
         // resetEmail()
         // resetPassword()

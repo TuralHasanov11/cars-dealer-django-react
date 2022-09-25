@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from cars import models
-from account import serializers as accountSerializers  
+from account import serializers as accountSerializers
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,9 +27,11 @@ class CarImageSerializer(serializers.ModelSerializer):
         fields = ['id','image', 'type', 'is_front', 'is_back', 'is_panel']
 
 class CarImageCreateUpdateSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(use_url=True)
+
     class Meta:
         model = models.CarImage
-        fields = ['image', 'type']
+        fields = ['image']
 
 class CarBodySerializer(serializers.ModelSerializer):
     class Meta:
@@ -115,17 +117,47 @@ class CarDetailSerializer(serializers.ModelSerializer):
 class CarCreateUpdateSerializer(serializers.ModelSerializer):
 
     equipment = serializers.PrimaryKeyRelatedField(many=True, queryset=models.Equipment.objects.all())
-    car_images = CarImageCreateUpdateSerializer(many=True)
 
     class Meta:
         model = models.Car
-        fields = ['currency','price','distance','is_active','barter',
+        fields = [
+            'currency','price','distance','is_active','barter','made_at',
             'credit','description','car_model','car_body','city','color',
-            'engine','gear_lever','transmission','fuel','equipment', 'car_images'
+            'engine','gear_lever','transmission','fuel','equipment', 
         ]
         
     def create(self, validated_data):
-        return self.Meta.model.objects.create(**validated_data, user=self.context.get("request").user)
+        equipment = validated_data.pop("equipment", None)
+        car = models.Car.objects.create(**validated_data, user=self.context.get("request").user)
+        for item in equipment:
+            car.equipment.add(item)
+        
+        images_data = self.context['request'].FILES
+        
+        self.uploadCarImages(
+            car=car, 
+            images={
+                "front_image": images_data.getlist('front_image')[0],
+                "back_image": images_data.getlist('back_image')[0],
+                "panel_image": images_data.getlist('panel_image')[0],
+                "other_images": images_data.getlist('other_images')
+            })
+            
+        return car
+    
+    def uploadCarImages(self, car, images):
+        try:
+            models.CarImage.objects.create(car=car, image=images["front_image"], type=models.CarImage.ImageTypes.FRONT)
+            models.CarImage.objects.create(car=car, image=images["back_image"], type=models.CarImage.ImageTypes.BACK)
+            models.CarImage.objects.create(car=car, image=images["panel_image"], type=models.CarImage.ImageTypes.PANEL)
+        
+            if images["other_images"]:
+                for image_data in images["other_images"]:
+                    models.CarImage.objects.create(car=car, image=image_data, type=models.CarImage.ImageTypes.OTHER)
+        except Exception as err:
+            raise Exception("Images not uploaded")
+
+
 
     def update(self, instance, validated_data):
         instance.currency = validated_data.get('currency', instance.currency)
@@ -143,8 +175,28 @@ class CarCreateUpdateSerializer(serializers.ModelSerializer):
         instance.gear_lever = validated_data.get('gear_lever', instance.gear_lever)
         instance.transmission = validated_data.get('transmission', instance.transmission)
         instance.fuel = validated_data.get('fuel', instance.fuel)
-        instance.equipment = validated_data.get('equipment', instance.validated_data.get('equipment', instance.equipment))
-        instance.car_images = validated_data.get('car_images', instance.validated_data.get('car_images', instance.car_images))
+        instance.made_at = validated_data.get('made_at', instance.made_at)
+
+        equipment = validated_data.pop("equipment", None)
+        instance.equipment.clear()
+        for item in equipment:
+            instance.equipment.add(item)                
+
+        images_data = self.context['request'].FILES
+
+        if images_data.getlist('front_image'):
+            models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.FRONT).delete()
+            models.CarImage.objects.create(car=instance, image=images_data.getlist('front_image')[0], type=models.CarImage.ImageTypes.FRONT)
+        if images_data.getlist('back_image'):
+            models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.BACK).delete()
+            models.CarImage.objects.create(car=instance, image=images_data.getlist('back_image')[0], type=models.CarImage.ImageTypes.BACK)
+        if images_data.getlist('panel_image'):
+            models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.PANEL).delete()
+            models.CarImage.objects.create(car=instance, image=images_data.getlist('panel_image')[0], type=models.CarImage.ImageTypes.PANEL)
+        if images_data.getlist('other_images'):
+            models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.OTHER).delete()
+            for image_data in images_data.getlist('other_images'):
+                    models.CarImage.objects.create(car=instance, image=image_data, type=models.CarImage.ImageTypes.OTHER)
 
         return instance
     
