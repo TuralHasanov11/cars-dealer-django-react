@@ -3,6 +3,7 @@ import { useNavigate, useLocation} from 'react-router-dom'
 import axios from '../../axios'
 import {useInput} from '../../hooks/use-input'
 import { validations } from '../../hooks/use-validation'
+import useUser from '../../hooks/useUser'
 import AuthContext from '../../store/auth-context'
 
 
@@ -22,6 +23,16 @@ function Auth(){
     const location = useLocation();
     const from = location?.state?.from?.pathname || "/"
 
+    async function getUser(accessToken){
+      const {data} = await axios.get(`auth/user`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+
+      authCtx.setUser(data)
+    }
+
     const {
       value: username, 
       isValid: usernameIsValid,
@@ -40,7 +51,7 @@ function Auth(){
       valueBlur: onEmailBlur,
       reset:resetEmail,
       messages:emailMessages,
-    } = useInput({validations, initialState:'', rules:{required:true, email:true}})
+    } = useInput({validations, initialState:'test1@test.com', rules:{required:true, email:true}})
 
     const {
       value: phone, 
@@ -60,7 +71,7 @@ function Auth(){
       valueBlur: onPasswordBlur,
       reset:resetPassword,
       messages:passwordMessages,
-    } = useInput({validations, initialState:'', rules:{required:true,minLength:6}})
+    } = useInput({validations, initialState:'hidraC137', rules:{required:true,minLength:6}})
 
     const {
       value: confirmPassword, 
@@ -74,12 +85,12 @@ function Auth(){
 
 
     let loginFormIsValid = (emailIsValid && passwordIsValid)
-    let registerFormIsValid = (usernameIsValid && emailIsValid && passwordIsValid && confirmPasswordIsValid && emailIsValid)
+    let registerFormIsValid = (usernameIsValid && emailIsValid && passwordIsValid && confirmPasswordIsValid && emailIsValid && phoneIsValid)
 
 
     async function login(e){
       e.preventDefault()
-      setLoading(true)
+      // setLoading(true)
 
       if(!loginFormIsValid){
         return
@@ -87,19 +98,13 @@ function Auth(){
 
       try {
         const response = await axios.post(LOGIN_URL,
-          JSON.stringify({email, password}),
-          {
-            headers: { 'Content-Type': 'application/json' },
-            withCredentials: true
-          }
-        );
-        console.log(JSON.stringify(response?.data));
-        const accessToken = response?.data?.accessToken;
-        authCtx.setAccessToken(accessToken)
-        resetEmail()
-        resetPassword()
-        setLoading(false)
-        navigate(from, { replace: true });
+          JSON.stringify({email, password}), { withCredentials: true });
+        authCtx.setAccessToken(response?.data?.access_token)
+        getUser(response?.data?.access_token)
+        // resetEmail()
+        // resetPassword()
+        // setLoading(false)
+        // navigate(from, { replace: true });
       } catch (err) {
         if (!err?.response) {
           setLoginErrMsg('No Server Response');
@@ -111,6 +116,7 @@ function Auth(){
           setLoginErrMsg('Login Failed');
         }
         loginErrRef.current?.focus();
+        setLoading(false)
       }
     }
 
@@ -124,22 +130,16 @@ function Auth(){
 
       try {
         const response = await axios.post(REGISTER_URL,
-          JSON.stringify({username, email, password, password2:confirmPassword, phone:phone}),
-          {
-            headers: { 'Content-Type': 'application/json' },
-            withCredentials: true
-          }
-        );
-        console.log(JSON.stringify(response?.data));
-        const accessToken = response?.data?.accessToken;
-        authCtx.setAccessToken(accessToken)
+          JSON.stringify({username, email, password, password2:confirmPassword, phone:phone}));
+        authCtx.setAccessToken(response?.data?.access_token)
+        getUser(response?.data?.access_token)
         resetUsername()
         resetEmail()
         resetPassword()
         resetConfirmPassword()
         resetPhone()
         setLoading(false)
-        navigate(from, { replace: true });
+        // navigate(from, { replace: true });
       } catch (err) {
         if (!err?.response) {
           setRegisterErrMsg('No Server Response');
@@ -149,6 +149,7 @@ function Auth(){
           setRegisterErrMsg('Registration Failed')
         }
         registerErrRef.current?.focus();
+        setLoading(false)
       }
     }
 

@@ -1,7 +1,11 @@
+import { useContext } from 'react'
 import {Link} from 'react-router-dom'
-
+import AuthContext from '../../store/auth-context'
 
 function Footer(){
+
+    const {isAuth, user} = useContext(AuthContext)
+
     return (
         <footer className="footer bg-faded-light">
             <div className="border-bottom border-light py-4">
@@ -16,13 +20,13 @@ function Footer(){
                             <li><Link className="nav-link-light" to="/cars/create">Sell your car</Link></li>
                         </ul>
                     </div>
-                    <div className="col-lg-3 col-md-4 col-sm-6 mb-2 mb-sm-4">
+                    {isAuth && <div className="col-lg-3 col-md-4 col-sm-6 mb-2 mb-sm-4">
                         <h3 className="fs-base text-light">Profile</h3>
                         <ul className="list-unstyled fs-sm">
-                            <li><Link className="nav-link-light" to="/user/profile">My account</Link></li>
-                            <li><Link className="nav-link-light" to="/user/wishlist">Wishlist</Link></li>
+                            <li><Link className="nav-link-light" to={`/user/${user?.id}`}>My account</Link></li>
+                            <li><Link className="nav-link-light" to={`/user/${user?.id}/wishlist`}>Wishlist</Link></li>
                         </ul>
-                    </div>
+                    </div>}
                     <div className="col-xl-2 col-lg-3 col-sm-6 col-md-3 mb-2 mb-sm-4">
                         <div className="d-flex flex-wrap pt-4">
                             <a target="_blank" className="btn btn-icon btn-translucent-light btn-xs rounded-circle mb-2 me-2" href="https://github.com/TuralHasanov11?tab=repositories" rel="noreferrer"><i className="fi-github"></i></a>

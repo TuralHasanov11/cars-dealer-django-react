@@ -6,9 +6,7 @@ const useLogout = () => {
 
     const logout = async () => {
         try {
-            const response = await axios('/auth/logout/blacklist', {
-                withCredentials: true
-            });
+            const response = await axios('/auth/logout/blacklist');
             setUser({});
             setAccessToken()
         } catch (err) {

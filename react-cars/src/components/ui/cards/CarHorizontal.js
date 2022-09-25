@@ -10,7 +10,7 @@ export default function CarHorizontalCard({car}){
 
 
   function deleteCarHandler(){
-    if(car.user.id === authUser.id){
+    if(car.user.id === authUser?.id){
         deleteCar(car)
     }else{
         return
@@ -38,18 +38,12 @@ export default function CarHorizontalCard({car}){
       </div>
     </div>
     <div className="card-body position-relative">
-      {car?.user.id === authUser.id&&(
+      {car?.user?.id === authUser?.id&&(
           <div className="dropdown position-absolute zindex-5 top-0 end-0 mt-3 me-3">
               <button className="btn btn-icon btn-translucent-light btn-xs rounded-circle" type="button" id="contextMenu2" data-bs-toggle="dropdown" aria-expanded="false"><i className="fi-dots-vertical"></i></button>
               <ul className="dropdown-menu dropdown-menu-dark my-1" aria-labelledby="contextMenu2">
               <li>
                   <Link to={`/cars/${car.id}/edit`} className="dropdown-item"><i className="fi-edit me-2"></i>Edit</Link>
-              </li>
-              <li>
-                  <button className="dropdown-item" type="button"><i className="fi-flame me-2"></i>Promote</button>
-              </li>
-              <li>
-                  <button className="dropdown-item" type="button"><i className="fi-power me-2"></i>Deactivate</button>
               </li>
               <li>
                   <button onClick={deleteCarHandler} className="dropdown-item" type="button"><i className="fi-trash me-2"></i>Delete</button>

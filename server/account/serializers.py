@@ -2,6 +2,7 @@ from dataclasses import field
 from rest_framework import serializers
 from django.conf import settings
 from account import models
+from django.contrib.auth import get_user_model
 
 class RegistrationSerializer(serializers.ModelSerializer):
 
@@ -9,14 +10,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(max_length=50)
     
     class Meta:
-        model = settings.AUTH_USER_MODEL
+        model = get_user_model()
         fields = ['email', 'username', 'password', 'password2', 'phone']
         extra_kwargs = {
             'password':{'write_only':True}
         }
 
     def save(self):
-        user = settings.AUTH_USER_MODEL(
+        user = get_user_model()(
             email= self.validated_data['email'],
             username = self.validated_data['username'],
         )
@@ -34,13 +35,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
         return user
 
+
 class PasswordChangeSerializer(serializers.ModelSerializer):
     new_password1 = serializers.CharField(style={'input_type':'password'}, write_only=True)
     new_password2 = serializers.CharField(style={'input_type':'password'}, write_only=True)
     old_password = serializers.CharField(style={'input_type':'password'}, write_only=True)
 
     class Meta:
-        model=settings.AUTH_USER_MODEL
+        model=get_user_model()
         fields = ['old_password', 'new_password1', 'new_password2']
 
     def validate(self, data):
@@ -63,24 +65,29 @@ class PasswordChangeSerializer(serializers.ModelSerializer):
         except:
             raise serializers.ValidationError("Failed to change password!")
 
+
 class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=models.Profile
         fields = ['phone']
 
+
 class AccountSerializer(serializers.ModelSerializer):
 
-    account_profile = ProfileSerializer(many=False)
+    account_profile = ProfileSerializer(many=False, read_only=True)
 
     class Meta:
-        model=settings.AUTH_USER_MODEL
-        fields = ['id', 'username', 'email', 'account_profile']
+        model=get_user_model()
+        fields = ['id', 'username', 'email', 
+            'account_profile', 'user_wishlist'
+        ]
+
 
 class AccountSecondarySerializer(serializers.ModelSerializer):
-
-    account_profile = ProfileSerializer(many=False)
+    
+    account_profile = ProfileSerializer(many=False, read_only=True)
 
     class Meta:
-        model=settings.AUTH_USER_MODEL
-        fields = ['id', 'username', 'account_profile']
+        model=get_user_model()
+        fields = ['id', 'username', 'email', 'account_profile']

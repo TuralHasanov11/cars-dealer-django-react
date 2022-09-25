@@ -5,7 +5,7 @@ import useLogout from "../../hooks/useLogout"
 
 function Header(){
 
-    const {user, isAuth} = useContext(AuthContext)
+    const {user, isAuth, wishlist} = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
     const logout = useLogout()
@@ -26,20 +26,20 @@ function Header(){
                 <NavLink className="btn btn-primary btn-sm ms-2 order-lg-3" to="/cars/create"><i className="fi-plus me-2"></i>Sell car</NavLink>
                 {isAuth?<>
                     <div className="dropdown d-none d-lg-block order-lg-3 my-n2 me-3 mx-2">
-                        <NavLink className="d-block py-2" to="/user">
-                            {user.username}
+                        <NavLink className="d-block py-2" to={`/user/${user?.id}`}>
+                            {user?.username}
                         </NavLink>
                         <div className="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                             <div className="d-flex align-items-start border-bottom border-light px-3 py-1 mb-2" style={{'width': '16rem'}}>
                                 <div className="ps-2">
-                                    <h6 className="fs-base text-light mb-0">{user.username}</h6>
-                                    <div className="fs-xs py-2">{user?.profile_user?.phone}<br/>{user.email}</div>
+                                    <h6 className="fs-base text-light mb-0">{user?.username}</h6>
+                                    <div className="fs-xs py-2">{user?.profile_user?.phone}<br/>{user?.email}</div>
                                 </div>
                             </div>
-                            <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user"><i className="fi-user me-2"></i>Personal Info</NavLink>
-                            <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/password-security"><i className="fi-lock me-2"></i>Password &amp; Security</NavLink>
+                            <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}`}><i className="fi-user me-2"></i>Personal Info</NavLink>
+                            <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}/password-security`}><i className="fi-lock me-2"></i>Password &amp; Security</NavLink>
                             <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}/cars`}><i className="fi-car me-2"></i>My Cars</NavLink>
-                            <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/wishlist"><i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">4</span></NavLink>
+                            <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}/wishlist`}><i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">{wishlist.length}</span></NavLink>
                             <div className="dropdown-divider"></div>
                             <div className="dropdown-item" onClick={signOut}><button disabled={loading} className='btn btn-primary btn-sm ms-2'><i className="fi-logout me-2"></i> Sign Out</button></div>
                         </div>
@@ -55,16 +55,16 @@ function Header(){
                         {isAuth?<>
                             <li className="nav-item dropdown d-lg-none mx-2">
                                 <a className="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {user.username}
+                                    {user?.username}
                                 </a>
                                 <div className="dropdown-menu dropdown-menu-dark">
                                     <div className="ps-3">
-                                        <div className="fs-xs py-2">{user?.profile_user?.phone}<br/>{user.email}</div>
+                                        <div className="fs-xs py-2">{user?.profile_user?.phone}<br/>{user?.email}</div>
                                     </div>
-                                    <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user"><i className="fi-user me-2"></i>Personal Info</NavLink>
-                                    <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/password-security"><i className="fi-lock me-2"></i>Password &amp; Security</NavLink>
+                                    <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}`}><i className="fi-user me-2"></i>Personal Info</NavLink>
+                                    <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}/password-security`}><i className="fi-lock me-2"></i>Password &amp; Security</NavLink>
                                     <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}/cars`}><i className="fi-car me-2"></i>My Cars</NavLink>
-                                    <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to="/user/wishlist"><i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">4</span></NavLink>
+                                    <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}/wishlist`}><i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">{wishlist.length}</span></NavLink>
                                     <div className="dropdown-divider"></div>
                                     <div className="dropdown-item" onClick={signOut}><button disabled={loading} className='btn btn-primary btn-sm ms-2'><i className="fi-logout me-2"></i> Sign Out</button></div>
                                 </div>

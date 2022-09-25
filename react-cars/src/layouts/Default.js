@@ -12,7 +12,7 @@ function Default(props){
     return  <>
     
         <main className="page-wrapper">
-            {isAuth ?? <Auth/>}
+            <Auth/>
             <Header />
             {props.children}
         </main>

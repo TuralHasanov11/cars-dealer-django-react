@@ -42,12 +42,6 @@ export default function CarLatest({car}) {
                   <Link to={`/cars/${car.id}/edit`} className="dropdown-item"><i className="fi-edit me-2"></i>Edit</Link>
               </li>
               <li>
-                  <button className="dropdown-item" type="button"><i className="fi-flame me-2"></i>Promote</button>
-              </li>
-              <li>
-                  <button className="dropdown-item" type="button"><i className="fi-power me-2"></i>Deactivate</button>
-              </li>
-              <li>
                   <button onClick={deleteCarHandler} className="dropdown-item" type="button"><i className="fi-trash me-2"></i>Delete</button>
               </li>
               </ul>

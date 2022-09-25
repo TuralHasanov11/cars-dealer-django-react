@@ -12,9 +12,6 @@ const CarsContext = createContext({
     getCars:()=>{},
     getLatestCars:()=>{},
     getCar:()=>{},
-    createCar:()=>{},
-    updateCar:()=>{},
-    deleteCar:()=>{},
 })
 
 export function CarsContextProvider(props){
@@ -65,42 +62,6 @@ export function CarsContextProvider(props){
         return data
     }
 
-    async function createCar(formData){
-        try {
-            const res = await axios.post(`auto/cars`, formData)
-            
-            if(res.ok){
-                return res
-            }
-        } catch (error) {
-            throw error
-        }
-    }
-
-    async function updateCar(car, formData){
-        try {
-            const res = await axios.put(`auto/cars/${car.id}`,formData)
-            
-            if(res.ok){
-                return res
-            }
-        } catch (error) {
-            throw error
-        }
-    }
-
-    async function deleteCar(car){
-        try {
-            const res = await axios.delete(`auto/cars/${car.id}`)
-
-            if(res.ok){
-                setCar({})
-                return res
-            }
-        } catch (error) {
-            throw error
-        }
-    }
 
     return <CarsContext.Provider value={{
         cars,
@@ -113,9 +74,6 @@ export function CarsContextProvider(props){
         getCars,
         getLatestCars,
         getCar,
-        createCar,
-        updateCar,
-        deleteCar
     }}>
         {props.children}
     </CarsContext.Provider>

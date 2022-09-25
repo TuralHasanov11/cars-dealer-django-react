@@ -1,11 +1,11 @@
 from rest_framework import generics, views as rest_views, permissions as rest_permissions, decorators as rest_decorators, response, status
-from rest_framework_simplejwt import tokens, serializers as jwt_serializers, views as jwt_views
+from rest_framework_simplejwt import tokens, serializers as jwt_serializers, views as jwt_views, exceptions
 from account import models, serializers
 from cars import models as carModels, serializers as carSerializers, pagination, permissions as carPermissions
 from django.middleware import csrf
 from django.contrib.auth import authenticate
 from django.conf import settings
-
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 def get_tokens_for_user(user):
     refresh = tokens.RefreshToken.for_user(user)
@@ -14,31 +14,70 @@ def get_tokens_for_user(user):
         'access_token': str(refresh.access_token),
     }
 
-class LoginView(rest_views.APIView):
-    def post(self, request, format=None):
-        data = request.data
-        response = response.Response()        
-        username = data.get('username', None)
-        password = data.get('password', None)
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            if user.is_active:
-                data = get_tokens_for_user(user)
-                response.set_cookie(
-                    key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-                    value = data["access"],
-                    expires = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
-                    secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                    httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
-                )
-                csrf.get_token(request)
-                response.data = {"Success" : "Login successfully","data":data}
-                return response
-            else:
-                return response.Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
+class CookieTokenRefreshSerializer(jwt_serializers.TokenRefreshSerializer):
+    refresh = None
+    def validate(self, attrs):
+        attrs['refresh'] = self.context['request'].COOKIES.get('refresh')
+        if attrs['refresh']:
+            return super().validate(attrs)
         else:
-            return response.Response({"Invalid" : "Invalid username or password!!"}, status=status.HTTP_404_NOT_FOUND)
+            raise exceptions.InvalidToken('No valid token found in cookie \'refresh\'')
+
+class CookieTokenRefreshView(jwt_views.TokenRefreshView):
+    def finalize_response(self, request, response, *args, **kwargs):
+        if response.data.get('refresh'):
+            response.set_cookie( 
+                key = settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'], 
+                value = response.data['refresh'],
+                expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+                secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+            )
+            del response.data['refresh']
+        return super().finalize_response(request, response, *args, **kwargs)
+    serializer_class = CookieTokenRefreshSerializer
+
+
+@rest_decorators.api_view(['POST'])
+@rest_decorators.permission_classes([])
+def loginView(request):
+    data = request.data
+    res = response.Response()        
+    email = data.get('email', None)
+    password = data.get('password', None)
+    user = authenticate(email=email, password=password)
+    if user is not None:
+        if user.is_active:
+            data = get_tokens_for_user(user)
+            res.set_cookie(
+                key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+                value = data["access_token"],
+                expires = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                samesite = "None"
+            )
+
+            res.set_cookie(
+                key = settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'], 
+                value = data["refresh_token"],
+                expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+                secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                samesite = "None"
+            )
+
+            print(res.cookies)
+            
+            csrf.get_token(request)
+            res.data = data
+            return res
+        else:
+            return response.Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        return response.Response({"Invalid" : "Invalid email or password!!"}, status=status.HTTP_404_NOT_FOUND)
+       
 
 @rest_decorators.api_view(['POST'])
 @rest_decorators.permission_classes([])
@@ -48,8 +87,27 @@ def register(request):
     
     serializer.is_valid(raise_exception=True)
     user = serializer.save()
-    return response.Response(status=status.HTTP_201_CREATED)
-        
+    res = response.Response()
+    user = authenticate(email=user.email, password=user.password)
+    if user is not None:
+        if user.is_active:
+            data = get_tokens_for_user(user)
+            res.set_cookie(
+                key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+                value = data["access_token"],
+                expires = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+            )
+            csrf.get_token(request)
+            res.data = data
+            return res
+        else:
+            return response.Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        return response.Response({"Invalid" : "Invalid email or password!!"}, status=status.HTTP_404_NOT_FOUND)
+            
 
 @rest_decorators.api_view(['POST'])
 @rest_decorators.authentication_classes([])
@@ -69,7 +127,7 @@ def blackListToken(request):
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
 def user(request):
     try:
-        account = models.Account.objects.select_related('profile_user').prefetch_related('user_wishlist').get(id=request.user.id)
+        account = models.Account.objects.select_related('account_profile').prefetch_related('user_wishlist').get(id=request.user.id)
     except models.Account.DoesNotExist:
         return response.Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -82,7 +140,7 @@ def user(request):
 @rest_decorators.permission_classes([])
 def accountDetail(request, id):
     try:
-        account = models.Account.objects.select_related('profile_user').get(id=id)
+        account = models.Account.objects.select_related('account_profile').get(id=id)
     except models.Account.DoesNotExist:
         return response.Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -117,14 +175,12 @@ class AccountTokenObtainPairView(jwt_views.TokenObtainPairView):
     serializer_class = AccountTokenObtainPairSerializer
 
 class UserCarListView(generics.ListAPIView):
-
     permission_classes = [carPermissions.CarReadOnlyPermission]
-    pagination_class = pagination.CarPagination
     ordering_fields = ['created_at', 'price', 'distance', 'made_at']
     serializer_class = carSerializers.CarListSerializer
 
     def get_queryset(self):
-        queryset = carModels.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine').prefetch_related('car_images')
+        queryset = carModels.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine', 'user').prefetch_related('car_images')
         if(self.request.user.id == self.kwargs['id']):
             q = self.request.query_params or None
             if q and q.get('is_pending'):
@@ -139,7 +195,7 @@ class WishlistView(generics.ListAPIView):
     ordering = ('-created_at')
 
     def get_queryset(self):
-        queryset = carModels.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine').prefetch_related('car_images').filter(wishlist__id=self.request.user.id)
+        queryset = carModels.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine', 'user').prefetch_related('car_images').filter(wishlist__id=self.request.user.id)
         return queryset
 
 

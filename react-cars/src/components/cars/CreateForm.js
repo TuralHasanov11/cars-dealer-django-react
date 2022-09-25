@@ -4,6 +4,7 @@ import ItemsContext from "../../store/items-context";
 import AuthContext from "../../store/auth-context";
 import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 import { useInput } from "../../hooks/use-input";
 import { validations } from "../../hooks/use-validation";
 
@@ -14,7 +15,7 @@ export default function CreateForm(props){
     const itemsCtx = useContext(ItemsContext)
     const authCtx = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
-
+    const axiosPrivate = useAxiosPrivate()
     const [equipment, setEquipment] = useState([])
     const [barter, setBarter] = useState(false)
     const [credit, setCredit] = useState(false)
@@ -129,7 +130,7 @@ export default function CreateForm(props){
         valueBlur: onPriceBlur,
         reset:resetPrice,
         messages:priceMessages,
-    } = useInput({validations:validations, rules:{required:true,isInteger:true,min:200}})
+    } = useInput({validations:validations, initialState:'' ,rules:{required:true,isInteger:true,min:200}})
 
     const {
         value: description, 
@@ -145,7 +146,6 @@ export default function CreateForm(props){
     const carImageBack = useRef()
     const carImagePanel = useRef()
     const carImageOther = useRef()
-    const carImages = []
 
     function handleBrandChange(e){
         onBrandChange(e)
@@ -189,46 +189,54 @@ export default function CreateForm(props){
     }
 
 
-    function formSubmit(event){
+    async function formSubmit(event){
     
         event.preventDefault()
         setLoading(true)
 
         if(!formIsValid){
             return
-        } 
-
-        carCtx.createCar({brand,car_model:carModel,city,color, car_body:carBody,
-            engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
-            barter, credit, distance, description, madeAt, carImages
-        }).then(res=>{
-            resetForm()
-            setLoading(false)
-            // props.createCar(res)
-        }).catch(e=>{
-            console.log(e)
-        })
-
-
-        console.log({brand,car_model:carModel,city,color, car_body:carBody,
-            engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
-            barter, credit, distance, description,madeAt, carImages
-        })
+        }
         
-        // carCtx.createCar({brand,car_model:carModel,city,color, car_body:carBody,
-        //     engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
-        //     barter, credit, distance, description,madeAt
-        // }).then(res=>{
-        //     resetForm()
-        //     setLoading(false)
-        //     props.createCar(res)
-        // }).catch(e=>{
-        //     // props.setMessage({
-        //     //     success:false,
-        //     //     message:'Car not shared!'
-        //     // })
-        //     console.log(e)
-        // })
+        console.log(equipment.map(el=>parseInt(el)))
+        const formData = new FormData();
+        formData.append("brand", brand);
+        formData.append("car_model", carModel)
+        formData.append("city", city)
+        formData.append("color", color)
+        formData.append("car_body", carBody)
+        formData.append("engine", engine)
+        formData.append("gear_lever", gearLever)
+        formData.append("transmission", transmission)
+        formData.append("fuel", fuel)
+        formData.append("equipment", equipment.map(el=>parseInt(el)))
+        formData.append("price", price)
+        formData.append("barter", barter)
+        formData.append("credit", credit)
+        formData.append("distance", distance)
+        formData.append("description", description)
+        formData.append("madeAt", madeAt)
+        formData.append("car_images", [
+            {type:"front", image:carImageFront.current.files[0]},
+            {type:"back", image:carImageBack.current.files[0]},
+            {type:"panel", image:carImagePanel.current.files[0]},
+            ...Array.prototype.slice.call(carImageOther.current.files).map(el=> {
+                return {type:"other", image:el}
+            })
+        ])
+
+        try {
+            axiosPrivate.defaults.headers.common['Content-Type'] = 'multipart/form-data';
+            const res = await axiosPrivate.post(`auto/cars`, formData)
+            
+            if(res.ok){
+                // resetForm()
+                setLoading(false)
+                // props.createCar(res)
+            }
+        } catch (error) {
+            setLoading(false)
+        }
     }
 
 

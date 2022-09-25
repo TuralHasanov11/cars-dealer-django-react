@@ -1,17 +1,17 @@
-import { useContext, useEffect, useState } from 'react'
-import {Routes, Navigate, Route, Outlet, Link, useParams, useSearchParams, useLocation} from 'react-router-dom'
-import Loading from '../../components/inc/Loading'
+import { useContext, useEffect, useState} from 'react'
+import {Outlet, Link, useParams, useSearchParams} from 'react-router-dom'
 import AuthContext from '../../store/auth-context'
 import UserContext from '../../store/user-context'
+import Loading from '../../components/inc/Loading'
 
 
 function User(){
 
     const {user: authUser, wishlist} = useContext(AuthContext)
-    const {getUserAndCars, user} = useContext(UserContext)
+    const {user, getUserAndCars} = useContext(UserContext)
     const {userId} = useParams()
-    const [searchParams] = useSearchParams()
     const [loading, setLoading] = useState(false)
+    const [searchParams] = useSearchParams()
 
     useEffect(()=>{
       if(userId !== undefined){
@@ -26,14 +26,7 @@ function User(){
       }
     },[userId, searchParams])
 
-    return loading?<Loading/>:<div className="container pt-5 pb-lg-4 mt-5 mb-sm-2">
-    <nav className="mb-4 pt-md-3" aria-label="Breadcrumb">
-      <ol className="breadcrumb breadcrumb-light">
-        <li className="breadcrumb-item"><Link to="/">Home</Link></li>
-        <li className="breadcrumb-item"><Link to="/user">Account</Link></li>
-        <li className="breadcrumb-item active" aria-current="page">Personal Info</li>
-      </ol>
-    </nav>
+    return loading?<Loading />:<div className="container pt-5 pb-lg-4 mt-5 mb-sm-2">
     <div className="row">
       <aside className="col-lg-4 col-md-5 pe-xl-4 mb-5">
         <div className="card card-body card-light border-0 shadow-sm pb-1 me-lg-1">
@@ -41,7 +34,7 @@ function User(){
             <div className="pt-md-2 pt-lg-0 ps-3 ps-md-0 ps-lg-3">
               <h2 className="fs-lg text-light mb-0">{user?.username}</h2>
               <ul className="list-unstyled fs-sm mt-3 mb-0">
-                <li><div className="nav-link-light fw-normal"><i className="fi-phone opacity-60 me-2"></i>{user?.profile_user?.phone}</div></li>
+                <li><div className="nav-link-light fw-normal"><i className="fi-phone opacity-60 me-2"></i>{user?.account_profile?.phone}</div></li>
                 {userId == authUser?.id?( <li><a className="nav-link-light fw-normal" href={`mailto:${authUser?.user?.email}`}><i className="fi-mail opacity-60 me-2"></i>{authUser?.user?.email}</a></li>):''}
               </ul>
             </div>
@@ -55,21 +48,21 @@ function User(){
             </a>
             <div className="collapse d-md-block mt-3" id="account-nav">
               <div className="card-nav">
-                  <Link className="card-nav-link" to={`/user/${user?.id}/cars`}>
-                      <i className="fi-car me-2"></i>Cars
-                  </Link>
-                  {(!userId || (userId === authUser?.id)) && <>
-                    <Link className="card-nav-link"  to="/user/profile">
+                  {(!userId || (user?.id === authUser?.id)) && <>
+                    <Link className="card-nav-link"  to={`/user/${userId}`}>
                       <i className="fi-user me-2"></i>Personal Info
                   </Link>
-                  <Link className="card-nav-link" to="/user/password-security">
+                  <Link className="card-nav-link" to={`/user/${userId}/password-security`}>
                       <i className="fi-lock me-2"></i>Password &amp; Security
                   </Link>
                   
-                  <Link className="card-nav-link" to="/user/wishlist">
+                  <Link className="card-nav-link" to={`/user/${userId}/wishlist`}>
                       <i className="fi-heart me-2"></i>Wishlist<span className="badge bg-faded-light ms-2">{wishlist?.length}</span>
                   </Link>
                   </>}
+                  <Link className="card-nav-link" to={`/user/${userId}/cars`}>
+                      <i className="fi-car me-2"></i>Cars
+                  </Link>
               </div>
             </div>
         </div>

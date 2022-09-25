@@ -9,4 +9,5 @@ export default {
     max:value=>`Value should be lower than or equal to ${value}`,
     between:(value1, value2)=>`Value should be between ${value1} and ${value2}`,
     boolean:()=>`Value should be boolean`,
+    nullable:(value)=>value || !value
 }

@@ -26,6 +26,11 @@ class CarImageSerializer(serializers.ModelSerializer):
         model = models.CarImage
         fields = ['id','image', 'type', 'is_front', 'is_back', 'is_panel']
 
+class CarImageCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CarImage
+        fields = ['image', 'type']
+
 class CarBodySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CarBody
@@ -110,6 +115,7 @@ class CarDetailSerializer(serializers.ModelSerializer):
 class CarCreateUpdateSerializer(serializers.ModelSerializer):
 
     equipment = serializers.PrimaryKeyRelatedField(many=True, queryset=models.Equipment.objects.all())
+    car_images = CarImageCreateUpdateSerializer(many=True)
 
     class Meta:
         model = models.Car
@@ -137,8 +143,8 @@ class CarCreateUpdateSerializer(serializers.ModelSerializer):
         instance.gear_lever = validated_data.get('gear_lever', instance.gear_lever)
         instance.transmission = validated_data.get('transmission', instance.transmission)
         instance.fuel = validated_data.get('fuel', instance.fuel)
-        instance.equipment = validated_data.get('equipment', instance.validated_data.get('equipment', instance.fuel))
-        instance.car_images = validated_data.get('car_images', instance.validated_data.get('car_images', instance.fuel))
+        instance.equipment = validated_data.get('equipment', instance.validated_data.get('equipment', instance.equipment))
+        instance.car_images = validated_data.get('car_images', instance.validated_data.get('car_images', instance.car_images))
 
         return instance
     

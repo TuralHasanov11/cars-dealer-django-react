@@ -1,10 +1,11 @@
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import CarsContext from '../../store/cars-context'
 import ItemsContext from "../../store/items-context";
 import AuthContext from "../../store/auth-context";
 import PropTypes from 'prop-types';
 import { useInput } from "../../hooks/use-input";
 import { validations } from "../../hooks/use-validation";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 export default function EditForm(props){
 
@@ -12,6 +13,8 @@ export default function EditForm(props){
     const itemsCtx = useContext(ItemsContext)
     const authCtx = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
+    const axiosPrivate = useAxiosPrivate()
+
 
     const {
         value: brand, 
@@ -126,6 +129,11 @@ export default function EditForm(props){
 
     const [equipment, setEquipment] = useState(props.car.equipment.map(el => el.id))
 
+    const carImageFront = useRef()
+    const carImageBack = useRef()
+    const carImagePanel = useRef()
+    const carImageOther = useRef()
+
     function onEquipmentItemToggle(e){
         let item = parseInt(e.target.value)
         setEquipment(prev=>{
@@ -149,46 +157,53 @@ export default function EditForm(props){
         transmissionIsValid && fuelIsValid && distanceIsValid && madeAtIsValid && priceIsValid && descriptionIsValid)
 
 
-    function onEquipmentItemToggle(e){
-        let item = parseInt(e.target.value)
-        setEquipment(prev=>{
-            if(prev.includes(item)){
-                return prev.filter(function(value, index){ 
-                    return value != item;
-                });
-            }else{
-                return prev.concat([item])
-            }
-        })
-    }
-
-    function formSubmit(event){
+    async function formSubmit(event){
         event.preventDefault()
         setLoading(true)
 
         if(!formIsValid){
             return
-        } 
+        }
+        
+        console.log(equipment.map(el=>parseInt(el)))
+        const formData = new FormData();
+        formData.append("brand", brand);
+        formData.append("car_model", carModel)
+        formData.append("city", city)
+        formData.append("color", color)
+        formData.append("car_body", carBody)
+        formData.append("engine", engine)
+        formData.append("gear_lever", gearLever)
+        formData.append("transmission", transmission)
+        formData.append("fuel", fuel)
+        formData.append("equipment", equipment.map(el=>parseInt(el)))
+        formData.append("price", price)
+        formData.append("barter", barter)
+        formData.append("credit", credit)
+        formData.append("distance", distance)
+        formData.append("description", description)
+        formData.append("madeAt", madeAt)
+        formData.append("car_images", [
+            {type:"front", image:carImageFront.current.files[0]},
+            {type:"back", image:carImageBack.current.files[0]},
+            {type:"panel", image:carImagePanel.current.files[0]},
+            ...Array.prototype.slice.call(carImageOther.current.files).map(el=> {
+                return {type:"other", image:el}
+            })
+        ])
 
-        console.log(props.car, {brand,car_model:carModel,city,color, car_body:carBody,
-            engine,gear_lever:gearLever, transmission, fuel, equipment, price, 
-            barter, credit, distance, description, madeAt
-        })
-
-        // carCtx.updateCar(car, {brand,car_model:carModel,city,color, car_body:carBody,
-        //     engine,gear_lever:gearLever, transmission,fuel,equipment, price, 
-        //     barter, credit, distance, description,madeAt
-        // }).then(res=>{
-        //     // props.setMessage({
-        //     //     success:true,
-        //     //     message:'Car shared!'
-        //     // })
-        // }).catch(e=>{
-        //     // props.setMessage({
-        //     //     success:false,
-        //     //     message:'Car not shared!'
-        //     // })
-        // })
+        try {
+            axiosPrivate.defaults.headers.common['Content-Type'] = 'multipart/form-data';
+            const res = await axiosPrivate.put(`auto/cars/${props.car.id}`, formData)
+            
+            if(res.ok){
+                // resetForm()
+                setLoading(false)
+                // props.createCar(res)
+            }
+        } catch (error) {
+            setLoading(false)
+        }
     }
 
     return <form onSubmit={formSubmit}>
@@ -339,7 +354,10 @@ export default function EditForm(props){
                 <p className="fs-sm mb-1">The maximum photo size is 8 MB. Formats: jpeg, jpg, png. Put the main picture first.<br/>The maximum video size is 10 MB. Formats: mp4, mov.</p>
                 </div>
             </div>
-            {/* <input className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" multiple data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload photos / video&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/> */}
+            <input ref={carImageFront} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload front photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
+            <input ref={carImageBack} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload back photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
+            <input ref={carImagePanel} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload front panel photo&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
+            <input ref={carImageOther} className="file-uploader file-uploader-grid bg-faded-light border-light" type="file" multiple data-max-file-size="10MB" accept="image/png, image/jpeg, video/mp4, video/mov" data-label-idle="&lt;div className=&quot;btn btn-primary mb-3&quot;&gt;&lt;i className=&quot;fi-cloud-upload me-1&quot;&gt;&lt;/i&gt;Upload additional photos&lt;/div&gt;&lt;div className=&quot;text-light opacity-70&quot;&gt;or drag them in&lt;/div&gt;"/>
         </section>
 
         <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="location">

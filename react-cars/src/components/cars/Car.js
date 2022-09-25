@@ -35,14 +35,14 @@ export default function Car({car, deleteCar}){
                         <div className="ps-1"><span className="tns-current-slide fs-5 fw-bold"></span><span className="fs-5 fw-bold">/</span><span className="tns-total-slides fs-5 fw-bold"></span></div>
                     </div>
                     <div className="tns-carousel-inner" data-carousel-options="{&quot;navAsThumbnails&quot;: true, &quot;navContainer&quot;: &quot;#thumbnails&quot;, &quot;gutter&quot;: 12, &quot;responsive&quot;: {&quot;0&quot;:{&quot;controls&quot;: false},&quot;500&quot;:{&quot;controls&quot;: true}}}">
-                        {car?.car_images?.map(image => (
-                            <div><img className="rounded-3" src={image.image} alt={image.image}/></div>
+                        {car?.car_images?.map((image, index) => (
+                            <div key={index}><img className="rounded-3" src={image.image} alt={image.image}/></div>
                         ))}
                     </div>
                 </div>
                 <ul className="tns-thumbnails" id="thumbnails">
-                    {car?.car_images?.map(image => (
-                        <li className="tns-thumbnail"><img src={image.image} alt="Thumbnail"/></li>
+                    {car?.car_images?.map((image, index) => (
+                        <li key={index} className="tns-thumbnail"><img src={image.image} alt="Thumbnail"/></li>
                     ))}
                 </ul>
                 <div className="py-3 mb-3">
@@ -111,7 +111,7 @@ export default function Car({car, deleteCar}){
                             </Link>
                             <Link className="text-light" to={`/user/${car?.user?.id}/cars`}>Other ads by this seller</Link>
                             <div className="pt-4 mt-2">
-                                <button className="btn btn-outline-light btn-lg px-4 mb-3" type="button"><i className="fi-phone me-2"></i>{car?.user?.profile_user?.phone}</button>
+                                <button className="btn btn-outline-light btn-lg px-4 mb-3" type="button"><i className="fi-phone me-2"></i>{car?.user?.account_profile?.phone}</button>
                                 <br/>
                             </div>
                         </div>

@@ -14,15 +14,31 @@ import Password from './views/auth/Password'
 import UserCars from './views/auth/UserCarsView'
 import Wishlist from './views/auth/Wishlist'
 import AuthMiddleware from './middleware/AuthMiddleware'
-import { useContext, useEffect } from 'react';
-import AuthContext from './store/auth-context';
+import { useEffect } from 'react';
+import useUser from './hooks/useUser';
 
 function App() {
 
-  const authCtx = useContext(AuthContext)
+  // const authCtx = useContext(AuthContext)
+  const getUser = useUser()
 
   useEffect(()=>{
-    authCtx.getUser()
+    
+    const controller = new AbortController();
+        
+    async function autoLogin(){
+      try {
+          getUser()
+      } catch (error) {
+          console.log(error.response)
+      }
+    }
+
+    autoLogin();
+
+    return () => {
+      controller.abort();
+    }
   }, [])
   
   return <>
@@ -37,13 +53,13 @@ function App() {
             <Route path=':id/edit' exact element={ <CarEditView /> }></Route>
           </Route>
         </Route>
-        <Route path="/user" element={<User />}>
+        <Route path="/user/:userId" element={<User />}>
           <Route element={<AuthMiddleware />}>
             <Route index element={<Profile />} />
             <Route path="password-security" element={<Password /> } />
             <Route path="wishlist" element={<Wishlist />} />
           </Route>
-          <Route path=":userId/cars" exact element={<UserCars />} />
+          <Route path="cars" exact element={<UserCars />} />
         </Route>
         <Route path='*' element={<Navigate to='/' />}></Route>
     </Routes>

@@ -11,7 +11,7 @@ class CarListCreateView(generics.ListCreateAPIView):
     ordering = ['-created_at']
 
     def get_queryset(self):
-        return models.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine').prefetch_related('car_images')
+        return models.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine', 'user').prefetch_related('car_images')
 
     def get_object(self):
         obj = get_object_or_404(self.get_queryset(), id=self.kwargs['car'])
