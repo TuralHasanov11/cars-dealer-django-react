@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 import { useInput } from "../../hooks/use-input";
 import { validations } from "../../hooks/use-validation";
+import PaymentModal from "../payment/Modal";
 
 
 export default function CreateForm(props){
@@ -184,15 +185,14 @@ export default function CreateForm(props){
     }
 
 
-    async function formSubmit(event){
+    async function createCar(paymentMethodId){
     
-        event.preventDefault()
-        setLoading(true)
-
         if(!formIsValid){
             return
         }
         
+        setLoading(true)
+
         const formData = new FormData();
         formData.append("brand", brand);
         formData.append("car_model", carModel)
@@ -217,7 +217,7 @@ export default function CreateForm(props){
 
         try {
             axiosPrivate.defaults.headers.common['Content-Type'] = 'multipart/form-data';
-            const res = await axiosPrivate.post(`auto/cars`, formData)
+            const res = await axiosPrivate.post(`auto/cars`, {...formData, payment_method_id: paymentMethodId})
             
             if(res.status===201){
                 // resetForm()
@@ -227,10 +227,14 @@ export default function CreateForm(props){
         } catch (error) {
             setLoading(false)
         }
+            
     }
 
 
-    return <form onSubmit={formSubmit}>
+    return <>
+        <PaymentModal createCar={createCar} loading={loading} />
+
+        <form>
          <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="price">
             <h2 className="h4 text-light mb-4"><i className="fi-cash text-primary fs-5 mt-n1 me-2"></i>Price</h2>
             <label className="form-label text-light" htmlFor="price">Price <span className="text-danger">*</span></label>
@@ -399,9 +403,13 @@ export default function CreateForm(props){
         </section>
 
         <div className="d-sm-flex justify-content-between pt-2">
-            <button disabled={loading||!formIsValid} type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button>
+            <a href="#payment-modal" disabled={loading||!formIsValid} data-bs-toggle="modal">Checkout</a>
+            {/* <button disabled={loading||!formIsValid} type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button> */}
         </div>
     </form>
+
+    </>
+
            
 };
 

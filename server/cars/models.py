@@ -161,6 +161,7 @@ class Car(models.Model):
     transmission = models.ForeignKey(Transmission, on_delete=models.PROTECT, related_name='transmission')
     fuel = models.ForeignKey(Fuel, on_delete=models.PROTECT, related_name='fuel')
     equipment = models.ManyToManyField(Equipment, related_name="car_equipment")
+    payment_id = models.CharField(verbose_name="Payment ID", null=False, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -196,4 +197,4 @@ class CarImage(models.Model):
     def is_panel(self):
         return self.type == self.ImageTypes.PANEL
 
-
+    

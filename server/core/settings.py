@@ -34,6 +34,7 @@ INSTALLED_APPS = [
 
     'account',
     "cars",
+    "payment",
     
     'rest_framework',
     "corsheaders",
