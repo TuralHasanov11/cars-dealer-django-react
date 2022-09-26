@@ -1,8 +1,9 @@
 from django.urls import path
 from payment import views
 
-app_name='cars'
+app_name='payment'
 
 urlpatterns = [
-    path('webhooks/paypal', views.PaypalWebhookView.as_view(), name='paypal_webhook'),
+    path('paypal/webhooks', views.PaypalWebhookView.as_view(), name='paypal_webhook'),
+    path('stripe/payment-methods/attach', views.attachPaymentMethodToCustomer, name='stripe_payment_methods_attach'),
 ]
