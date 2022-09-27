@@ -4,6 +4,7 @@ from payment import views
 app_name='payment'
 
 urlpatterns = [
-    path('paypal/webhooks', views.PaypalWebhookView.as_view(), name='paypal_webhook'),
-    path('stripe/payment-methods/attach', views.attachPaymentMethodToCustomer, name='stripe_payment_methods_attach'),
+    path('stripe/payment-methods', views.stripeGetPaymentMethods),
+    path('stripe/create-payment', views.stripeCreatePayment),
+    path('stripe/payment-methods/attach', views.stripeAttachPaymentMethod),
 ]

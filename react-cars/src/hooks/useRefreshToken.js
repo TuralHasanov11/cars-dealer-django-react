@@ -7,9 +7,8 @@ const useRefreshToken = () => {
     const refresh = async () => {
         const response = await axios.post('auth/token/refresh');
         setAccessToken(response.data.access)
-        console.log(response)
         setCSRFToken(response.headers["x-csrftoken"])
-        return {accessToken: response.data.access, csrfToken: response.data.csrftoken};
+        return {accessToken: response.data.access, csrfToken: response.headers["x-csrftoken"]};
     }
     return refresh;
 };

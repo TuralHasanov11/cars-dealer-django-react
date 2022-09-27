@@ -16,10 +16,10 @@ import Wishlist from './views/auth/Wishlist'
 import AuthMiddleware from './middleware/AuthMiddleware'
 import { useEffect } from 'react';
 import useUser from './hooks/useUser';
+import Checkout from './views/Payment/Checkout';
 
 function App() {
 
-  // const authCtx = useContext(AuthContext)
   const getUser = useUser()
 
   useEffect(()=>{
@@ -60,6 +60,9 @@ function App() {
             <Route path="wishlist" element={<Wishlist />} />
           </Route>
           <Route path="cars" exact element={<UserCars />} />
+        </Route>
+        <Route element={<AuthMiddleware />}>
+          <Route path="checkout" element={<Checkout /> } />
         </Route>
         <Route path='*' element={<Navigate to='/' />}></Route>
     </Routes>

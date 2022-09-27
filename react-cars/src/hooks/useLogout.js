@@ -2,13 +2,14 @@ import axios from "../axios";
 import useAuth from "./useAuth";
 
 const useLogout = () => {
-    const { setUser, setAccessToken } = useAuth();
+    const { setUser, setAccessToken, setCSRFToken } = useAuth();
 
     const logout = async () => {
         try {
-            const response = await axios('/auth/logout/blacklist');
+            const response = await axios.post('/auth/logout/blacklist');
             setUser({});
             setAccessToken()
+            setCSRFToken()
         } catch (err) {
             console.error(err);
         }

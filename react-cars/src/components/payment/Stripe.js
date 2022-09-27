@@ -14,12 +14,12 @@ export default function StripeForm({onPaymentError, createCar, loading}){
 
   useEffect(()=>{
     async function getPaymentMethods(){
-        const {data} = await axiosPrivate.get("auth/stripe/payment-methods")
+        const {data} = await axiosPrivate.get("payment/stripe/payment-methods")
         setPaymentMethods(data)
     }
 
     getPaymentMethods()
-  })
+  }, [])
 
   async function attachPaymentMethodToCustomer(paymentMethodId){
     try {
@@ -89,7 +89,7 @@ export default function StripeForm({onPaymentError, createCar, loading}){
             <input disabled value={user.account_profile.phone} className={`form-control form-control-light mb-2`} id="payment-phone"/>
         </div>
         {paymentMethods && selectedPaymentMethod
-            ? paymentMethods?.map(method => (
+            ? paymentMethods?.data?.map(method => (
                 <div className="mb-4">
                     <label className="form-label text-light mb-2" htmlFor={`payment-method-${method?.id}`}>{method?.card?.brand + ' ************' + method?.card?.last4}</label>
                     <input type="radio" onChange={(e)=>{setSelectedPaymentMethod(e.target.value)}} value={method?.id} className={`form-control form-control-light mb-2`} id={`payment-method-${method?.id}`}/>

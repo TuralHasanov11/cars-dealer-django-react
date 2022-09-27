@@ -12,6 +12,8 @@ const CarsContext = createContext({
     getCars:()=>{},
     getLatestCars:()=>{},
     getCar:()=>{},
+    carPreview: {}, 
+    setCarPreview: ()=>{}
 })
 
 export function CarsContextProvider(props){
@@ -44,6 +46,7 @@ export function CarsContextProvider(props){
     })
 
     const [onFilter, setOnFilter] = useState(false)
+    const [carPreview, setCarPreview] = useState({})
 
 
     async function getCars(query={}){
@@ -74,6 +77,8 @@ export function CarsContextProvider(props){
         getCars,
         getLatestCars,
         getCar,
+        carPreview, 
+        setCarPreview
     }}>
         {props.children}
     </CarsContext.Provider>

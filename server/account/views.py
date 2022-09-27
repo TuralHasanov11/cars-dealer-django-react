@@ -112,13 +112,18 @@ def register(request):
 @rest_decorators.permission_classes([])
 def blackListToken(request):
     try:
-        refreshToken = request.data['refresh_token']
+        refreshToken = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
         token = tokens.RefreshToken(refreshToken)
         token.blacklist()
     except:
         return response.Response(status=status.HTTP_400_BAD_REQUEST)
 
-    return response.Response({'message':'refresh token blacklisted'})
+    res = response.Response()
+    res.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
+    res.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
+    res.delete_cookie("X-CSRFToken")
+
+    return res
 
 
 @rest_decorators.api_view(['GET'])

@@ -1,8 +1,7 @@
 from rest_framework import serializers
 from cars import models
 from account import serializers as accountSerializers
-from payment.stripe import Stripe, StripePaymentData
-from server.payment.config import CarPaymentConfig
+from payment import stripe, config
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
@@ -130,8 +129,10 @@ class CarCreateUpdateSerializer(serializers.ModelSerializer):
         
     def create(self, validated_data):
 
-        paymentMethodId = self.context.get("request").data["payment_method_id"]
-        payment = Stripe.pay(StripePaymentData(amount=CarPaymentConfig.AMOUNT, currency= CarPaymentConfig.CURRENCY, payment_method=paymentMethodId))             
+        payment = stripe.Stripe.pay(
+            paymentMethod=self.context.get("request").data["payment_method_id"], 
+            paymentId=self.context.get("request").data["payment_id"]
+        )             
 
         equipment = validated_data.pop("equipment", None)
         car = models.Car.objects.create(**validated_data, user=self.context.get("request").user, payment_id=payment["id"])

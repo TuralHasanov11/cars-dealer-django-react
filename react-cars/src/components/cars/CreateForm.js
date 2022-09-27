@@ -1,20 +1,20 @@
 import { useContext, useRef, useState } from "react";
 import ItemsContext from "../../store/items-context";
+import CarsContext from "../../store/cars-context"
 import PropTypes from 'prop-types';
-import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 import { useInput } from "../../hooks/use-input";
 import { validations } from "../../hooks/use-validation";
-import PaymentModal from "../payment/Modal";
+import { useNavigate } from "react-router-dom";
 
 
 export default function CreateForm(props){
 
+    const navigate = useNavigate();
     const itemsCtx = useContext(ItemsContext)
-    const [loading, setLoading] = useState(false)
-    const axiosPrivate = useAxiosPrivate()
     const [equipment, setEquipment] = useState([])
     const [barter, setBarter] = useState(false)
     const [credit, setCredit] = useState(false)
+    const {setCarPreview} = useContext(CarsContext)
 
 
     const {
@@ -42,7 +42,16 @@ export default function CreateForm(props){
         valueChange: onCityChange, 
         reset:resetCity,
         messages:cityMessages,
-    } = useInput({validations:validations, rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
+
+    const {
+        value: currency, 
+        isValid: currencyIsValid,
+        hasError:currencyHasError, 
+        valueChange: onCurrencyChange, 
+        reset:resetCurrency,
+        messages:currencyMessages,
+    } = useInput({validations:validations, initialState:"azn", rules:{required:true,}})
 
     const {
         value: color, 
@@ -51,7 +60,7 @@ export default function CreateForm(props){
         valueChange: onColorChange, 
         reset:resetColor,
         messages:colorMessages,
-    } = useInput({validations:validations, rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
 
     const {
         value: carBody, 
@@ -60,7 +69,7 @@ export default function CreateForm(props){
         valueChange: onCarBodyChange, 
         reset:resetCarBody,
         messages:carBodyMessages,
-    } = useInput({validations:validations, rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
 
     const {
         value: engine, 
@@ -69,7 +78,7 @@ export default function CreateForm(props){
         valueChange: onEngineChange, 
         reset:resetEngine,
         messages:engineMessages,
-    } = useInput({validations:validations, rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
 
     const {
         value: gearLever, 
@@ -78,7 +87,7 @@ export default function CreateForm(props){
         valueChange: onGearLeverChange, 
         reset:resetGearLever,
         messages:gearLeverMessages,
-    } = useInput({validations:validations, rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
 
     const {
         value: transmission, 
@@ -87,7 +96,7 @@ export default function CreateForm(props){
         valueChange: onTransmissionChange, 
         reset:resetTransmission,
         messages:transmissionMessages,
-    } = useInput({validations:validations, rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
 
     const {
         value: fuel, 
@@ -96,7 +105,7 @@ export default function CreateForm(props){
         valueChange: onFuelChange, 
         reset:resetFuel,
         messages:fuelMessages,
-    } = useInput({validations:validations, rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
 
 
     const {
@@ -116,7 +125,7 @@ export default function CreateForm(props){
         valueChange: onMadeAtChange, 
         reset:resetMadeAt,
         messages:madeAtMessages,
-    } = useInput({validations:validations, rules:{required:true,isInteger:true,min:1980, max:new Date().getFullYear()}})
+    } = useInput({validations:validations, initialState:2012, rules:{required:true,isInteger:true,min:1980, max:new Date().getFullYear()}})
 
     const {
         value: price, 
@@ -126,7 +135,7 @@ export default function CreateForm(props){
         valueBlur: onPriceBlur,
         reset:resetPrice,
         messages:priceMessages,
-    } = useInput({validations:validations, initialState:'' ,rules:{required:true,isInteger:true,min:200}})
+    } = useInput({validations:validations, initialState:12000 ,rules:{required:true,isInteger:true,min:200}})
 
     const {
         value: description, 
@@ -136,7 +145,7 @@ export default function CreateForm(props){
         valueBlur: onDescriptionBlur,
         reset:resetDescription,
         messages:descriptionMessages,
-    } = useInput({validations:validations, rules:{nullable:true}})
+    } = useInput({validations:validations, initialState:"Description", rules:{nullable:true}})
 
     const carImageFront = useRef()
     const carImageBack = useRef()
@@ -163,39 +172,21 @@ export default function CreateForm(props){
 
     
     let formIsValid = (brandIsValid && carModelIsValid && cityIsValid && colorIsValid && carBodyIsValid && engineIsValid &&  gearLeverIsValid && 
-        transmissionIsValid && fuelIsValid && distanceIsValid && madeAtIsValid && priceIsValid && descriptionIsValid)
-
-    function resetForm(){
-        resetBrand()
-        resetCarModel()
-        resetCity()
-        resetColor()
-        resetCarBody()
-        resetEngine()
-        resetGearLever()
-        resetTransmission()
-        resetFuel()
-        setEquipment([])
-        resetDistance()
-        resetMadeAt()
-        setBarter(false)
-        setCredit(false)
-        resetPrice()
-        resetDescription()
-    }
+        transmissionIsValid && fuelIsValid && distanceIsValid && madeAtIsValid && priceIsValid && descriptionIsValid && currencyIsValid)
 
 
-    async function createCar(paymentMethodId){
+    async function createCar(e){
+
+        e.preventDefault()
     
         if(!formIsValid){
             return
         }
         
-        setLoading(true)
-
         const formData = new FormData();
         formData.append("brand", brand);
         formData.append("car_model", carModel)
+        formData.append("currency", currency)
         formData.append("city", city)
         formData.append("color", color)
         formData.append("car_body", carBody)
@@ -213,33 +204,46 @@ export default function CreateForm(props){
         formData.append("front_image", carImageFront.current.files[0]) 
         formData.append("back_image", carImageBack.current.files[0])
         formData.append("panel_image", carImagePanel.current.files[0])
-        formData.append("other_images", ...Array.prototype.slice.call(carImageOther.current.files))
-
-        try {
-            axiosPrivate.defaults.headers.common['Content-Type'] = 'multipart/form-data';
-            const res = await axiosPrivate.post(`auto/cars`, {...formData, payment_method_id: paymentMethodId})
-            
-            if(res.status===201){
-                // resetForm()
-                setLoading(false)
-                // props.createCar(res)
-            }
-        } catch (error) {
-            setLoading(false)
+        if(carImageOther.current.files?.length > 0){
+            formData.append("other_images", ...Array.prototype.slice.call(carImageOther.current.files))
         }
-            
+
+        setCarPreview({
+            brand: parseInt(brand),
+            car_model: parseInt(carModel),
+            city: parseInt(city),
+            currency,
+            color: parseInt(color),
+            car_body: parseInt(carBody),
+            engine: parseInt(engine),
+            gear_lever: parseInt(gearLever),
+            transmission: parseInt(transmission),
+            fuel: parseInt(fuel),
+            equipment: equipment.map(el=>parseInt(el)),
+            price: parseInt(price),
+            barter,
+            credit,
+            distance: parseInt(distance),
+            description,
+            made_at: parseInt(madeAt),
+            front_image: URL.createObjectURL(carImageFront.current.files[0]),
+            back_image: URL.createObjectURL(carImageBack.current.files[0]),
+            panel_image: URL.createObjectURL(carImagePanel.current.files[0]),
+            other_images: Array.prototype.slice.call(carImageOther.current.files).map(file => URL.createObjectURL(file))
+        })
+
+        navigate("/checkout")
     }
 
 
     return <>
-        <PaymentModal createCar={createCar} loading={loading} />
 
-        <form>
+        <form onSubmit={createCar}>
          <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="price">
             <h2 className="h4 text-light mb-4"><i className="fi-cash text-primary fs-5 mt-n1 me-2"></i>Price</h2>
             <label className="form-label text-light" htmlFor="price">Price <span className="text-danger">*</span></label>
             <div className="mb-2">
-                <select className="form-select form-select-light w-25 me-2 mb-2">
+                <select defaultValue={currency} onChange={onCurrencyChange}  className="form-select form-select-light w-25 me-2 mb-2">
                     <option value="usd">&#36;</option>
                     <option value="eur">&#8364;</option>
                     <option value="azn">&#8380;</option>
@@ -247,6 +251,7 @@ export default function CreateForm(props){
                 <input value={price} onChange={onPriceChange} onBlur={onPriceBlur} type="number" id="price" min="200" step="50"
                     className={`form-control form-control-light w-100 me-2 mb-2 ${priceHasError?'is-invalid':'is-valid'}`}
                 />
+                {currencyHasError ?  currencyMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
                 {priceHasError ?  priceMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
             </div>
             <div className="form-check form-switch form-switch-light">
@@ -365,7 +370,15 @@ export default function CreateForm(props){
                 {props.equipment.map((item,index)=>(
                     <div key={index} className="col-sm-4">
                         <div className="form-check form-check-light">
-                            <input className="form-check-input" type="checkbox" checked={equipment.includes(item.id)} value={item.id} onChange={onEquipmentItemToggle} id={`item-${item.id}`}/>
+                            <input 
+                                className="form-check-input" 
+                                type="checkbox" 
+                                // checked={equipment.includes(item.id)} 
+                                checked
+                                value={item.id} 
+                                onChange={onEquipmentItemToggle} 
+                                id={`item-${item.id}`}
+                            />
                             <label className="form-check-label" htmlFor={`item-${item.id}`}>{item.name}</label>
                         </div>
                     </div>
@@ -403,8 +416,7 @@ export default function CreateForm(props){
         </section>
 
         <div className="d-sm-flex justify-content-between pt-2">
-            <a href="#payment-modal" disabled={loading||!formIsValid} data-bs-toggle="modal">Checkout</a>
-            {/* <button disabled={loading||!formIsValid} type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button> */}
+            <button disabled={!formIsValid} type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button>
         </div>
     </form>
 

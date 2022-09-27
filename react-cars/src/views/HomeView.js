@@ -15,19 +15,17 @@ function HomeView(){
     const [loading, setLoading] = useState(false)
 
     useEffect(()=>{
-        setLoading(false)
+        setLoading(true)
         async function fetchSearchData(){
             await Promise.all([
                 carsCtx.getLatestCars(),
                 itemsCtx.getBrands(),
                 itemsCtx.getCarBodies(),
-            ]).then(()=>{
-                setLoading(false)
-            })
+            ])
         }
 
-        setLoading(true)
         fetchSearchData()
+        setLoading(false)
 
         return function cleanup() {}
     }, [])
