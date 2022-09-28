@@ -129,13 +129,18 @@ class CarCreateUpdateSerializer(serializers.ModelSerializer):
         
     def create(self, validated_data):
 
-        payment = stripe.Stripe.pay(
-            paymentMethod=self.context.get("request").data["payment_method_id"], 
-            paymentId=self.context.get("request").data["payment_id"]
-        )             
+        # payment = stripe.Stripe.pay(
+        #     paymentMethod=self.context.get("request").data["payment_method_id"], 
+        #     paymentId=self.context.get("request").data["payment_id"]
+        # )             
 
         equipment = validated_data.pop("equipment", None)
-        car = models.Car.objects.create(**validated_data, user=self.context.get("request").user, payment_id=payment["id"])
+        car = models.Car.objects.create(
+            **validated_data, 
+            user=self.context.get("request").user, 
+            # payment_id=payment["id"]
+            payment_id="pm_1LmupALv560bXuLqXYWU2cp"
+        )
         for item in equipment:
             car.equipment.add(item)
         
@@ -177,25 +182,25 @@ class CarCreateUpdateSerializer(serializers.ModelSerializer):
                 models.CarImage.objects.create(car=instance, image=images["back_image"], type=models.CarImage.ImageTypes.BACK)
                 models.CarImage.objects.create(car=instance, image=images["panel_image"], type=models.CarImage.ImageTypes.PANEL)
             
-                if images["other_images"]:
+                if "other_images" in images:
                     for image_data in images["other_images"]:
                         models.CarImage.objects.create(car=instance, image=image_data, type=models.CarImage.ImageTypes.OTHER)
             except Exception as err:
                 raise Exception("Images not uploaded")
         else:
             try:
-                if images.getlist('front_image'):
+                if 'front_image' in images:
                     models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.FRONT).delete()
-                    models.CarImage.objects.create(car=instance, image=images.getlist('front_image')[0], type=models.CarImage.ImageTypes.FRONT)
-                if images.getlist('back_image'):
+                    models.CarImage.objects.create(car=instance, image=images['front_image'], type=models.CarImage.ImageTypes.FRONT)
+                if 'back_image' in images:
                     models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.BACK).delete()
-                    models.CarImage.objects.create(car=instance, image=images.getlist('back_image')[0], type=models.CarImage.ImageTypes.BACK)
-                if images.getlist('panel_image'):
+                    models.CarImage.objects.create(car=instance, image=images['back_image'], type=models.CarImage.ImageTypes.BACK)
+                if 'panel_image' in images:
                     models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.PANEL).delete()
-                    models.CarImage.objects.create(car=instance, image=images.getlist('panel_image')[0], type=models.CarImage.ImageTypes.PANEL)
-                if images.getlist('other_images'):
+                    models.CarImage.objects.create(car=instance, image=images['panel_image'], type=models.CarImage.ImageTypes.PANEL)
+                if 'other_images' in images:
                     models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.OTHER).delete()
-                    for image_data in images.getlist('other_images'):
+                    for image_data in images['other_images']:
                             models.CarImage.objects.create(car=instance, image=image_data, type=models.CarImage.ImageTypes.OTHER)
             except Exception as err:
                 raise Exception("Images not uploaded")

@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
-import { useInput } from "../../hooks/use-input";
-import { validations } from "../../hooks/use-validation";
+import { useInput } from "../../hooks/useInput";
+import { validations } from "../../hooks/useValidation";
 import AuthContext from "../../store/auth-context";
 
 function Password(){

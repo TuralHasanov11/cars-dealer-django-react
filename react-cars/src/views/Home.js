@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react"
 import CarsContext from '../store/cars-context'
 import ItemsContext from "../store/items-context"
-import LatestCars from '../components/cars/LatestCars'
+import LatestCars from '../components/cars/Latest'
 import Hero from "../components/Hero"
 import PopularCarBodyTypes from '../components/PopularCarBodyTypes'
 import Brands from '../components/Brands'
@@ -12,10 +12,9 @@ function HomeView(){
     
     const carsCtx = useContext(CarsContext)
     const itemsCtx = useContext(ItemsContext)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
 
     useEffect(()=>{
-        setLoading(true)
         async function fetchSearchData(){
             await Promise.all([
                 carsCtx.getLatestCars(),

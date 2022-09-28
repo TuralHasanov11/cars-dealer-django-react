@@ -57,7 +57,7 @@ def loginView(request):
                 expires = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
                 secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                 httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                samesite = "None"
+                samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
             )
 
             res.set_cookie(
@@ -66,7 +66,7 @@ def loginView(request):
                 expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
                 secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                 httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                samesite = "None"
+                samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
             )
             res.data = data
             res["X-CSRFToken"] = csrf.get_token(request)
@@ -82,11 +82,10 @@ def loginView(request):
 def register(request):
 
     serializer = serializers.RegistrationSerializer(data=request.data)
-    
     serializer.is_valid(raise_exception=True)
+
     user = serializer.save()
     res = response.Response()
-    user = authenticate(email=user.email, password=user.password)
     if user is not None:
         if user.is_active:
             data = get_tokens_for_user(user)

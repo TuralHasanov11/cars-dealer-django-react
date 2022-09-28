@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useState } from "react"
 import ItemsContext from "../store/items-context"
 import PropTypes from 'prop-types';
 import CarsContext from "../store/cars-context";

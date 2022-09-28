@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+import os
 from django.conf import settings
 import stripe
-stripe.api_key = "sk_test_4eC39HqLyjWDarjtT1zdp7dc"
 from django.contrib.auth import get_user_model
+
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", None)
 
 @dataclass
 class StripePaymentData:

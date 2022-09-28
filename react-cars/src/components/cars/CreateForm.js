@@ -2,8 +2,8 @@ import { useContext, useRef, useState } from "react";
 import ItemsContext from "../../store/items-context";
 import CarsContext from "../../store/cars-context"
 import PropTypes from 'prop-types';
-import { useInput } from "../../hooks/use-input";
-import { validations } from "../../hooks/use-validation";
+import { useInput } from "../../hooks/useInput";
+import { validations } from "../../hooks/useValidation";
 import { useNavigate } from "react-router-dom";
 
 
@@ -14,7 +14,7 @@ export default function CreateForm(props){
     const [equipment, setEquipment] = useState([])
     const [barter, setBarter] = useState(false)
     const [credit, setCredit] = useState(false)
-    const {setCarPreview} = useContext(CarsContext)
+    const {setCarPreview, setCarFormData} = useContext(CarsContext)
 
 
     const {
@@ -182,31 +182,6 @@ export default function CreateForm(props){
         if(!formIsValid){
             return
         }
-        
-        const formData = new FormData();
-        formData.append("brand", brand);
-        formData.append("car_model", carModel)
-        formData.append("currency", currency)
-        formData.append("city", city)
-        formData.append("color", color)
-        formData.append("car_body", carBody)
-        formData.append("engine", engine)
-        formData.append("gear_lever", gearLever)
-        formData.append("transmission", transmission)
-        formData.append("fuel", fuel)
-        formData.append("equipment", equipment.map(el=>parseInt(el)))
-        formData.append("price", price)
-        formData.append("barter", barter)
-        formData.append("credit", credit)
-        formData.append("distance", distance)
-        formData.append("description", description)
-        formData.append("made_at", madeAt)
-        formData.append("front_image", carImageFront.current.files[0]) 
-        formData.append("back_image", carImageBack.current.files[0])
-        formData.append("panel_image", carImagePanel.current.files[0])
-        if(carImageOther.current.files?.length > 0){
-            formData.append("other_images", ...Array.prototype.slice.call(carImageOther.current.files))
-        }
 
         setCarPreview({
             brand: parseInt(brand),
@@ -219,18 +194,20 @@ export default function CreateForm(props){
             gear_lever: parseInt(gearLever),
             transmission: parseInt(transmission),
             fuel: parseInt(fuel),
-            equipment: equipment.map(el=>parseInt(el)),
+            equipment: equipment,
             price: parseInt(price),
             barter,
             credit,
             distance: parseInt(distance),
             description,
             made_at: parseInt(madeAt),
-            front_image: URL.createObjectURL(carImageFront.current.files[0]),
-            back_image: URL.createObjectURL(carImageBack.current.files[0]),
-            panel_image: URL.createObjectURL(carImagePanel.current.files[0]),
-            other_images: Array.prototype.slice.call(carImageOther.current.files).map(file => URL.createObjectURL(file))
-        })
+            front_image: {"image": URL.createObjectURL(carImageFront.current.files[0]), "file": carImageFront.current.files[0]},
+            back_image: {"image": URL.createObjectURL(carImageBack.current.files[0]), "file": carImageBack.current.files[0]},
+            panel_image: {"image": URL.createObjectURL(carImagePanel.current.files[0]), "file": carImagePanel.current.files[0]},
+            other_images: Array.prototype.slice.call(carImageOther.current.files).map(file => {
+                    return {image: URL.createObjectURL(file), file: file}
+                })
+            })
 
         navigate("/checkout")
     }
@@ -373,8 +350,7 @@ export default function CreateForm(props){
                             <input 
                                 className="form-check-input" 
                                 type="checkbox" 
-                                // checked={equipment.includes(item.id)} 
-                                checked
+                                checked={equipment.includes(item.id)} 
                                 value={item.id} 
                                 onChange={onEquipmentItemToggle} 
                                 id={`item-${item.id}`}

@@ -29,8 +29,8 @@ function Footer(){
                     </div>}
                     <div className="col-xl-2 col-lg-3 col-sm-6 col-md-3 mb-2 mb-sm-4">
                         <div className="d-flex flex-wrap pt-4">
-                            <a target="_blank" className="btn btn-icon btn-translucent-light btn-xs rounded-circle mb-2 me-2" href="https://github.com/TuralHasanov11?tab=repositories" rel="noreferrer"><i className="fi-github"></i></a>
-                            <a target="_blank" className="btn btn-icon btn-translucent-light btn-xs rounded-circle mb-2 me-2" href="https://www.linkedin.com/in/tural-hasanov-1a5554204/" rel="noreferrer"><i className="fi-linkedin"></i></a>
+                            <a target="_blank" className="btn btn-icon btn-translucent-light btn-xs rounded-circle mb-2 me-2" href={process.env.REACT_APP_GITHUB_URL} rel="noreferrer"><i className="fi-github"></i></a>
+                            <a target="_blank" className="btn btn-icon btn-translucent-light btn-xs rounded-circle mb-2 me-2" href={process.env.REACT_APP_LINKEDIN_URL} rel="noreferrer"><i className="fi-linkedin"></i></a>
                         </div>
                     </div>
                 </div>
@@ -38,7 +38,7 @@ function Footer(){
             <div className="container fs-sm pb-3">
                 <p className="text-center order-lg-1 mb-lg-0">
                     <span className="text-light opacity-50">&copy; All rights reserved. Made by </span>
-                    <a target="_blank" className="nav-link-light fw-bold" href="https://turalhasanovportfolio.herokuapp.com" rel="noopener noreferrer">Tural Hasanov</a>
+                    <a target="_blank" className="nav-link-light fw-bold" href={process.env.REACT_APP_PORTFOLIO_URL} rel="noopener noreferrer">Tural Hasanov</a>
                 </p>
             </div>
         </footer>

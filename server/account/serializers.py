@@ -30,7 +30,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
         user.set_password(password)
         user.save()
-
         models.Profile.objects.create(user=user, phone=self.validated_data['phone'])
 
         return user

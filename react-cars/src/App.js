@@ -1,19 +1,19 @@
 import Default from './layouts/Default';
 import {Routes, Navigate, Route} from 'react-router-dom'
 
-import HomeView from './views/HomeView';
+import HomeView from './views/Home';
 
-import CarsView from './views/cars/CarsIndexView'
-import CarView from './views/cars/CarsSingleView'
-import CarCreateView from './views/cars/CarsCreateView';
-import CarEditView from './views/cars/CarsEditView';
+import CarsView from './views/cars/Index'
+import CarsSingleView from './views/cars/Detail'
+import CarsCreateView from './views/cars/Create';
+import CarsEditView from './views/cars/Edit';
 
 import User from './views/auth/User'
 import Profile from './views/auth/Profile'
 import Password from './views/auth/Password'
-import UserCars from './views/auth/UserCarsView'
+import UserCars from './views/auth/UserCars'
 import Wishlist from './views/auth/Wishlist'
-import AuthMiddleware from './middleware/AuthMiddleware'
+import AuthMiddleware from './middleware/Auth'
 import { useEffect } from 'react';
 import useUser from './hooks/useUser';
 import Checkout from './views/Payment/Checkout';
@@ -47,10 +47,10 @@ function App() {
         <Route path='/' exact element={ <HomeView />}></Route>
         <Route path="/cars">
           <Route path='' exact element={ <CarsView />}></Route>
-          <Route path=':id' exact element={ <CarView />}></Route>
+          <Route path=':id' exact element={ <CarsSingleView />}></Route>
           <Route element={<AuthMiddleware />}>
-            <Route path='create' exact element={ <CarCreateView /> }></Route>
-            <Route path=':id/edit' exact element={ <CarEditView /> }></Route>
+            <Route path='create' exact element={ <CarsCreateView /> }></Route>
+            <Route path=':id/edit' exact element={ <CarsEditView /> }></Route>
           </Route>
         </Route>
         <Route path="/user/:userId" element={<User />}>

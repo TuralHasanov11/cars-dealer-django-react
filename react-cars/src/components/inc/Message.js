@@ -1,4 +1,4 @@
-export function Message({message, setMessage}){
+export default function Message({message, setMessage}){
     if(message && Object.keys(message).length>0){
         switch (message.status) {
             case 'success':

@@ -1,5 +1,5 @@
 import { useReducer } from 'react'
-import validationMessages from '../resources/en/validation'
+import {messages as validationMessages} from './useValidation'
 
 const inputStateReducer = (state, action) => {
 
@@ -50,7 +50,7 @@ export const useInput = ({validations, rules, initialState})=>{
 
     const valueIsValid = validateValue(inputState.value, rules)
 
-    const hasError = (valueIsValid==false) && (inputState.touched == true)
+    const hasError = (valueIsValid === false) && (inputState.touched === true)
 
     function valueChange(event){
         dispatch({type:'INPUT', value:event.target.value})

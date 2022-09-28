@@ -35,20 +35,20 @@ function User(){
               <h2 className="fs-lg text-light mb-0">{user?.username}</h2>
               <ul className="list-unstyled fs-sm mt-3 mb-0">
                 <li><div className="nav-link-light fw-normal"><i className="fi-phone opacity-60 me-2"></i>{user?.account_profile?.phone}</div></li>
-                {userId == authUser?.id?( <li><a className="nav-link-light fw-normal" href={`mailto:${authUser?.user?.email}`}><i className="fi-mail opacity-60 me-2"></i>{authUser?.user?.email}</a></li>):''}
+                {user?.id === authUser?.id && ( <li><a className="nav-link-light fw-normal" href={`mailto:${authUser?.user?.email}`}><i className="fi-mail opacity-60 me-2"></i>{authUser?.user?.email}</a></li>)}
               </ul>
             </div>
           </div>
-            {!userId || (userId == authUser?.id)?(<Link className="btn btn-primary btn-lg w-100 mb-3" to="/cars/create">
+            {user?.id === authUser?.id &&(<Link className="btn btn-primary btn-lg w-100 mb-3" to="/cars/create">
               <i className="fi-plus me-2"></i>Create a car
-            </Link>):''}
+            </Link>)}
             
             <a className="btn btn-outline-light d-block d-md-none w-100 mb-3" href="#account-nav" data-bs-toggle="collapse">
               <i className="fi-align-justify me-2"></i>Menu
             </a>
             <div className="collapse d-md-block mt-3" id="account-nav">
               <div className="card-nav">
-                  {(!userId || (user?.id === authUser?.id)) && <>
+                  {(user?.id === authUser?.id) && <>
                     <Link className="card-nav-link"  to={`/user/${userId}`}>
                       <i className="fi-user me-2"></i>Personal Info
                   </Link>

@@ -161,7 +161,7 @@ class Car(models.Model):
     transmission = models.ForeignKey(Transmission, on_delete=models.PROTECT, related_name='transmission')
     fuel = models.ForeignKey(Fuel, on_delete=models.PROTECT, related_name='fuel')
     equipment = models.ManyToManyField(Equipment, related_name="car_equipment")
-    payment_id = models.CharField(verbose_name="Payment ID", max_length=30, null=False, blank=True)
+    payment_id = models.CharField(verbose_name="Payment ID", max_length=30, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

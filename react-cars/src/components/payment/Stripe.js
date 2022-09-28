@@ -1,7 +1,25 @@
-import {useStripe, useElements, PaymentElement} from '@stripe/react-stripe-js';
+import {useStripe, useElements, PaymentElement, CardElement} from '@stripe/react-stripe-js';
 import useAuth from '../../hooks/useAuth';
 import { useState, useEffect } from 'react';
 import useAxiosPrivate from "../../hooks/useAxiosPrivate"
+
+const CARD_ELEMENT_OPTIONS = {
+    style: {
+      base: {
+        color: "#32325d",
+        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+        fontSmoothing: "antialiased",
+        fontSize: "16px",
+        "::placeholder": {
+          color: "#aab7c4",
+        },
+      },
+      invalid: {
+        color: "#fa755a",
+        iconColor: "#fa755a",
+      },
+    },
+  };
 
 export default function StripeForm({onPaymentError, createCar, loading}){
     
@@ -19,6 +37,8 @@ export default function StripeForm({onPaymentError, createCar, loading}){
     }
 
     getPaymentMethods()
+
+    return () => {}
   }, [])
 
   async function attachPaymentMethodToCustomer(paymentMethodId){
@@ -35,41 +55,40 @@ export default function StripeForm({onPaymentError, createCar, loading}){
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    
-    if (!stripe) {
+    if(selectedPaymentMethod){
+      createCar(selectedPaymentMethod)
+    }else{
+      if (!stripe) {
         return;
+      }
+  
+      if(!elements){
+        return
+      }
+  
+      const paymentElement = elements.getElement("card");
+  
+      const {paymentMethod, error} = await stripe.createPaymentMethod({
+          type: 'card',
+          card: paymentElement,
+          billing_details: {
+              name: user.username,
+              email: user.email,
+              phone: user.phone,
+          },
+      });
+  
+      setPaymentMethods(prev => [...prev, paymentMethod.id])
+  
+      await attachPaymentMethodToCustomer(paymentMethod.id)
+  
+      if (error) {
+          onPaymentError(error.message)
+      } else {
+          createCar(paymentMethod.id)
+      }
     }
   
-    if(selectedPaymentMethod){
-        createCar(selectedPaymentMethod)
-    }else{
-
-        if(!elements){
-            return
-        }
-
-        const paymentElement = elements.getElement("payment");
-
-        const {paymentMethod, error} = await stripe.createPaymentMethod({
-            type: 'card',
-            card: paymentElement,
-            billing_details: {
-                name: user.username,
-                email: user.email,
-                phone: user.phone,
-            },
-        });
-
-        await attachPaymentMethodToCustomer(paymentMethod.id)
-
-        if (error) {
-            onPaymentError(error.message)
-        } else {
-            createCar(paymentMethod.id)
-        }
-        
-    }
   };
 
   
@@ -88,14 +107,19 @@ export default function StripeForm({onPaymentError, createCar, loading}){
             <label className="form-label text-light mb-2" htmlFor="payment-phone">Phone</label>
             <input disabled value={user.account_profile.phone} className={`form-control form-control-light mb-2`} id="payment-phone"/>
         </div>
-        {paymentMethods && selectedPaymentMethod
-            ? paymentMethods?.data?.map(method => (
-                <div className="mb-4">
-                    <label className="form-label text-light mb-2" htmlFor={`payment-method-${method?.id}`}>{method?.card?.brand + ' ************' + method?.card?.last4}</label>
-                    <input type="radio" onChange={(e)=>{setSelectedPaymentMethod(e.target.value)}} value={method?.id} className={`form-control form-control-light mb-2`} id={`payment-method-${method?.id}`}/>
-                </div>))
-            : <PaymentElement />}
-        <button disabled={!stripe||loading}>Submit</button>
+        {
+          paymentMethods?.data?.map(method => (
+            <div className="mb-4" key={method.id}>
+                <label className="form-label text-light mb-2" htmlFor={`payment-method-${method?.id}`}>{method?.card?.brand + ' ************' + method?.card?.last4}</label>
+                <input type="radio" onChange={(e)=>{setSelectedPaymentMethod(e.target.value)}} value={method?.id} className={`form-control form-control-light mb-2`} id={`payment-method-${method?.id}`}/>
+            </div>))
+        }
+        <div className="mb-4">
+          <label className="form-label text-light mb-2" htmlFor={`payment-method-0`}>New payment method</label>
+          <input type="radio" onChange={(e)=>{setSelectedPaymentMethod(e.target.value)}} value="custom" className={`form-control form-control-light mb-2`} id={`payment-method-0`}/>
+        </div>
+        {selectedPaymentMethod === "custom" && <CardElement options={CARD_ELEMENT_OPTIONS} />}
+        <button disabled={!stripe||loading} className="btn btn-primary btn-lg d-block mb-2">Submit</button>
     </form>
   )
 };

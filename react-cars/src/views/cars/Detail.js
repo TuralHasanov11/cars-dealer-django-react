@@ -1,25 +1,22 @@
 import { useContext, useEffect, useState } from "react"
 import { Link, useParams, useNavigate } from "react-router-dom"
 import CarsContext from '../../store/cars-context'
-import Car from '../../components/cars/Car'
+import Car from '../../components/cars/Single'
 import Loading from '../../components/inc/Loading'
 
 function CarsSingleView(){
 
     const {id} = useParams()
     const {getCar, car, deleteCar} = useContext(CarsContext)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const navigate = useNavigate()
     
-    useEffect(()=>{
-        setLoading(true)
-        
+    useEffect(()=>{        
         async function getCarDetail(id){
             await getCar(id)
         }
 
         getCarDetail(id)
-
         setLoading(false)
 
         return function cleanup() {}

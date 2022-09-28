@@ -21,7 +21,7 @@ def stripeGetPaymentMethods(request):
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
 def stripeAttachPaymentMethod(request):
     try:
-        serializer = serializers.PaymentMethodAttach(request.data)
+        serializer = serializers.PaymentMethodAttach(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         customer = stripeContainer.Stripe.getOrCreateCustomer(user=request.user)

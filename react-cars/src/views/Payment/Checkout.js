@@ -7,13 +7,16 @@ import StripeForm from '../../components/payment/Stripe'
 import Preview from '../../components/cars/Preview';
 import CarsContext from '../../store/cars-context';
 import {useNavigate} from 'react-router-dom';
-import Loading from '../../components/inc/Loading';
+import AuthContext from '../../store/auth-context';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY, {
+  stripeAccount: process.env.REACT_APP_STRIPE_ACCOUNT_ID
+});
 
 export default function Checkout() {
 
   const navigate = useNavigate();
+  const {user} = useState(AuthContext)
   const {carPreview} = useContext(CarsContext)
   const [paymentError, setPaymentError] = useState()
   const axiosPrivate = useAxiosPrivate()
@@ -41,18 +44,47 @@ export default function Checkout() {
       setPaymentLoading(false)
     } catch (error) {
       setPaymentLoading(false)
+      setPaymentStarted(false)
     }
   }
 
   async function createCar(paymentMethodId){
-
     setPaymentLoading(true)
 
     try {
-        axiosPrivate.defaults.headers.common['Content-Type'] = 'multipart/form-data';
-        const res = await axiosPrivate.post(`auto/cars`, {...carPreview, payment_method_id: paymentMethodId})
+        const formData = new FormData();
+        
+        formData.append("brand", carPreview.brand);
+        formData.append("car_model", carPreview.car_model)
+        formData.append("currency", carPreview.currency)
+        formData.append("city", carPreview.city)
+        formData.append("color", carPreview.color)
+        formData.append("car_body", carPreview.car_body)
+        formData.append("engine", carPreview.engine)
+        formData.append("gear_lever", carPreview.gear_lever)
+        formData.append("transmission", carPreview.transmission)
+        formData.append("fuel", carPreview.fuel)
+        formData.append("equipment", carPreview.equipment)
+        formData.append("price", carPreview.price)
+        formData.append("barter", carPreview.barter)
+        formData.append("credit", carPreview.credit)
+        formData.append("distance", carPreview.distance)
+        formData.append("description", carPreview.description)
+        formData.append("made_at", carPreview.made_at)
+        formData.append("front_image", carPreview.front_image.file) 
+        formData.append("back_image", carPreview.back_image.file)
+        formData.append("panel_image", carPreview.panel_image.file)
+        
+        if(carPreview.other_images?.length > 0){
+            formData.append("other_images", carPreview.other_images.map(file => file.file))
+        }
+        formData.append("payment_method_id", paymentMethodId)
+        formData.append("payment_id", sessionStorage.getItem("car_create_session_id"))
+
+        const res = await axiosPrivate.post(`auto/cars`, formData)
         
         if(res.status===201){
+          navigate(`/user/${user.id}/cars`)
           setPaymentLoading(false)
         }
     } catch (error) {

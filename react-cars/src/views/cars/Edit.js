@@ -12,34 +12,17 @@ function CarsEditView(){
     const itemsCtx = useContext(ItemsContext)
     const [loading, setLoading] = useState(false)
 
-    useEffect(async()=>{
+    useEffect(()=>{
         setLoading(true)
-        await Promise.all([
-            carsCtx.getCar(id),
-        ]).then(async(res)=>{
-            await Promise.all([
-                itemsCtx.getBrands(),
-                itemsCtx.getCities(),
-                itemsCtx.getColors(),
-                itemsCtx.getCarBodies(),
-                itemsCtx.getEngines(),
-                itemsCtx.getEquipment(),
-                itemsCtx.getGearLevers(),
-                itemsCtx.getTransmissions(),
-                itemsCtx.getFuels(),
-                itemsCtx.getCarModels(res[0]?.car_model?.brand?.id),
-            ]).then(()=>{
-                setLoading(false)
-            })
-        })
+        async function getCarItems(){
+            await itemsCtx.getItems()
+        }
+
+        getCarItems()
+        setLoading(false)
 
         return function cleanup() {}
     },[id])
-
-
-    function updateCar(){
-
-    }
 
     if(loading){
         return <Loading/>

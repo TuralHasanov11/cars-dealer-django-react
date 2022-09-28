@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-function Pagination({currentPage, count, links, perPage, totalPages, onPageChange}){
+function Pagination({currentPage, totalPages, onPageChange}){
 
     let pages = Array.from({length: totalPages}, (_, i) => i + 1)
 

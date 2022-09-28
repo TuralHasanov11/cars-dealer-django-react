@@ -8,7 +8,7 @@ class CarListCreateView(generics.ListCreateAPIView):
     pagination_class = pagination.CarPagination
     ordering_fields = ['created_at', 'price', 'distance', 'made_at']
     filter_backends = [backends.CarSearchFilterBackend]
-    parser_classes = (parsers.MultiPartParser, parsers.FormParser)
+    # parser_classes = (parsers.MultiPartParser, parsers.FormParser)
     ordering = ['-created_at']
 
     def get_queryset(self):

@@ -35,11 +35,11 @@ export default function Preview() {
     <div className="row">
       <div className="col-12">
           <ul className="tns-thumbnails" id="thumbnails">
-              <li className="tns-thumbnail"><img src={car?.front_image} alt={car?.front_image}/></li>
-              <li className="tns-thumbnail"><img src={car?.back_image} alt={car?.back_image}/></li>
-              <li className="tns-thumbnail"><img src={car?.panel_image} alt={car?.panel_image}/></li>
+              <li className="tns-thumbnail"><img src={car?.front_image?.image} alt={car?.front_image}/></li>
+              <li className="tns-thumbnail"><img src={car?.back_image?.image} alt={car?.back_image}/></li>
+              <li className="tns-thumbnail"><img src={car?.panel_image?.image} alt={car?.panel_image}/></li>
               {car?.other_images?.map((image, index) => (
-                  <li key={index} className="tns-thumbnail"><img src={image} alt="Thumbnail"/></li>
+                  <li key={index} className="tns-thumbnail"><img src={image.image} alt="Thumbnail"/></li>
               ))}
           </ul>
           <div className="py-3 mb-3">

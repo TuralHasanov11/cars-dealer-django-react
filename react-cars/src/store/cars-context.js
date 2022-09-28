@@ -13,7 +13,9 @@ const CarsContext = createContext({
     getLatestCars:()=>{},
     getCar:()=>{},
     carPreview: {}, 
-    setCarPreview: ()=>{}
+    setCarPreview: ()=>{},
+    carFormData:{}, 
+    setCarFormData: ()=>{}
 })
 
 export function CarsContextProvider(props){
@@ -47,6 +49,7 @@ export function CarsContextProvider(props){
 
     const [onFilter, setOnFilter] = useState(false)
     const [carPreview, setCarPreview] = useState({})
+    const [carFormData, setCarFormData] = useState(new FormData())
 
 
     async function getCars(query={}){
@@ -78,7 +81,9 @@ export function CarsContextProvider(props){
         getLatestCars,
         getCar,
         carPreview, 
-        setCarPreview
+        setCarPreview,
+        carFormData, 
+        setCarFormData
     }}>
         {props.children}
     </CarsContext.Provider>

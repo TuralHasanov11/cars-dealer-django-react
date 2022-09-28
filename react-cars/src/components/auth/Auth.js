@@ -1,8 +1,8 @@
 import { useContext, useRef, useState } from 'react'
 import { useNavigate, useLocation} from 'react-router-dom'
 import axios from '../../axios'
-import {useInput} from '../../hooks/use-input'
-import { validations } from '../../hooks/use-validation'
+import {useInput} from '../../hooks/useInput'
+import { validations } from '../../hooks/useValidation'
 import useUser from '../../hooks/useUser'
 import AuthContext from '../../store/auth-context'
 
@@ -13,7 +13,7 @@ const REGISTER_URL = 'auth/register';
 function Auth(){
 
     const navigate = useNavigate()
-    const authCtx = useContext(AuthContext)
+    const {setUser, setAccessToken, setCSRFToken} = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
     const signInModal = useRef()
     const loginErrRef = useRef(null);
@@ -30,7 +30,7 @@ function Auth(){
         }
       })
 
-      authCtx.setUser(data)
+      setUser(data)
     }
 
     const {
@@ -97,9 +97,9 @@ function Auth(){
       } 
 
       try {
-        const response = await axios.post(LOGIN_URL, JSON.stringify({email, password}), { withCredentials: true });
-        authCtx.setAccessToken(response?.data?.access_token)
-        authCtx.setCSRFToken(response?.headers.get("X-CSRFToken"))
+        const response = await axios.post(LOGIN_URL, JSON.stringify({email, password}));
+        setAccessToken(response?.data?.access_token)
+        setCSRFToken(response.headers["x-csrftoken"])
         getUser(response?.data?.access_token)
         resetEmail()
         resetPassword()
@@ -129,9 +129,9 @@ function Auth(){
       } 
 
       try {
-        const response = await axios.post(REGISTER_URL,
-          JSON.stringify({username, email, password, password2:confirmPassword, phone:phone}));
-        authCtx.setAccessToken(response?.data?.access_token)
+        const response = await axios.post(REGISTER_URL, JSON.stringify({username, email, password, password2:confirmPassword, phone:phone}));
+        setAccessToken(response?.data?.access_token)
+        setCSRFToken(response.headers["x-csrftoken"])
         getUser(response?.data?.access_token)
         resetUsername()
         resetEmail()

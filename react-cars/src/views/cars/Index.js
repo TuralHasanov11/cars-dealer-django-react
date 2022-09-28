@@ -1,10 +1,10 @@
-import Cars from '../../components/cars/Cars'
+import Cars from '../../components/cars/List'
 import Filter from '../../components/Filter'
 import Sorting from '../../components/cars/Sorting'
 import Pagination from '../../components/Pagination'
 import { Link, useSearchParams } from 'react-router-dom'
 import CarsContext from '../../store/cars-context'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import ItemsContext from '../../store/items-context'
 import Loading from '../../components/inc/Loading'
 
