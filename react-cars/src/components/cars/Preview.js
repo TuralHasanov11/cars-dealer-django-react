@@ -4,19 +4,18 @@ import ItemsContext from '../../store/items-context';
 
 export default function Preview() {
   const {carPreview: car} = useContext(CarsContext)
-  console.log(car)
   const { brands, carModels, cities, colors, carBodies, engines, equipment, gearLevers, transmissions, fuels } = useContext(ItemsContext)
 
-  return (car&&<>
+  return (car && <>
     <div className="d-sm-flex align-items-end align-items-md-center justify-content-between position-relative mb-4" style={{'zIndex': '102'}}>
         <div className="me-3">
             <h1 className="h2 text-light mb-md-0">
-              {brands?.find(el => el.id === carModels?.find(el => el.id === car.car_model).id)?.name + ' ' + carModels?.find(el => el.id === car.car_model).name}
+              {brands?.find(el => el.id == carModels?.find(el => el.id == car.car_model).id)?.name + ' ' + carModels?.find(el => el.id == car.car_model).name}
             </h1>
             <div className="d-flex align-items-center mb-3">
                 <div className="h3 mb-0 text-light">{car.price + ' ' + car.currency} {car.barter&&'Barter'} {car.credit&&'Credit'}</div>
                 <div className="text-nowrap ps-3">
-                    <span className={`badge bg-${car.distance===0?'danger':'info'} fs-base me-2`}>{car.distance===0?'New':'Used'}</span>
+                    <span className={`badge bg-${car.distance==0?'danger':'info'} fs-base me-2`}>{car.distance==0?'New':'Used'}</span>
                 </div>
             </div>
             <div className="d-flex flex-wrap align-items-center text-light mb-2">
@@ -26,7 +25,7 @@ export default function Preview() {
                 </div>
                 <div className="text-nowrap">
                   <i className="fi-map-pin fs-lg opacity-70 me-2"></i>
-                  <span className="align-middle">{cities?.find(el => el.id === car.city)?.name}</span>
+                  <span className="align-middle">{cities?.find(el => el.id == car.city)?.name}</span>
                 </div>
             </div>
         </div>
@@ -49,16 +48,16 @@ export default function Preview() {
                   <ul className="list-unstyled">
                       <li className="mb-2"><strong>Manufacturing Year:</strong><span className="opacity-70 ms-1">{car.made_at}</span></li>
                       <li className="mb-2"><strong>Mileage:</strong><span className="opacity-70 ms-1">{car.distance} km</span></li>
-                      <li className="mb-2"><strong>Body Type:</strong><span className="opacity-70 ms-1">{carBodies.find(el => el.id === car.car_body).name}</span></li>
-                      <li className="mb-2"><strong>Gear lever:</strong><span className="opacity-70 ms-1">{gearLevers.find(el => el.id === car.gear_lever).name}</span></li>
-                      <li className="mb-2"><strong>Engine:</strong><span className="opacity-70 ms-1">{engines.find(el => el.id === car.engine).volume}</span></li>
-                      <li className="mb-2"><strong>Transmission:</strong><span className="opacity-70 ms-1">{transmissions.find(el => el.id === car.transmission).name}</span></li>
+                      <li className="mb-2"><strong>Body Type:</strong><span className="opacity-70 ms-1">{carBodies.find(el => el.id == car.car_body).name}</span></li>
+                      <li className="mb-2"><strong>Gear lever:</strong><span className="opacity-70 ms-1">{gearLevers.find(el => el.id == car.gear_lever).name}</span></li>
+                      <li className="mb-2"><strong>Engine:</strong><span className="opacity-70 ms-1">{engines.find(el => el.id == car.engine).volume}</span></li>
+                      <li className="mb-2"><strong>Transmission:</strong><span className="opacity-70 ms-1">{transmissions.find(el => el.id == car.transmission).name}</span></li>
                   </ul>
                   </div>
                   <div className="col-sm-6 col-md-12 col-lg-6">
                   <ul className="list-unstyled">
-                      <li className="mb-2"><strong>Fuel Type:</strong><span className="opacity-70 ms-1">{fuels?.find(el => el.id === car.fuel).name}</span></li>
-                      <li className="mb-2"><strong>Color:</strong><span className="opacity-70 ms-1">{colors?.find(el => el.id === car.color).name}</span></li>
+                      <li className="mb-2"><strong>Fuel Type:</strong><span className="opacity-70 ms-1">{fuels?.find(el => el.id == car.fuel).name}</span></li>
+                      <li className="mb-2"><strong>Color:</strong><span className="opacity-70 ms-1">{colors?.find(el => el.id == car.color).name}</span></li>
                   </ul>
                   </div>
               </div>

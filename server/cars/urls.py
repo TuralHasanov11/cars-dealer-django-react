@@ -6,6 +6,7 @@ app_name='cars'
 
 urlpatterns = [
     path('cars', views.CarListCreateView.as_view(), name='cars'),
+    path('cars/check', views.checkCar, name='cars_check'),
     path('cars/<int:car>', views.CarGetUpdateDeleteView.as_view(), name='carRetreiveUpdateDelete'),
     path('brands', views.BrandListView.as_view(), name='brands'),
     path('brands/<int:brand>/models', views.CarModelListView.as_view(), name='models'),

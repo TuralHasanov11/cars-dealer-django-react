@@ -1,4 +1,4 @@
-from rest_framework import permissions as rest_permissions, decorators as rest_decorators, response, status
+from rest_framework import permissions as rest_permissions, decorators as rest_decorators, response, status, exceptions as apiExceptions
 
 from payment import stripe as stripeContainer, serializers
 from payment import config
@@ -9,12 +9,10 @@ from payment import config
 def stripeGetPaymentMethods(request):
     try:
         customer = stripeContainer.Stripe.getOrCreateCustomer(user=request.user)
-
         paymentMethods = stripeContainer.Stripe.getPaymentMethods(customerId=customer["id"])
-
         return response.Response(paymentMethods)
     except Exception as err:
-        return response.Response(str(err), status=status.HTTP_400_BAD_REQUEST)
+        return response.Response(str(err), status=status.HTTP_400_BAD_REQUEST) 
 
 
 @rest_decorators.api_view(['POST'])
@@ -29,7 +27,7 @@ def stripeAttachPaymentMethod(request):
 
         return response.Response(paymentMethod)
     except Exception as err:
-        return response.Response(str(err), status=status.HTTP_400_BAD_REQUEST)
+        return response.Response(str(err), status=status.HTTP_400_BAD_REQUEST) 
 
 
 @rest_decorators.api_view(['POST'])
@@ -52,4 +50,4 @@ def stripeCreatePayment(request):
 
         return response.Response(payment)
     except Exception as err:
-        return response.Response(str(err), status=status.HTTP_400_BAD_REQUEST)
+        return response.Response(str(err), status=status.HTTP_400_BAD_REQUEST) 

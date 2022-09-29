@@ -5,6 +5,9 @@ import { useInput } from "../../hooks/useInput";
 import { validations } from "../../hooks/useValidation";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useNavigate } from "react-router-dom";
+import currencies from "../../data/currencies"
+import useMessages, { messageTypes } from "../../hooks/useMessages";
+import sumServerErrors from "../../helpers/sumServerErrors"
 
 export default function EditForm({car, brands, carModels, gearLevers, years, carBodies, fuels, engines, transmissions, colors, cities, equipment }){
 
@@ -12,7 +15,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
     const [loading, setLoading] = useState(false)
     const axiosPrivate = useAxiosPrivate()
     const navigate = useNavigate();
-
+    const messages = useMessages()
 
     const {
         value: brand, 
@@ -20,7 +23,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         hasError:brandHasError, 
         valueChange: onBrandChange, 
         messages:brandMessages,
-    } = useInput({validations:validations, initialState: car.car_model.brand.id ,rules:{required:true,}})
+    } = useInput({validations:validations, initialState: car.car_model.brand.id, rules:{required:true,}})
 
     const {
         value: carModel, 
@@ -28,7 +31,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         hasError:carModelHasError, 
         valueChange: onCarModelChange, 
         messages:carModelMessages,
-    } = useInput({validations:validations, initialState:car.car_model.id,rules:{required:true,}})
+    } = useInput({validations:validations, initialState:car.car_model.id, rules:{required:true,}})
 
     const {
         value: city, 
@@ -36,7 +39,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         hasError:cityHasError, 
         valueChange: onCityChange, 
         messages:cityMessages,
-    } = useInput({validations:validations, initialState:String(car.city.id),rules:{required:true,}})
+    } = useInput({validations:validations, initialState:car.city.id, rules:{required:true,}})
 
     const {
         value: color, 
@@ -44,7 +47,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         hasError:colorHasError, 
         valueChange: onColorChange, 
         messages:colorMessages,
-    } = useInput({validations:validations, initialState:String(car.color.id),rules:{required:true,}})
+    } = useInput({validations:validations, initialState:car.color.id, rules:{required:true,}})
 
     const {
         value: carBody, 
@@ -52,7 +55,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         hasError:carBodyHasError, 
         valueChange: onCarBodyChange, 
         messages:carBodyMessages,
-    } = useInput({validations:validations, initialState:String(car.car_body.id),rules:{required:true,}})
+    } = useInput({validations:validations, initialState:car.car_body.id, rules:{required:true,}})
 
     const {
         value: engine, 
@@ -60,7 +63,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         hasError:engineHasError, 
         valueChange: onEngineChange, 
         messages:engineMessages,
-    } = useInput({validations:validations, initialState:String(car.engine.id),rules:{required:true,}})
+    } = useInput({validations:validations, initialState:car.engine.id, rules:{required:true,}})
 
     const {
         value: gearLever, 
@@ -68,7 +71,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         hasError:gearLeverHasError, 
         valueChange: onGearLeverChange, 
         messages:gearLeverMessages,
-    } = useInput({validations:validations, initialState:car.gear_lever.id,rules:{required:true,}})
+    } = useInput({validations:validations, initialState:car.gear_lever.id, rules:{required:true,}})
 
     const {
         value: transmission, 
@@ -76,7 +79,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         hasError:transmissionHasError, 
         valueChange: onTransmissionChange, 
         messages:transmissionMessages,
-    } = useInput({validations:validations, initialState:car.transmission.id,rules:{required:true,}})
+    } = useInput({validations:validations, initialState:car.transmission.id, rules:{required:true,}})
 
     const {
         value: fuel, 
@@ -84,7 +87,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         hasError:fuelHasError, 
         valueChange: onFuelChange, 
         messages:fuelMessages,
-    } = useInput({validations:validations, initialState:car.fuel.id,rules:{required:true,}})
+    } = useInput({validations:validations, initialState:car.fuel.id, rules:{required:true,}})
 
     const {
         value: distance, 
@@ -93,7 +96,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         valueChange: onDistanceChange, 
         valueBlur: onDistanceBlur,
         messages:distanceMessages,
-    } = useInput({validations:validations, initialState:car.distance??0,  rules:{nullable:true,isInteger:true,between:[0,100000000]}})
+    } = useInput({validations:validations, initialState:car.distance, rules:{nullable:true,isInteger:true,between:[0,100000000]}})
 
     const {
         value: madeAt, 
@@ -127,7 +130,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         hasError:currencyHasError, 
         valueChange: onCurrencyChange, 
         messages:currencyMessages,
-    } = useInput({validations:validations, initialState:"azn", rules:{required:true,}})
+    } = useInput({validations:validations, initialState: currencies.AZN, rules:{required:true,}})
 
     const [barter, setBarter] = useState(car.barter)
     const [credit, setCredit] = useState(car.credit)
@@ -145,7 +148,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         setCarEquipment(prev=>{
             if(prev.includes(item)){
                 return prev.filter(function(value, index){ 
-                    return value != item;
+                    return value !== item;
                 });
             }else{
                 return prev.concat([item])
@@ -165,12 +168,15 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
 
     async function formSubmit(event){
         event.preventDefault()
-        setLoading(true)
 
         if(!formIsValid){
+            messages.setMessages([{message: "Some fields are filled incorrectly!", type: messageTypes.ERROR}])
+            window.scrollTo(0, 0)
             return
         }
         
+        setLoading(true)
+
         const formData = new FormData();
         formData.append("brand", brand);
         formData.append("car_model", carModel)
@@ -182,7 +188,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         formData.append("gear_lever", gearLever)
         formData.append("transmission", transmission)
         formData.append("fuel", fuel)
-        formData.append("equipment", carEquipment.map(el=>parseInt(el)))
+        formData.append("equipment", carEquipment)
         formData.append("price", price)
         formData.append("barter", barter)
         formData.append("credit", credit)
@@ -192,29 +198,32 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
         formData.append("front_image", carImageFront.current.files[0]) 
         formData.append("back_image", carImageBack.current.files[0])
         formData.append("panel_image", carImagePanel.current.files[0])
-        formData.append("other_images", ...Array.prototype.slice.call(carImageOther.current.files))
+        if(carImageOther.current.files?.length > 0){
+            formData.append("other_images", ...Array.prototype.slice.call(carImageOther.current.files))
+        }
+
 
         try {
-            const res = await axiosPrivate.put(`auto/cars/${car.id}`, formData)
-            
-            if(res.status===200){
-                setLoading(false)
-                navigate(`/cars/${car.id}`)
-            }
+            await axiosPrivate.put(`auto/cars/${car.id}`, formData)
+            navigate(`/cars/${car.id}`)
         } catch (error) {
             setLoading(false)
+            messages.setMessages(sumServerErrors(error.response.data).map(el=>{return {message: el, type:messageTypes.ERROR}}))
+            window.scrollTo(0, 0)
         }
     }
 
-    return <form onSubmit={formSubmit}>
+    return <>
+        {messages.result}
+        <form onSubmit={formSubmit}>
         <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="price">
             <h2 className="h4 text-light mb-4"><i className="fi-cash text-primary fs-5 mt-n1 me-2"></i>Price</h2>
             <label className="form-label text-light" htmlFor="price">Price <span className="text-danger">*</span></label>
             <div className="mb-2">
                 <select defaultValue={currency} onChange={onCurrencyChange} className="form-select form-select-light w-25 me-2 mb-2">
-                    <option value="usd">&#36;</option>
-                    <option value="eur">&#8364;</option>
-                    <option value="azn">&#8380;</option>
+                    <option value={currencies.USD}>&#36;</option>
+                    <option value={currencies.EUR}>&#8364;</option>
+                    <option value={currencies.AZN}>&#8380;</option>
                 </select>
                 <input value={price} onChange={onPriceChange} onBlur={onPriceBlur} type="number" id="price" min="200" step="50"
                     className={`form-control form-control-light w-100 me-2 mb-2 ${priceHasError?'is-invalid':'is-valid'}`}
@@ -247,7 +256,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
                 <div className="col-sm-6 mb-3">
                     <label className="form-label text-light" htmlFor="car_model">Model <span className="text-danger">*</span></label>
                     <select className={`form-select form-select-light ${!carModelIsValid?'is-invalid':'is-valid'}`} id="car_model" defaultValue={carModel} onChange={onCarModelChange}>
-                        <option value="" disabled={carModels.length==0}>Select model</option>
+                        <option value="" disabled={carModels.length===0}>Select model</option>
                         {carModels.map((model, index)=>(<option key={index} value={model.id}>{model.name}</option>))}
                     </select>
                     {carModelHasError &&  carModelMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
@@ -398,6 +407,7 @@ export default function EditForm({car, brands, carModels, gearLevers, years, car
             <button disabled={loading||!formIsValid} type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button>
         </div>
     </form>
+    </>
 }
 
 

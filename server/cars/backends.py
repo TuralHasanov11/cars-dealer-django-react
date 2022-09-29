@@ -1,4 +1,5 @@
 from rest_framework import filters
+from cars import models, exceptions as carExceptions
 
 class CarSearchFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
@@ -50,3 +51,37 @@ class CarSearchFilterBackend(filters.BaseFilterBackend):
                 queryset=queryset.filter(car_body__in=list(map(int, request.query_params.getlist('car_body[]'))))                           
         return queryset
 
+
+def uploadCarImages(instance, images, created=False):
+    if created:
+        try:
+            models.CarImage.objects.create(car=instance, image=images["front_image"], type=models.CarImage.ImageTypes.FRONT)
+            models.CarImage.objects.create(car=instance, image=images["back_image"], type=models.CarImage.ImageTypes.BACK)
+            models.CarImage.objects.create(car=instance, image=images["panel_image"], type=models.CarImage.ImageTypes.PANEL)
+        
+            if "other_images" in images:
+                for image_data in images["other_images"]:
+                    models.CarImage.objects.create(car=instance, image=image_data, type=models.CarImage.ImageTypes.OTHER)
+
+            return True
+        except Exception:
+            raise carExceptions.CarImageNotUploaded
+    else:
+        try:
+            if 'front_image' in images:
+                models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.FRONT).delete()
+                models.CarImage.objects.create(car=instance, image=images['front_image'], type=models.CarImage.ImageTypes.FRONT)
+            if 'back_image' in images:
+                models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.BACK).delete()
+                models.CarImage.objects.create(car=instance, image=images['back_image'], type=models.CarImage.ImageTypes.BACK)
+            if 'panel_image' in images:
+                models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.PANEL).delete()
+                models.CarImage.objects.create(car=instance, image=images['panel_image'], type=models.CarImage.ImageTypes.PANEL)
+            if 'other_images' in images:
+                models.CarImage.objects.filter(car=instance, type=models.CarImage.ImageTypes.OTHER).delete()
+                for image_data in images['other_images']:
+                        models.CarImage.objects.create(car=instance, image=image_data, type=models.CarImage.ImageTypes.OTHER)
+            
+            return True
+        except Exception:
+            raise carExceptions.CarImageNotUploaded

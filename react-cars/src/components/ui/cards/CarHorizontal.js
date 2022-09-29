@@ -20,33 +20,33 @@ export default function CarHorizontalCard({car}){
 
     return (<div className="card card-light card-hover card-horizontal mb-4">
     <div className="tns-carousel-wrapper card-img-top card-img-hover"><Link className="img-overlay" to={`/cars/${car?.id}`}></Link>
-      <div className="position-absolute start-0 top-0 pt-3 ps-3">
-        <span className={`d-table  my-1 badge bg-${car?.is_new?'danger':'info'}`}>{car?.is_new?'New':'Used'}</span>
-        {car?.barter&&<span data-bs-toggle="tooltip" data-bs-placement="left" title="Barter" className={`d-table my-1 badge bg-success`}><i className="fi-refresh"></i></span>}
-        {car?.credit&&<span data-bs-toggle="tooltip" data-bs-placement="left" title="Credit" className={`d-table my-1 badge bg-warning`}>%</span>}
-      </div>
+    <div className="position-absolute start-0 top-0 pt-3 ps-3">
+      <span className={`d-table  my-1 badge bg-${car?.is_new?'danger':'info'}`}>{car?.is_new?'New':'Used'}</span>
+      {car?.barter&&<span data-bs-toggle="tooltip" data-bs-placement="left" title="Barter" className={`d-table my-1 badge bg-success`}><i className="fi-refresh"></i></span>}
+      {car?.credit&&<span data-bs-toggle="tooltip" data-bs-placement="left" title="Credit" className={`d-table my-1 badge bg-warning`}>%</span>}
+    </div>
       <div className="content-overlay end-0 top-0 pt-3 pe-3">
-        <WishlistButton car={car} />
+        <WishlistButton car={car} />                
       </div>
       <div className="tns-carousel-inner position-absolute top-0 h-100">
-        <div className="bg-size-cover bg-position-center w-100 h-100" style={{'backgroundImage':'url(/assets/img/car-finder/catalog/09.jpg)'}}></div>
-        <div className="bg-size-cover bg-position-center w-100 h-100" style={{'backgroundImage':'url(/assets/img/car-finder/catalog/09.jpg)'}}></div>
+        <div className="bg-size-cover bg-position-center w-100 h-100" style={{'backgroundImage':`url('${car?.car_images.find(el => el.is_front === true)?.image}')`}}></div>
+        <div className="bg-size-cover bg-position-center w-100 h-100" style={{'backgroundImage':`url('${car?.car_images.find(el => el.is_front === true)?.image}')`}}></div>
       </div>
     </div>
     <div className="card-body position-relative">
       {car?.user?.id === authUser?.id&&(
-          <div className="dropdown position-absolute zindex-5 top-0 end-0 mt-3 me-3">
-              <button className="btn btn-icon btn-translucent-light btn-xs rounded-circle" type="button" id="contextMenu2" data-bs-toggle="dropdown" aria-expanded="false"><i className="fi-dots-vertical"></i></button>
-              <ul className="dropdown-menu dropdown-menu-dark my-1" aria-labelledby="contextMenu2">
-              <li>
-                  <Link to={`/cars/${car.id}/edit`} className="dropdown-item"><i className="fi-edit me-2"></i>Edit</Link>
-              </li>
-              <li>
-                  <button onClick={deleteCarHandler} className="dropdown-item" type="button"><i className="fi-trash me-2"></i>Delete</button>
-              </li>
-              </ul>
-          </div>
-          )}
+        <div className="dropdown position-absolute zindex-5 top-0 end-0 mt-3 me-3">
+            <button className="btn btn-icon btn-translucent-light btn-xs rounded-circle" type="button" id="contextMenu2" data-bs-toggle="dropdown" aria-expanded="false"><i className="fi-dots-vertical"></i></button>
+            <ul className="dropdown-menu dropdown-menu-dark my-1" aria-labelledby="contextMenu2">
+            <li>
+                <Link to={`/cars/${car.id}/edit`} className="dropdown-item"><i className="fi-edit me-2"></i>Edit</Link>
+            </li>
+            <li>
+                <button onClick={deleteCarHandler} className="dropdown-item" type="button"><i className="fi-trash me-2"></i>Delete</button>
+            </li>
+            </ul>
+        </div>
+        )}
       <div className="d-flex align-items-center justify-content-between pb-1">
         <span className="fs-sm text-light me-3">{car?.made_at}</span>
       </div>
@@ -67,6 +67,7 @@ export default function CarHorizontalCard({car}){
           </div>
         </div>
       </div>
-    </div>
+  </div>
   </div>)
+    
 }

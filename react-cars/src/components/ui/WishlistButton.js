@@ -4,32 +4,32 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate"
 
 export default function WishlistButton({car}) {
 
-  const {wishlist, setWishlist} = useContext(AuthContext)
+  const {wishlist, setWishlist, wishlistIds} = useContext(AuthContext)
   const axiosPrivate = useAxiosPrivate()
 
-  async function toggleCarToWishlist(car){
-    if(wishlist.includes(car)){
+  async function toggleCarToWishlist(carId){
+    if(wishlistIds.includes(carId)){
       try {
-        await axiosPrivate.post(`/auth/wishlist/${car.id}/add`)
-        setWishlist((prev)=>prev.filter(item => item !== car))
+        await axiosPrivate.post(`/auth/wishlist/${carId}/remove`)
+        setWishlist((prev)=>prev.filter(item => item.id !== carId))
       } catch (error) {
-        return
+        
       }
     }else{
       try {
-        await axiosPrivate.post(`/auth/wishlist/${car.id}/remove`) 
-        wishlist.push(car)
+        await axiosPrivate.post(`/auth/wishlist/${carId}/add`) 
+        setWishlist(prev=>[...prev, car])
       } catch (error) {
-        return
+        
       }
     }
   }
 
 
-  return (wishlist&&<button onClick={toggleCarToWishlist} className="btn btn-icon btn-light btn-xs text-primary rounded-circle" 
+  return (wishlist&&<button onClick={()=>{toggleCarToWishlist(car.id)}} className="btn btn-icon btn-light btn-xs text-primary rounded-circle" 
     type="button" data-bs-toggle="tooltip" data-bs-placement="left" 
-    title={wishlist?.includes(car)?"Add to Wishlist":"Remove from Wishlist"}
+    title={wishlistIds?.includes(car.id)?"Add to Wishlist":"Remove from Wishlist"}
   >
-    {wishlist?.includes(car)?<i className="fi-heart-fill"></i>:<i className="fi-heart"></i>}
+    {wishlistIds?.includes(car.id)?<i className="fi-heart-filled"></i>:<i className="fi-heart"></i>}
   </button>);
 }

@@ -5,6 +5,9 @@ import PropTypes from 'prop-types';
 import { useInput } from "../../hooks/useInput";
 import { validations } from "../../hooks/useValidation";
 import { useNavigate } from "react-router-dom";
+import useMessages, { messageTypes } from "../../hooks/useMessages";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import sumServerErrors from "../../helpers/sumServerErrors"
 
 
 export default function CreateForm(props){
@@ -15,6 +18,9 @@ export default function CreateForm(props){
     const [barter, setBarter] = useState(false)
     const [credit, setCredit] = useState(false)
     const {setCarPreview, setCarFormData} = useContext(CarsContext)
+    const messages = useMessages()
+    const axiosPrivate = useAxiosPrivate()
+    const [loading, setLoading] = useState(false)
 
 
     const {
@@ -22,7 +28,6 @@ export default function CreateForm(props){
         isValid: brandIsValid,
         hasError:brandHasError, 
         valueChange: onBrandChange, 
-        reset:resetBrand,
         messages:brandMessages,
     } = useInput({validations:validations, rules:{required:true,}})
 
@@ -31,7 +36,6 @@ export default function CreateForm(props){
         isValid: carModelIsValid,
         hasError:carModelHasError, 
         valueChange: onCarModelChange, 
-        reset:resetCarModel,
         messages:carModelMessages,
     } = useInput({validations:validations, rules:{required:true,}})
 
@@ -40,72 +44,64 @@ export default function CreateForm(props){
         isValid: cityIsValid,
         hasError:cityHasError, 
         valueChange: onCityChange, 
-        reset:resetCity,
         messages:cityMessages,
-    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"", rules:{required:true,}})
 
     const {
         value: currency, 
         isValid: currencyIsValid,
         hasError:currencyHasError, 
         valueChange: onCurrencyChange, 
-        reset:resetCurrency,
         messages:currencyMessages,
-    } = useInput({validations:validations, initialState:"azn", rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"", rules:{required:true,}})
 
     const {
         value: color, 
         isValid: colorIsValid,
         hasError:colorHasError, 
         valueChange: onColorChange, 
-        reset:resetColor,
         messages:colorMessages,
-    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"", rules:{required:true,}})
 
     const {
         value: carBody, 
         isValid: carBodyIsValid,
         hasError:carBodyHasError, 
         valueChange: onCarBodyChange, 
-        reset:resetCarBody,
         messages:carBodyMessages,
-    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"", rules:{required:true,}})
 
     const {
         value: engine, 
         isValid: engineIsValid,
         hasError:engineHasError, 
         valueChange: onEngineChange, 
-        reset:resetEngine,
         messages:engineMessages,
-    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"", rules:{required:true,}})
 
     const {
         value: gearLever, 
         isValid: gearLeverIsValid,
         hasError:gearLeverHasError, 
         valueChange: onGearLeverChange, 
-        reset:resetGearLever,
         messages:gearLeverMessages,
-    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"", rules:{required:true,}})
 
     const {
         value: transmission, 
         isValid: transmissionIsValid,
         hasError:transmissionHasError, 
         valueChange: onTransmissionChange, 
-        reset:resetTransmission,
         messages:transmissionMessages,
-    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"", rules:{required:true,}})
 
     const {
         value: fuel, 
         isValid: fuelIsValid,
         hasError:fuelHasError, 
         valueChange: onFuelChange, 
-        reset:resetFuel,
         messages:fuelMessages,
-    } = useInput({validations:validations, initialState:"1", rules:{required:true,}})
+    } = useInput({validations:validations, initialState:"", rules:{required:true,}})
 
 
     const {
@@ -114,18 +110,16 @@ export default function CreateForm(props){
         hasError:distanceHasError, 
         valueChange: onDistanceChange, 
         valueBlur: onDistanceBlur,
-        reset:resetDistance,
         messages:distanceMessages,
-    } = useInput({validations:validations, initialState:0,rules:{required:true,isInteger:true,min:0, max:1000000}})
+    } = useInput({validations:validations, initialState: '',rules:{required:true,isInteger:true,min:0, max:1000000}})
 
     const {
         value: madeAt, 
         isValid: madeAtIsValid,
         hasError:madeAtHasError, 
         valueChange: onMadeAtChange, 
-        reset:resetMadeAt,
         messages:madeAtMessages,
-    } = useInput({validations:validations, initialState:2012, rules:{required:true,isInteger:true,min:1980, max:new Date().getFullYear()}})
+    } = useInput({validations:validations, initialState:'', rules:{required:true,isInteger:true,min:1980, max:new Date().getFullYear()}})
 
     const {
         value: price, 
@@ -133,9 +127,8 @@ export default function CreateForm(props){
         hasError:priceHasError, 
         valueChange: onPriceChange, 
         valueBlur: onPriceBlur,
-        reset:resetPrice,
         messages:priceMessages,
-    } = useInput({validations:validations, initialState:12000 ,rules:{required:true,isInteger:true,min:200}})
+    } = useInput({validations:validations, initialState:'', rules:{required:true,isInteger:true,min:200}})
 
     const {
         value: description, 
@@ -143,9 +136,8 @@ export default function CreateForm(props){
         hasError:descriptionHasError, 
         valueChange: onDescriptionChange, 
         valueBlur: onDescriptionBlur,
-        reset:resetDescription,
         messages:descriptionMessages,
-    } = useInput({validations:validations, initialState:"Description", rules:{nullable:true}})
+    } = useInput({validations:validations, initialState:"", rules:{nullable:true}})
 
     const carImageFront = useRef()
     const carImageBack = useRef()
@@ -180,47 +172,87 @@ export default function CreateForm(props){
         e.preventDefault()
     
         if(!formIsValid){
+            messages.setMessages([{message: "Some fields are filled incorrectly!", type: messageTypes.ERROR}])
+            window.scrollTo(0, 0)
             return
         }
+        
+        setLoading(true)
 
-        setCarPreview({
-            brand: parseInt(brand),
-            car_model: parseInt(carModel),
-            city: parseInt(city),
-            currency,
-            color: parseInt(color),
-            car_body: parseInt(carBody),
-            engine: parseInt(engine),
-            gear_lever: parseInt(gearLever),
-            transmission: parseInt(transmission),
-            fuel: parseInt(fuel),
-            equipment: equipment,
-            price: parseInt(price),
-            barter,
-            credit,
-            distance: parseInt(distance),
-            description,
-            made_at: parseInt(madeAt),
-            front_image: {"image": URL.createObjectURL(carImageFront.current.files[0]), "file": carImageFront.current.files[0]},
-            back_image: {"image": URL.createObjectURL(carImageBack.current.files[0]), "file": carImageBack.current.files[0]},
-            panel_image: {"image": URL.createObjectURL(carImagePanel.current.files[0]), "file": carImagePanel.current.files[0]},
-            other_images: Array.prototype.slice.call(carImageOther.current.files).map(file => {
-                    return {image: URL.createObjectURL(file), file: file}
+        const formData = new FormData();
+        formData.append("brand", brand);
+        formData.append("car_model", carModel)
+        formData.append("currency", currency)
+        formData.append("city", city)
+        formData.append("color", color)
+        formData.append("car_body", carBody)
+        formData.append("engine", engine)
+        formData.append("gear_lever", gearLever)
+        formData.append("transmission", transmission)
+        formData.append("fuel", fuel)
+        formData.append("equipment[]", equipment)
+        formData.append("price", price)
+        formData.append("barter", barter)
+        formData.append("credit", credit)
+        formData.append("distance", distance)
+        formData.append("description", description)
+        formData.append("made_at", madeAt)
+        formData.append("front_image", carImageFront.current.files[0]) 
+        formData.append("back_image", carImageBack.current.files[0])
+        formData.append("panel_image", carImagePanel.current.files[0])
+
+        if(carImageOther.current.files?.length > 0){
+            formData.append("other_images", ...Array.prototype.slice.call(carImageOther.current.files))
+        }
+
+        try {
+            await axiosPrivate.post(`auto/cars/check`, formData)
+            setCarPreview({
+                brand,
+                car_model: carModel,
+                city,
+                currency,
+                color,
+                car_body: carBody,
+                engine,
+                gear_lever: gearLever,
+                transmission,
+                fuel,
+                equipment,
+                price,
+                barter,
+                credit,
+                distance,
+                description,
+                made_at: madeAt,
+                front_image: {"image": URL.createObjectURL(carImageFront.current.files[0]), "file": carImageFront.current.files[0]},
+                back_image: {"image": URL.createObjectURL(carImageBack.current.files[0]), "file": carImageBack.current.files[0]},
+                panel_image: {"image": URL.createObjectURL(carImagePanel.current.files[0]), "file": carImagePanel.current.files[0]},
+                other_images: Array.prototype.slice.call(carImageOther.current.files).map(file => {
+                        return {image: URL.createObjectURL(file), file}
+                    })
                 })
-            })
+    
+            navigate("/checkout")
+        } catch (error) {
+            setLoading(false)
+            messages.setMessages(sumServerErrors(error.response.data).map(el=>{return {message: el, type:messageTypes.ERROR}}))
+            window.scrollTo(0, 0)
+        }
 
-        navigate("/checkout")
+        
     }
 
 
     return <>
-
+        {messages.result}
         <form onSubmit={createCar}>
          <section className="card card-light card-body border-0 shadow-sm p-4 mb-4" id="price">
             <h2 className="h4 text-light mb-4"><i className="fi-cash text-primary fs-5 mt-n1 me-2"></i>Price</h2>
             <label className="form-label text-light" htmlFor="price">Price <span className="text-danger">*</span></label>
             <div className="mb-2">
                 <select defaultValue={currency} onChange={onCurrencyChange}  className="form-select form-select-light w-25 me-2 mb-2">
+                    <option value="">Select currency</option>
                     <option value="usd">&#36;</option>
                     <option value="eur">&#8364;</option>
                     <option value="azn">&#8380;</option>
@@ -392,7 +424,7 @@ export default function CreateForm(props){
         </section>
 
         <div className="d-sm-flex justify-content-between pt-2">
-            <button disabled={!formIsValid} type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button>
+            <button disabled={loading || !formIsValid} type="submit" className="btn btn-primary btn-lg d-block mb-2">Save</button>
         </div>
     </form>
 

@@ -1,6 +1,6 @@
 export const validations = {
     required:value=> {return value!==''},
-    nullable:value=> {return !value || value.trim().length>=0},
+    nullable:value=> true,
     email:value => {return value && value.includes('@')},
     sameAs:(value, value2)=>{return value === value2},
     minLength:(value, value2)=>{return value && (value.length >= value2)},
@@ -23,5 +23,4 @@ export const messages = {
     max:value=>`Value should be lower than or equal to ${value}`,
     between:(value1, value2)=>`Value should be between ${value1} and ${value2}`,
     boolean:()=>`Value should be boolean`,
-    nullable:(value)=>value || !value
 }

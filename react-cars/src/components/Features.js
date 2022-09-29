@@ -1,8 +1,10 @@
+import { Link } from "react-router-dom"
+
 function Features(){
     return (
         <section className="container pt-4 pt-md-5">
             <div className="d-sm-flex align-items-center justify-content-between">
-            <h2 className="h3 text-light mb-2 mb-sm-0">What sets Finder apart?</h2><a className="btn btn-link btn-light fw-normal px-0" href="#">How to sell cars on Finder<i className="fi-arrow-long-right fs-sm mt-0 ps-1 ms-2"></i></a>
+            <h2 className="h3 text-light mb-2 mb-sm-0">What sets Finder apart?</h2><Link className="btn btn-link btn-light fw-normal px-0" to="/cars/create">How to sell cars on Finder<i className="fi-arrow-long-right fs-sm mt-0 ps-1 ms-2"></i></Link>
             </div>
             <div className="row">
             <div className="col-md-5 col-lg-4 offset-lg-1 pt-4 mt-2 pt-md-5 mt-md-3">

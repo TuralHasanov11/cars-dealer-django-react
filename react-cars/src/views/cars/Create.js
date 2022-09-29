@@ -3,19 +3,15 @@ import { Link, useNavigate } from "react-router-dom"
 import CarCreateForm from '../../components/cars/CreateForm'
 import ItemsContext from "../../store/items-context";
 import Loading from "../../components/inc/Loading";
-import AuthContext from "../../store/auth-context";
 
 function CarsCreateView(){
 
     const navigate = useNavigate()
     const itemsCtx = useContext(ItemsContext)
-    const authCtx = useContext(AuthContext)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
 
 
     useEffect(()=>{
-
-        setLoading(true)
         async function getCarItems(){
             await itemsCtx.getItems()
         }
@@ -26,9 +22,8 @@ function CarsCreateView(){
         return function cleanup() {}
     },[])
 
-    function onCreateCar(data){
-        console.log(data)
-        navigate(`/user/${authCtx.id}/cars`);
+    function onCreateCar(car){
+        navigate(`/cars/${car.id}`);
     }
 
     return (loading?<Loading/>:<div className="container mt-5 mb-md-4 py-5">
@@ -43,24 +38,20 @@ function CarsCreateView(){
             <div className="mb-4">
                 <h1 className="h2 text-light mb-0">Sell car</h1>
             </div>
-
-            <div className="mb-4">
-                {/* <Message message={message} setMessage={setMessage}/> */}
-            </div>
-                <CarCreateForm 
-                    brands={itemsCtx.brands}
-                    carModels={itemsCtx.carModels}
-                    cities={itemsCtx.cities}
-                    colors={itemsCtx.colors}
-                    carBodies={itemsCtx.carBodies}
-                    engines={itemsCtx.engines}
-                    equipment={itemsCtx.equipment}
-                    gearLevers={itemsCtx.gearLevers}
-                    transmissions={itemsCtx.transmissions}
-                    fuels={itemsCtx.fuels}
-                    years={itemsCtx.years}
-                    createCar={onCreateCar}
-                />
+            <CarCreateForm 
+                brands={itemsCtx.brands}
+                carModels={itemsCtx.carModels}
+                cities={itemsCtx.cities}
+                colors={itemsCtx.colors}
+                carBodies={itemsCtx.carBodies}
+                engines={itemsCtx.engines}
+                equipment={itemsCtx.equipment}
+                gearLevers={itemsCtx.gearLevers}
+                transmissions={itemsCtx.transmissions}
+                fuels={itemsCtx.fuels}
+                years={itemsCtx.years}
+                createCar={onCreateCar}
+            />
             </div>
         </div>
     </div>)

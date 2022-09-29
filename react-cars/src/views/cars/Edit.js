@@ -10,10 +10,9 @@ function CarsEditView(){
     const {id} = useParams()
     const carsCtx = useContext(CarsContext)
     const itemsCtx = useContext(ItemsContext)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
 
     useEffect(()=>{
-        setLoading(true)
         async function getCarItems(){
             await itemsCtx.getItems()
         }
@@ -24,11 +23,8 @@ function CarsEditView(){
         return function cleanup() {}
     },[id])
 
-    if(loading){
-        return <Loading/>
-    }
-
-    return (
+    
+    return (loading ? <Loading/> :
         <div className="container mt-5 mb-md-4 py-5">
             <div className="row">
                 <div className="col-lg-10">

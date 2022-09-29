@@ -1,14 +1,14 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, parsers
+from rest_framework import generics, exceptions as apiExceptions
 from cars import models, serializers, pagination, backends, permissions
-
+from payment import stripe
+from rest_framework import generics, permissions as rest_permissions, decorators as rest_decorators, response, status
      
 class CarListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.CarReadOnlyPermission|permissions.CarWritePermission]
     pagination_class = pagination.CarPagination
     ordering_fields = ['created_at', 'price', 'distance', 'made_at']
     filter_backends = [backends.CarSearchFilterBackend]
-    # parser_classes = (parsers.MultiPartParser, parsers.FormParser)
     ordering = ['-created_at']
 
     def get_queryset(self):
@@ -20,13 +20,31 @@ class CarListCreateView(generics.ListCreateAPIView):
         return obj
 
     def post(self, request, *args, **kwargs):
+        try:
+            # payment = stripe.Stripe.pay(
+            #     paymentMethod=request.data["payment_method_id"], 
+            #     paymentId=request.data["payment_id"]
+            # )
+
+            payment = {"id": request.data["payment_method_id"]}
+        except stripe.StripeException as err:
+            return response.Response(str(err), status=status.HTTP_400_BAD_REQUEST) 
         return self.create(request, *args, **kwargs)
+        
 
     def get_serializer_class(self):
         if self.request.POST:
             return serializers.CarCreateUpdateSerializer
         return serializers.CarListSerializer
         
+
+@rest_decorators.api_view(['POST'])
+@rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
+def checkCar(request):
+    serializer = serializers.CarCreateUpdateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    return response.Response({'message':'Car data is correct!'})
+
 
 class CarGetUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CarReadOnlyPermission|permissions.CarWritePermission]

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { Link, useParams, useNavigate } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import CarsContext from '../../store/cars-context'
 import Car from '../../components/cars/Single'
 import Loading from '../../components/inc/Loading'
@@ -7,9 +7,9 @@ import Loading from '../../components/inc/Loading'
 function CarsSingleView(){
 
     const {id} = useParams()
-    const {getCar, car, deleteCar} = useContext(CarsContext)
+    const {getCar, car} = useContext(CarsContext)
     const [loading, setLoading] = useState(true)
-    const navigate = useNavigate()
+
     
     useEffect(()=>{        
         async function getCarDetail(id){
@@ -22,16 +22,6 @@ function CarsSingleView(){
         return function cleanup() {}
     },[id])
 
-    function deleteCarHandler(){
-        deleteCar(car)
-            .then(res=>{
-                navigate(`/`, { replace: true });
-            })
-            .catch(e=>{
-                console.log(e)
-            })
-    }
-
     return (loading?<Loading/>:<div className="container mt-5 mb-md-4 py-5">
         <nav className="mb-3 pt-md-3" aria-label="Breadcrumb">
             <ol className="breadcrumb breadcrumb-light">
@@ -43,7 +33,7 @@ function CarsSingleView(){
             </ol>
         </nav>
 
-        <Car car={car} deleteCar={deleteCarHandler}/>
+        <Car car={car}/>
     </div>)
 }
 

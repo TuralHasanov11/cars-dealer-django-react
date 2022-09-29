@@ -1,13 +1,12 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useInput } from "../../hooks/useInput";
 import { validations } from "../../hooks/useValidation";
-import AuthContext from "../../store/auth-context";
 
 function Password(){
 
-    const {changePassword} = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
-
+    const axiosPrivate = useAxiosPrivate()
 
     const {
         value: oldPassword, 
@@ -15,7 +14,6 @@ function Password(){
         hasError:oldPasswordHasError, 
         valueChange: onOldPasswordChange, 
         valueBlur: onOldPasswordBlur,
-        reset:resetOldPassword,
         messages:oldPasswordMessages,
       } = useInput({validations, rules:{required:true}})
   
@@ -25,7 +23,6 @@ function Password(){
         hasError:newPassword1HasError, 
         valueChange: onNewPassword1Change, 
         valueBlur: onNewPassword1Blur,
-        reset:resetNewPassword1,
         messages:newPassword1Messages,
     } = useInput({validations, rules:{required:true, minLength:6}})
     
@@ -35,7 +32,6 @@ function Password(){
         hasError:newPassword2HasError, 
         valueChange: onNewPassword2Change, 
         valueBlur: onNewPassword2Blur,
-        reset:resetNewPassword2,
         messages:newPassword2Messages,
     } = useInput({validations, rules:{required:true, sameAs:newPassword1}})
   
@@ -43,24 +39,24 @@ function Password(){
 
     async function submitForm(e){
         e.preventDefault()
-        setLoading(true)
   
         if(!formIsValid){
           return
         } 
-  
-        await changePassword({oldPassword, newPassword1, newPassword2})
-          .then((res)=>{
-            resetOldPassword()
-            resetNewPassword1()
-            resetNewPassword2()
+        
+        setLoading(true)
+
+        try {
+            const {data} = await axiosPrivate.post('auth/change-password', {
+                old_password: oldPassword, 
+                new_password1: newPassword1, 
+                new_password2: newPassword2
+            })
+            // TODO: success
+        } catch (error) {
+            // TODO: error
             setLoading(false)
-            
-            console.log(res)
-          })
-          .catch((e)=>{
-            setLoading(false)
-          })
+        }    
     }
 
 
@@ -75,7 +71,7 @@ function Password(){
                     <div className="password-toggle">
                     <input value={oldPassword||''} onChange={onOldPasswordChange} onBlur={onOldPasswordBlur} 
                         className={`form-control form-control-light ${oldPasswordHasError?'is-invalid':'is-valid'}`} type="password" id="account-password"/>
-                    {oldPasswordHasError ?  oldPasswordMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+                    {oldPasswordHasError &&  oldPasswordMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
                     </div>
                 </div>
             </div>
@@ -85,7 +81,7 @@ function Password(){
                     <div className="password-toggle">
                     <input value={newPassword1||''} onChange={onNewPassword1Change} onBlur={onNewPassword1Blur}  
                         className={`form-control form-control-light ${newPassword1HasError?'is-invalid':'is-valid'}`} type="password" id="account-password-new"/>
-                    {newPassword1HasError ?  newPassword1Messages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+                    {newPassword1HasError &&  newPassword1Messages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
                     </div>
                 </div>
                 <div className="col-sm-6 mb-3">
@@ -93,7 +89,7 @@ function Password(){
                     <div className="password-toggle">
                     <input value={newPassword2||''} onChange={onNewPassword2Change} onBlur={onNewPassword2Blur} 
                         className={`form-control form-control-light ${newPassword2HasError?'is-invalid':'is-valid'}`} type="password" id="account-password-confirm"/>
-                    {newPassword2HasError ?  newPassword2Messages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+                    {newPassword2HasError &&  newPassword2Messages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
                     </div>
                 </div>
             </div>

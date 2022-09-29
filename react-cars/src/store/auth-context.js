@@ -13,7 +13,8 @@ const AuthContext = createContext({
     setRefreshToken: ()=>{},
     getUser: ()=>{},
     setCSRFToken:()=>{},
-    setWishlist:()=>{}
+    setWishlist:()=>{},
+    wishlistIds:[]
 })
 
 export function AuthContextProvider(props){
@@ -22,10 +23,10 @@ export function AuthContextProvider(props){
     const [refreshToken, setRefreshToken] = useState()
     const [user, setUser] = useState()
     const [csrfToken, setCSRFToken] = useState()
-    // const isAuth = accessToken&&id&&user
     const isAuth = user
 
     const [wishlist, setWishlist] = useState([])
+    const wishlistIds = wishlist?.map(el => el.id)
 
     return <AuthContext.Provider value={{
         user,
@@ -39,6 +40,7 @@ export function AuthContextProvider(props){
         setCSRFToken,
         setUser,
         setWishlist,
+        wishlistIds
     }}>
         {props.children}
     </AuthContext.Provider>

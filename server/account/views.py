@@ -1,11 +1,12 @@
-from rest_framework import generics, views as rest_views, permissions as rest_permissions, decorators as rest_decorators, response, status
-from rest_framework_simplejwt import tokens, serializers as jwt_serializers, views as jwt_views, exceptions
+from rest_framework import generics, permissions as rest_permissions, decorators as rest_decorators, response, exceptions as apiExceptions
+from rest_framework_simplejwt import tokens, serializers as jwt_serializers, views as jwt_views, exceptions as jwt_exceptions
 from account import models, serializers
-from cars import models as carModels, serializers as carSerializers, pagination, permissions as carPermissions
+from cars import models as carModels, serializers as carSerializers,  permissions as carPermissions
 from django.middleware import csrf
-from django.contrib.auth import authenticate
+from django.contrib import auth
 from django.conf import settings
-from django.views.decorators.csrf import ensure_csrf_cookie
+from account import exceptions as accountExceptions
+from cars import exceptions as carExceptions
 
 def get_tokens_for_user(user):
     refresh = tokens.RefreshToken.for_user(user)
@@ -21,7 +22,7 @@ class CookieTokenRefreshSerializer(jwt_serializers.TokenRefreshSerializer):
         if attrs['refresh']:
             return super().validate(attrs)
         else:
-            raise exceptions.InvalidToken('No valid token found in cookie \'refresh\'')
+            raise jwt_exceptions.InvalidToken('No valid token found in cookie \'refresh\'')
 
 class CookieTokenRefreshView(jwt_views.TokenRefreshView):
     def finalize_response(self, request, response, *args, **kwargs):
@@ -43,11 +44,14 @@ class CookieTokenRefreshView(jwt_views.TokenRefreshView):
 @rest_decorators.api_view(['POST'])
 @rest_decorators.permission_classes([])
 def loginView(request):
-    data = request.data
+    serializer = serializers.LoginSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    email = serializer.validated_data["email"]
+    password = serializer.validated_data["password"]
+
     res = response.Response()        
-    email = data.get('email', None)
-    password = data.get('password', None)
-    user = authenticate(email=email, password=password)
+
+    user = auth.authenticate(email=email, password=password)
     if user is not None:
         if user.is_active:
             data = get_tokens_for_user(user)
@@ -72,9 +76,9 @@ def loginView(request):
             res["X-CSRFToken"] = csrf.get_token(request)
             return res
         else:
-            return response.Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
+            raise apiExceptions.PermissionDenied("Account is not activated!")
     else:
-        return response.Response({"Invalid" : "Invalid email or password!!"}, status=status.HTTP_404_NOT_FOUND)
+        raise apiExceptions.AuthenticationFailed("Email or Password is incorrect!")
        
 
 @rest_decorators.api_view(['POST'])
@@ -101,9 +105,9 @@ def register(request):
             res.data = data
             return res
         else:
-            return response.Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
+            raise apiExceptions.PermissionDenied("Account is not activated!")
     else:
-        return response.Response({"Invalid" : "Invalid email or password!!"}, status=status.HTTP_404_NOT_FOUND)
+        raise apiExceptions.AuthenticationFailed("Invalid credentials!")
             
 
 @rest_decorators.api_view(['POST'])
@@ -114,15 +118,13 @@ def blackListToken(request):
         refreshToken = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
         token = tokens.RefreshToken(refreshToken)
         token.blacklist()
+        res = response.Response()
+        res.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
+        res.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
+        res.delete_cookie("X-CSRFToken")
+        return res
     except:
-        return response.Response(status=status.HTTP_400_BAD_REQUEST)
-
-    res = response.Response()
-    res.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
-    res.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
-    res.delete_cookie("X-CSRFToken")
-
-    return res
+        raise apiExceptions.ParseError(detail="Invalid token")
 
 
 @rest_decorators.api_view(['GET'])
@@ -131,10 +133,9 @@ def user(request):
     try:
         account = models.Account.objects.select_related('account_profile').get(id=request.user.id)
     except models.Account.DoesNotExist:
-        return response.Response(status=status.HTTP_404_NOT_FOUND)
+        return accountExceptions.UserNotFound
 
     serializer = serializers.AccountSerializer(account)
-    
     return response.Response(serializer.data)
 
 
@@ -144,42 +145,26 @@ def accountDetail(request, id):
     try:
         account = models.Account.objects.select_related('account_profile').get(id=id)
     except models.Account.DoesNotExist:
-        return response.Response(status=status.HTTP_404_NOT_FOUND)
+        return accountExceptions.UserNotFound
 
-    serializer = serializers.AccountSecondarySerializer(account)
-    
+    serializer = serializers.AccountSerializer(account)
     return response.Response(serializer.data)
 
 
 @rest_decorators.api_view(['POST'])
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
 def passwordChange(request):
-
     serializer = serializers.PasswordChangeSerializer(request.user, data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    
-    return response.Response({'message':'Password is changed'})
+    return response.Response({'message':'Password is changed!'})
 
-
-class AccountTokenObtainPairSerializer(jwt_serializers.TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-
-        # Add custom claims
-        token['username'] = user.username
-        # ...
-
-        return token
-
-class AccountTokenObtainPairView(jwt_views.TokenObtainPairView):
-    serializer_class = AccountTokenObtainPairSerializer
 
 class UserCarListView(generics.ListAPIView):
     permission_classes = [carPermissions.CarReadOnlyPermission]
     ordering_fields = ['created_at', 'price', 'distance', 'made_at']
     serializer_class = carSerializers.CarListSerializer
+    ordering=["-created_at"]
 
     def get_queryset(self):
         queryset = carModels.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine', 'user').prefetch_related('car_images')
@@ -208,9 +193,9 @@ def wishlistAdd(request, id):
         request.user.user_wishlist.add(car)
         return response.Response({'car_id':car.id})
     except carModels.Car.DoesNotExist:
-        return response.Response(status=status.HTTP_404_NOT_FOUND)
-    except Exception as err:
-        return response.Response(status=status.HTTP_400_BAD_REQUEST)
+        raise carExceptions.CarNotFound
+    except:
+        return apiExceptions.ParseError("Car cannot be added to wishlist!")
 
 
 @rest_decorators.api_view(['POST'])
@@ -221,9 +206,9 @@ def wishlistRemove(request, id):
         request.user.user_wishlist.remove(car)
         return response.Response({'car_id':car.id})
     except carModels.Car.DoesNotExist:
-        return response.Response(status=status.HTTP_404_NOT_FOUND)
+        raise carExceptions.CarNotFound
     except:
-        return response.Response(status=status.HTTP_400_BAD_REQUEST)
+        return apiExceptions.ParseError("Car cannot be removed from wishlist!")
 
 
 @rest_decorators.api_view(['POST'])
@@ -231,6 +216,6 @@ def wishlistRemove(request, id):
 def wishlistClear(request):
     try:
         request.user.user_wishlist.clear()
-        return response.Response({'message':'wishlist cleared'})
+        return response.Response({'message':'Wishlist cleared!'})
     except:
-        return response.Response(status=status.HTTP_400_BAD_REQUEST)
+        return apiExceptions.ParseError("Wishlist cannot be cleared!")

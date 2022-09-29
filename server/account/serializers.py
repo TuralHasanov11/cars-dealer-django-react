@@ -34,6 +34,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
         return user
 
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(style={'input_type':'password'}, write_only=True)
+    
 
 class PasswordChangeSerializer(serializers.ModelSerializer):
     new_password1 = serializers.CharField(style={'input_type':'password'}, write_only=True)
@@ -81,12 +85,3 @@ class AccountSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 
             'account_profile'
         ]
-
-
-class AccountSecondarySerializer(serializers.ModelSerializer):
-    
-    account_profile = ProfileSerializer(many=False, read_only=True)
-
-    class Meta:
-        model=get_user_model()
-        fields = ['id', 'username', 'email', 'account_profile']

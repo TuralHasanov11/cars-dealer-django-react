@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import os
-from django.conf import settings
 import stripe
 from django.contrib.auth import get_user_model
 
@@ -12,6 +11,8 @@ class StripePaymentData:
     amount:int
     currency:str 
     
+class StripeException(Exception):
+    pass
 
 class Stripe:
     @staticmethod
@@ -25,24 +26,16 @@ class Stripe:
             )
 
             return payment
-        except stripe.error.CardError as e:
-            raise Exception(f"A payment error occurred: {e.user_message}")
-        except stripe.error.InvalidRequestError as e:
-            raise Exception(f"An invalid request occurred: {e.user_message}")
-        except Exception:
-            raise Exception("Another problem occurred, maybe unrelated to Stripe.")
+        except Exception as e:
+            raise StripeException(e.user_message)
     
     @staticmethod
     def getPayment(paymentId: str):
         try:
             payment = stripe.PaymentIntent.retrieve(paymentId)
             return payment
-        except stripe.error.CardError as e:
-            raise Exception(f"A payment error occurred: {e.user_message}")
-        except stripe.error.InvalidRequestError as e:
-            raise Exception(f"An invalid request occurred: {e.user_message}")
-        except Exception:
-            raise Exception("Another problem occurred, maybe unrelated to Stripe.")
+        except Exception as e:
+            raise StripeException(e.user_message)
     
     @staticmethod
     def pay(paymentId: str, paymentMethod: str):
@@ -53,12 +46,8 @@ class Stripe:
             )
 
             return payment
-        except stripe.error.CardError as e:
-            raise Exception(f"A payment error occurred: {e.user_message}")
-        except stripe.error.InvalidRequestError as e:
-            raise Exception(f"An invalid request occurred: {e.user_message}")
-        except Exception:
-            raise Exception("Another problem occurred, maybe unrelated to Stripe.")
+        except Exception as e:
+            raise StripeException(e.user_message)
 
     @staticmethod
     def getOrCreateCustomer(user: get_user_model()):
@@ -76,8 +65,8 @@ class Stripe:
             )
 
             return customer
-        except Exception:
-            raise Exception("Another problem occurred, maybe unrelated to Stripe.")
+        except Exception as e:
+            raise StripeException(e.user_message)
 
     @staticmethod
     def getPaymentMethods(customerId: str, type: str = "card"):
@@ -88,8 +77,8 @@ class Stripe:
             )
 
             return paymentMethods
-        except Exception:
-            raise Exception("Another problem occurred, maybe unrelated to Stripe.")
+        except Exception as e:
+            raise StripeException(e.user_message)
 
     @staticmethod
     def attachPaymentMethod(customerId: str, paymentMethodId: str):
@@ -100,5 +89,5 @@ class Stripe:
             )
 
             return paymentMethod
-        except Exception:
-            raise Exception("Another problem occurred, maybe unrelated to Stripe.")
+        except Exception as e:
+            raise StripeException(e.user_message)

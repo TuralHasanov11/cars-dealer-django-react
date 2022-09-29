@@ -23,17 +23,16 @@ function Header(){
                 <button className="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
-                <NavLink className="btn btn-primary btn-sm ms-2 order-lg-3" to="/cars/create"><i className="fi-plus me-2"></i>Sell car</NavLink>
                 {user?<>
                     <div className="dropdown d-none d-lg-block order-lg-3 my-n2 me-3 mx-2">
-                        <NavLink className="d-block py-2" to={`/user/${user?.id}`}>
+                        <NavLink className="d-block py-2 text-decoration-none" to={`/user/${user?.id}`}>
                             {user?.username}
                         </NavLink>
                         <div className="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                             <div className="d-flex align-items-start border-bottom border-light px-3 py-1 mb-2" style={{'width': '16rem'}}>
                                 <div className="ps-2">
                                     <h6 className="fs-base text-light mb-0">{user?.username}</h6>
-                                    <div className="fs-xs py-2">{user?.profile_user?.phone}<br/>{user?.email}</div>
+                                    <div className="fs-xs py-2">{user?.account_profile?.phone}<br/>{user?.email}</div>
                                 </div>
                             </div>
                             <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}`}><i className="fi-user me-2"></i>Personal Info</NavLink>
@@ -47,7 +46,7 @@ function Header(){
                 </>:<>
                     <a className="btn btn-link btn-light btn-sm d-none d-lg-block order-lg-3" href="#signin-modal" data-bs-toggle="modal"><i className="fi-user me-2"></i>Sign in</a>
                 </>}
-
+                <NavLink className="btn btn-primary btn-sm ms-2 order-lg-3" to="/cars/create"><i className="fi-plus me-2"></i>Sell car</NavLink>
                 <div className="collapse navbar-collapse order-lg-2" id="navbarNav">
                     <ul className="navbar-nav navbar-nav-scroll" style={{'maxHeight':'35rem'}}>
                         <li className="nav-item"><NavLink className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link inactive')} to='/'>Home</NavLink></li>
@@ -59,7 +58,7 @@ function Header(){
                                 </a>
                                 <div className="dropdown-menu dropdown-menu-dark">
                                     <div className="ps-3">
-                                        <div className="fs-xs py-2">{user?.profile_user?.phone}<br/>{user?.email}</div>
+                                        <div className="fs-xs py-2">{user?.account_profile?.phone}<br/>{user?.email}</div>
                                     </div>
                                     <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}`}><i className="fi-user me-2"></i>Personal Info</NavLink>
                                     <NavLink className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item inactive')} to={`/user/${user?.id}/password-security`}><i className="fi-lock me-2"></i>Password &amp; Security</NavLink>

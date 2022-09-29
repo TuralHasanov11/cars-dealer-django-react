@@ -24,7 +24,7 @@ function Filter(props){
                 return value !== item;
             })??[]})
         }else{
-            updateFilterData({carBodies:filterData.carBodies?[item]:filterData.carBodies.concat[item]})
+            updateFilterData({carBodies:!filterData.carBodies?[item]:filterData.carBodies.concat([item])})
         }
     }
 
@@ -35,7 +35,7 @@ function Filter(props){
                 return value !== item;
             })??[]})
         }else{
-            updateFilterData({gearLevers:filterData.gearLevers?[item]:filterData.gearLevers.concat[item]})
+            updateFilterData({gearLevers:!filterData.gearLevers?[item]:filterData.gearLevers.concat([item])})
         }
     }
 
@@ -46,7 +46,7 @@ function Filter(props){
                 return value !== item;
             })??[]})
         }else{
-            updateFilterData({fuels:filterData.fuels?[item]:filterData.fuels.concat[item]})
+            updateFilterData({fuels:!filterData.fuels?[item]:filterData.fuels.concat([item])})
         }
     }
 
@@ -57,7 +57,7 @@ function Filter(props){
                 return value !== item;
             })??[]})
         }else{
-            updateFilterData({transmissions:filterData.transmissions?[item]:filterData.transmissions.concat[item]})
+            updateFilterData({transmissions:!filterData.transmissions?[item]:filterData.transmissions.concat([item])})
         }
     }
 
@@ -68,7 +68,7 @@ function Filter(props){
                 return value !== item;
             })??[]})
         }else{
-            updateFilterData({colors:filterData.colors?[item]:filterData.colors.concat[item]})
+            updateFilterData({colors:!filterData.colors?[item]:filterData.colors.concat([item])})
         }
     }
 
@@ -79,7 +79,7 @@ function Filter(props){
                 return value !== item;
             })??[]})
         }else{
-            updateFilterData({equipment:filterData.equipment?[item]:filterData.equipment.concat[item]})
+            updateFilterData({equipment:!filterData.equipment?[item]:filterData.equipment.concat([item])})
         }
     }
 

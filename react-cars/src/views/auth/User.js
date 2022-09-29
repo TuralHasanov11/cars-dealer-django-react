@@ -3,28 +3,51 @@ import {Outlet, Link, useParams, useSearchParams} from 'react-router-dom'
 import AuthContext from '../../store/auth-context'
 import UserContext from '../../store/user-context'
 import Loading from '../../components/inc/Loading'
-
+import useAxiosPrivate from "../../hooks/useAxiosPrivate"
 
 function User(){
 
     const {user: authUser, wishlist} = useContext(AuthContext)
-    const {user, getUserAndCars} = useContext(UserContext)
+    const {user, setUser, setCars} = useContext(UserContext)
     const {userId} = useParams()
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [searchParams] = useSearchParams()
+    const axiosPrivate = useAxiosPrivate()
 
     useEffect(()=>{
-      if(userId !== undefined){
-        setLoading(true)
-
-        async function getUserAndCarsHandler(){
-          await getUserAndCars(userId, Object.fromEntries([...searchParams]))
-        }
-        
-        getUserAndCarsHandler()
-        setLoading(false)
+      async function getUserAndCarsHandler(){
+        await Promise.all([axiosPrivate.get(`auth/${userId}`), axiosPrivate.get(`auth/${userId}/cars`, {params:Object.fromEntries([...searchParams])})])
+            .then(responses=>{
+                setUser(responses[0].data)
+                setCars(responses[1].data)
+            })
+            .catch(errors => {
+                return errors
+            });
       }
-    },[userId, searchParams])
+      
+      getUserAndCarsHandler()
+      setLoading(false)
+
+      return function cleanup() {}
+    },[userId])
+
+    useEffect(()=>{
+      async function getCarsHandler(){
+        await Promise.all([axiosPrivate.get(`auth/${userId}/cars`, {params:Object.fromEntries([...searchParams])})])
+            .then(responses=>{
+                setCars(responses[0].data)
+            })
+            .catch(errors => {
+                return errors
+            });
+      }
+      
+      getCarsHandler()
+      setLoading(false)
+
+      return function cleanup() {}
+    },[searchParams])
 
     return loading?<Loading />:<div className="container pt-5 pb-lg-4 mt-5 mb-sm-2">
     <div className="row">
@@ -35,7 +58,7 @@ function User(){
               <h2 className="fs-lg text-light mb-0">{user?.username}</h2>
               <ul className="list-unstyled fs-sm mt-3 mb-0">
                 <li><div className="nav-link-light fw-normal"><i className="fi-phone opacity-60 me-2"></i>{user?.account_profile?.phone}</div></li>
-                {user?.id === authUser?.id && ( <li><a className="nav-link-light fw-normal" href={`mailto:${authUser?.user?.email}`}><i className="fi-mail opacity-60 me-2"></i>{authUser?.user?.email}</a></li>)}
+                {user?.id === authUser?.id && ( <li><a className="nav-link-light fw-normal" href={`mailto:${authUser?.email}`}><i className="fi-mail opacity-60 me-2"></i>{authUser?.email}</a></li>)}
               </ul>
             </div>
           </div>

@@ -3,9 +3,8 @@ import { useNavigate, useLocation} from 'react-router-dom'
 import axios from '../../axios'
 import {useInput} from '../../hooks/useInput'
 import { validations } from '../../hooks/useValidation'
-import useUser from '../../hooks/useUser'
 import AuthContext from '../../store/auth-context'
-
+import sumServerErrors from "../../helpers/sumServerErrors"
 
 const LOGIN_URL = 'auth/login';
 const REGISTER_URL = 'auth/register';
@@ -18,9 +17,10 @@ function Auth(){
     const signInModal = useRef()
     const loginErrRef = useRef(null);
     const registerErrRef = useRef(null);
-    const [loginErrMsg, setLoginErrMsg] = useState('');
-    const [registerErrMsg, setRegisterErrMsg] = useState('');
+    const [loginErrMessages, setLoginErrMessages] = useState([]);
+    const [registerErrMessages, setRegisterErrMessages] = useState([]);
     const location = useLocation();
+    const [registerSuccess, setRegisterSuccess] = useState(false) 
     const from = location?.state?.from?.pathname || "/"
 
     async function getUser(accessToken){
@@ -41,7 +41,7 @@ function Auth(){
       valueBlur: onUsernameBlur,
       reset:resetUsername,
       messages:usernameMessages,
-    } = useInput({validations, initialState:'', rules:{required:true,}})
+    } = useInput({validations, initialState:'test2', rules:{required:true,}})
   
     const {
       value: email, 
@@ -61,7 +61,7 @@ function Auth(){
       valueBlur: onPhoneBlur,
       reset:resetPhone,
       messages:phoneMessages,
-    } = useInput({validations, initialState:'', rules:{required:true,}})
+    } = useInput({validations, initialState:'123456789', rules:{required:true,}})
 
     const {
       value: password, 
@@ -81,7 +81,7 @@ function Auth(){
       valueBlur: onConfirmPasswordBlur,
       reset:resetConfirmPassword,
       messages:confirmPasswordMessages,
-    } = useInput({validations, initialState:'', rules:{required:true,sameAs:password}})
+    } = useInput({validations, initialState:'hidraC137', rules:{required:true,sameAs:password}})
 
 
     let loginFormIsValid = (emailIsValid && passwordIsValid)
@@ -90,11 +90,12 @@ function Auth(){
 
     async function login(e){
       e.preventDefault()
-      // setLoading(true)
 
       if(!loginFormIsValid){
         return
       } 
+
+      setLoading(true)
 
       try {
         const response = await axios.post(LOGIN_URL, JSON.stringify({email, password}));
@@ -104,17 +105,9 @@ function Auth(){
         resetEmail()
         resetPassword()
         setLoading(false)
-        navigate(from, { replace: true });
+        setRegisterSuccess(true)
       } catch (err) {
-        if (!err?.response) {
-          setLoginErrMsg('No Server Response');
-        } else if (err.response?.status === 400) {
-          setLoginErrMsg('Missing Username or Password');
-        } else if (err.response?.status === 401) {
-          setLoginErrMsg('Unauthorized');
-        } else {
-          setLoginErrMsg('Login Failed');
-        }
+        setLoginErrMessages(sumServerErrors(err.response.data));
         loginErrRef.current?.focus();
         setLoading(false)
       }
@@ -122,11 +115,12 @@ function Auth(){
 
     async function register(e){
       e.preventDefault()
-      setLoading(true)
 
       if(!registerFormIsValid){
         return
       } 
+
+      setLoading(true)
 
       try {
         const response = await axios.post(REGISTER_URL, JSON.stringify({username, email, password, password2:confirmPassword, phone:phone}));
@@ -139,15 +133,9 @@ function Auth(){
         resetConfirmPassword()
         resetPhone()
         setLoading(false)
-        // navigate(from, { replace: true });
+        navigate(from, { replace: true });
       } catch (err) {
-        if (!err?.response) {
-          setRegisterErrMsg('No Server Response');
-        } else if (err.response?.status === 409) {
-          setRegisterErrMsg('Username Taken');
-        } else {
-          setRegisterErrMsg('Registration Failed')
-        }
+        setRegisterErrMessages(sumServerErrors(err.response.data));
         registerErrRef.current?.focus();
         setLoading(false)
       }
@@ -167,26 +155,26 @@ function Auth(){
                   <div className="text-light mt-4 mt-sm-5"><span className="opacity-60">Don't have an account? </span><a className="text-light" href="#signup-modal" data-bs-toggle="modal" data-bs-dismiss="modal">Sign up here</a></div>
                 </div>
                 <div className="col-md-6 px-4 pt-2 pb-4 px-sm-5 pb-sm-5 pt-md-5">
-                  <p ref={loginErrRef} className={loginErrMsg ? "errmsg" : "offscreen"} aria-live="assertive">{loginErrMsg}</p>
-                  <form onSubmit={login} className="needs-validation" noValidate>
-                    <div className="mb-4">
-                      <label className="form-label text-light mb-2" htmlFor="signin-email">Email address</label>
-                      <input onChange={onEmailChange} value={email} onBlur={onEmailBlur} 
-                        className={`form-control form-control-light mb-2 ${emailHasError?'is-invalid':'is-valid'}`} type="email" id="signin-email" placeholder="Enter your email"/>
-                      {emailHasError ?  emailMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
-                    </div>
-                    <div className="mb-4">
-                      {/* <div className="d-flex align-items-center justify-content-between mb-2">
-                        <label className="form-label text-light mb-0" htmlFor="signin-password">Password</label><a className="fs-sm text-light" href="#">Forgot password?</a>
-                      </div> */}
-                      <div className="password-toggle">
-                        <input onChange={onPasswordChange} value={password} onBlur={onPasswordBlur} 
-                          className={`form-control form-control-light mb-2 ${passwordHasError?'is-invalid':'is-valid'}`} type="password" id="signin-password" placeholder="Enter password"/>
-                        {passwordHasError ?  passwordMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+                  <div ref={loginErrRef}>
+                    {loginErrMessages.map((msg, index) => (<p key={index} className={`${msg ? "errmsg" : "offscreen"} text-danger`} aria-live="assertive">{msg}</p>))}
+                  </div>
+                    <form onSubmit={login} className="needs-validation" noValidate>
+                      <div className="mb-4">
+                        <label className="form-label text-light mb-2" htmlFor="signin-email">Email address</label>
+                        <input onChange={onEmailChange} value={email} onBlur={onEmailBlur} 
+                          className={`form-control form-control-light mb-2 ${emailHasError?'is-invalid':'is-valid'}`} type="email" id="signin-email" placeholder="Enter your email"/>
+                        {emailHasError &&  emailMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
                       </div>
-                    </div>
-                    <button disabled={loading||!loginFormIsValid} className="btn btn-primary btn-lg w-100" type="submit">Sign in </button>
-                  </form>
+                      <div className="mb-4">
+                        <div className="password-toggle">
+                        <label className="form-label text-light mb-2" htmlFor="signin-password">Password</label>
+                          <input onChange={onPasswordChange} value={password} onBlur={onPasswordBlur} 
+                            className={`form-control form-control-light mb-2 ${passwordHasError?'is-invalid':'is-valid'}`} type="password" id="signin-password" placeholder="Enter password"/>
+                          {passwordHasError &&  passwordMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
+                        </div>
+                      </div>
+                      <button disabled={loading||!loginFormIsValid} className="btn btn-primary btn-lg w-100" type="submit">Sign in </button>
+                    </form>
                 </div>
               </div>
             </div>
@@ -209,44 +197,57 @@ function Auth(){
                   <div className="text-light mt-sm-4 pt-md-3"><span className="opacity-60">Already have an account? </span><a className="text-light" href="#signin-modal" data-bs-toggle="modal" data-bs-dismiss="modal">Sign in</a></div>
                 </div>
                 <div className="col-md-6 px-4 pt-2 pb-4 px-sm-5 pb-sm-5 pt-md-5">
-                  <p ref={registerErrRef} className={registerErrMsg ? "errmsg" : "offscreen"} aria-live="assertive">{registerErrMsg}</p>
-                  <form onSubmit={register} className="needs-validation" noValidate>
-                    <div className="mb-4">
-                      <label className="form-label text-light" htmlFor="signup-name">Username</label>
-                      <input onChange={onUsernameChange} value={username} onBlur={onUsernameBlur} 
-                        className={`form-control form-control-light mb-2 ${usernameHasError?'is-invalid':'is-valid'}`} type="text" id="signup-name" placeholder="Enter your username"/>
-                        {usernameHasError ?  usernameMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
-                    </div>
-                    <div className="mb-4">
-                      <label className="form-label text-light" htmlFor="signup-email">Email address</label>
-                      <input onChange={onEmailChange} value={email} onBlur={onEmailBlur}
-                        className={`form-control form-control-light mb-2 ${emailHasError?'is-invalid':'is-valid'}`} type="email" id="signup-email" placeholder="Enter your email"/>
-                        {emailHasError ?  emailMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
-                    </div>
-                    <div className="mb-4">
-                      <label className="form-label text-light" htmlFor="signup-phone">Phone</label>
-                      <input onChange={onPhoneChange} value={phone} onBlur={onPhoneBlur} 
-                        className={`form-control form-control-light mb-2 ${phoneHasError?'is-invalid':'is-valid'}`} type="text" id="signup-name" placeholder="xx-xxx-xx-xx"/>
-                        {phoneHasError ?  phoneMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
-                    </div>
-                    <div className="mb-4">
-                      <label className="form-label text-light" htmlFor="signup-password">Password <span className='fs-sm opacity-50'>min. 8 char</span></label>
-                      <div className="password-toggle">
-                        <input onChange={onPasswordChange} value={password} onBlur={onPasswordBlur}
-                          className={`form-control form-control-light mb-2 ${passwordHasError?'is-invalid':'is-valid'}`} type="password" id="signup-password" minLength="8"/>
-                        {passwordHasError ?  passwordMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+                  <div ref={registerErrRef}>
+                    {registerErrMessages.map((msg, index) => (<p key={index} className={`${msg ? "errmsg" : "offscreen"} text-danger`} aria-live="assertive">{msg}</p>))}
+                  </div>
+                  {
+                    registerSuccess
+                    ?
+                    (<div className="text-light mt-sm-4 pt-md-3">
+                        <span className="opacity-60">You signed up successfully!</span>
+                        <h3><a className="text-light" href="#signin-modal" data-bs-toggle="modal" data-bs-dismiss="modal">Sign in to your account</a></h3>
                       </div>
-                    </div>
-                    <div className="mb-4">
-                      <label className="form-label text-light" htmlFor="signup-password-confirm">Confirm password</label>
-                      <div className="password-toggle">
-                        <input onChange={onConfirmPasswordChange} value={confirmPassword} onBlur={onConfirmPasswordBlur}
-                         className={`form-control form-control-light mb-2 ${confirmPasswordHasError?'is-invalid':'is-valid'}`} type="password" id="signup-password-confirm" minLength="8"/>
-                        {confirmPasswordHasError ?  confirmPasswordMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>)):''}
+                    )
+                    :
+                    <form onSubmit={register} className="needs-validation" noValidate>
+                      <div className="mb-4">
+                        <label className="form-label text-light" htmlFor="signup-name">Username</label>
+                        <input onChange={onUsernameChange} value={username} onBlur={onUsernameBlur} 
+                          className={`form-control form-control-light mb-2 ${usernameHasError?'is-invalid':'is-valid'}`} type="text" id="signup-name" placeholder="Enter your username"/>
+                          {usernameHasError &&  usernameMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
                       </div>
-                    </div>
-                    <button disabled={loading||!registerFormIsValid} className="btn btn-primary btn-lg w-100" type="submit">Sign up</button>
-                  </form>
+                      <div className="mb-4">
+                        <label className="form-label text-light" htmlFor="signup-email">Email address</label>
+                        <input onChange={onEmailChange} value={email} onBlur={onEmailBlur}
+                          className={`form-control form-control-light mb-2 ${emailHasError?'is-invalid':'is-valid'}`} type="email" id="signup-email" placeholder="Enter your email"/>
+                          {emailHasError &&  emailMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
+                      </div>
+                      <div className="mb-4">
+                        <label className="form-label text-light" htmlFor="signup-phone">Phone</label>
+                        <input onChange={onPhoneChange} value={phone} onBlur={onPhoneBlur} 
+                          className={`form-control form-control-light mb-2 ${phoneHasError?'is-invalid':'is-valid'}`} type="text" id="signup-name" placeholder="xx-xxx-xx-xx"/>
+                          {phoneHasError &&  phoneMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
+                      </div>
+                      <div className="mb-4">
+                        <label className="form-label text-light" htmlFor="signup-password">Password <span className='fs-sm opacity-50'>min. 8 char</span></label>
+                        <div className="password-toggle">
+                          <input onChange={onPasswordChange} value={password} onBlur={onPasswordBlur}
+                            className={`form-control form-control-light mb-2 ${passwordHasError?'is-invalid':'is-valid'}`} type="password" id="signup-password" minLength="8"/>
+                          {passwordHasError &&  passwordMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
+                        </div>
+                      </div>
+                      <div className="mb-4">
+                        <label className="form-label text-light" htmlFor="signup-password-confirm">Confirm password</label>
+                        <div className="password-toggle">
+                          <input onChange={onConfirmPasswordChange} value={confirmPassword} onBlur={onConfirmPasswordBlur}
+                          className={`form-control form-control-light mb-2 ${confirmPasswordHasError?'is-invalid':'is-valid'}`} type="password" id="signup-password-confirm" minLength="8"/>
+                          {confirmPasswordHasError &&  confirmPasswordMessages.map((message, index)=>(<small key={index} className="invalid-tooltip">{message.text}</small>))}
+                        </div>
+                      </div>
+                      <button disabled={loading||!registerFormIsValid} className="btn btn-primary btn-lg w-100" type="submit">Sign up</button>
+                    </form>
+                  }
+                 
                 </div>
               </div>
             </div>

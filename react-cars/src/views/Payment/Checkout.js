@@ -3,11 +3,9 @@ import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import StripeForm from '../../components/payment/Stripe'
-
 import Preview from '../../components/cars/Preview';
 import CarsContext from '../../store/cars-context';
 import {useNavigate} from 'react-router-dom';
-import AuthContext from '../../store/auth-context';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY, {
   stripeAccount: process.env.REACT_APP_STRIPE_ACCOUNT_ID
@@ -16,7 +14,6 @@ const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY, {
 export default function Checkout() {
 
   const navigate = useNavigate();
-  const {user} = useState(AuthContext)
   const {carPreview} = useContext(CarsContext)
   const [paymentError, setPaymentError] = useState()
   const axiosPrivate = useAxiosPrivate()
@@ -40,6 +37,7 @@ export default function Checkout() {
       })
       setClientSecret(data.client_secret)
       sessionStorage.setItem("car_create_session_id", data.id)
+
       setPaymentStarted(true)
       setPaymentLoading(false)
     } catch (error) {
@@ -74,20 +72,19 @@ export default function Checkout() {
         formData.append("front_image", carPreview.front_image.file) 
         formData.append("back_image", carPreview.back_image.file)
         formData.append("panel_image", carPreview.panel_image.file)
-        
-        if(carPreview.other_images?.length > 0){
-            formData.append("other_images", carPreview.other_images.map(file => file.file))
-        }
         formData.append("payment_method_id", paymentMethodId)
         formData.append("payment_id", sessionStorage.getItem("car_create_session_id"))
-
+        if(carPreview?.other_images){
+          formData.append("other_images", carPreview?.other_images?.map(file => file.file))
+        }
+        
         const res = await axiosPrivate.post(`auto/cars`, formData)
         
-        if(res.status===201){
-          navigate(`/user/${user.id}/cars`)
-          setPaymentLoading(false)
-        }
+        setPaymentLoading(false)
+        sessionStorage.removeItem("car_create_session_id")
+        navigate(`/cars/${res.data.id}`)
     } catch (error) {
+      // TODO: error
       setPaymentLoading(false)
     }
         
@@ -97,12 +94,14 @@ export default function Checkout() {
   <div className="row">
     <div className="col-12 col-sm-4 col-md-6">
       <div className="mb-4">
-          <h1 className="h2 text-light mb-0">Checkout</h1>
-          <button disabled={paymentStarted|paymentLoading} onClick={startPayment} type="button" className="btn btn-primary btn-lg d-block mb-2">Start Payment</button>
+          <h1 className="h2 text-light mb-4">Checkout</h1>
+          <div className="d-flex">
+          <button disabled={paymentStarted|paymentLoading} onClick={startPayment} type="button" className="btn btn-primary btn-lg d-block mb-2 mx-2">Start Payment</button>
           <button type="button" onClick={() => navigate(-1)} className="btn btn-secondary btn-lg d-block mb-2">Back</button>
+          </div>
       </div>
       {paymentStarted &&
-        <>
+        <div className='my-3'>
           {paymentError && 
             <div className="alert alert-danger bg-faded-danger border-danger mb-4" role="alert">
                 <div className="d-flex">
@@ -117,7 +116,7 @@ export default function Checkout() {
                 <StripeForm onPaymentError={handlePaymentError} createCar={createCar} />
             </Elements>)
           }
-        </>
+        </div>
       }
     </div>
 

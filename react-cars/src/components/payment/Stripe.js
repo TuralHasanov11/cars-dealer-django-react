@@ -33,7 +33,7 @@ export default function StripeForm({onPaymentError, createCar, loading}){
   useEffect(()=>{
     async function getPaymentMethods(){
         const {data} = await axiosPrivate.get("payment/stripe/payment-methods")
-        setPaymentMethods(data)
+        setPaymentMethods(data.data)
     }
 
     getPaymentMethods()
@@ -55,7 +55,7 @@ export default function StripeForm({onPaymentError, createCar, loading}){
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if(selectedPaymentMethod){
+    if(selectedPaymentMethod && selectedPaymentMethod !== "custom"){
       createCar(selectedPaymentMethod)
     }else{
       if (!stripe) {
@@ -78,7 +78,7 @@ export default function StripeForm({onPaymentError, createCar, loading}){
           },
       });
   
-      setPaymentMethods(prev => [...prev, paymentMethod.id])
+      setPaymentMethods(prev => [...prev, paymentMethod])
   
       await attachPaymentMethodToCustomer(paymentMethod.id)
   
@@ -108,18 +108,19 @@ export default function StripeForm({onPaymentError, createCar, loading}){
             <input disabled value={user.account_profile.phone} className={`form-control form-control-light mb-2`} id="payment-phone"/>
         </div>
         {
-          paymentMethods?.data?.map(method => (
-            <div className="mb-4" key={method.id}>
-                <label className="form-label text-light mb-2" htmlFor={`payment-method-${method?.id}`}>{method?.card?.brand + ' ************' + method?.card?.last4}</label>
-                <input type="radio" onChange={(e)=>{setSelectedPaymentMethod(e.target.value)}} value={method?.id} className={`form-control form-control-light mb-2`} id={`payment-method-${method?.id}`}/>
+          paymentMethods && paymentMethods?.map(method => (
+            <div className="mb-4 form-check form-check-light" key={method.id}>
+              <label className="form-label text-light mb-2" htmlFor={`payment-method-${method?.id}`}>{method?.card?.brand + ' ************' + method?.card?.last4}</label>
+              <input className="form-check-input" id={`payment-method-${method?.id}`} value={method?.id} type="radio" name="payment-method-radio" onChange={(e)=>{setSelectedPaymentMethod(e.target.value)}}/>
             </div>))
         }
-        <div className="mb-4">
+        <div className="mb-4 form-check form-check-light">
           <label className="form-label text-light mb-2" htmlFor={`payment-method-0`}>New payment method</label>
-          <input type="radio" onChange={(e)=>{setSelectedPaymentMethod(e.target.value)}} value="custom" className={`form-control form-control-light mb-2`} id={`payment-method-0`}/>
+          <input type="radio" onChange={(e)=>{setSelectedPaymentMethod(e.target.value)}} value="custom" name="payment-method-radio"  className="form-check-input" id={`payment-method-0`}/>
         </div>
-        {selectedPaymentMethod === "custom" && <CardElement options={CARD_ELEMENT_OPTIONS} />}
-        <button disabled={!stripe||loading} className="btn btn-primary btn-lg d-block mb-2">Submit</button>
+        {selectedPaymentMethod === "custom" && <div className="bg-light p-4 rounded"><CardElement options={CARD_ELEMENT_OPTIONS} /></div>}
+        
+        <button disabled={!stripe||loading} className="btn btn-success btn-lg d-block mt-4 mb-2">Submit</button>
     </form>
   )
 };
