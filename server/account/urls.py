@@ -17,4 +17,5 @@ urlpatterns = [
     path('wishlist/<int:id>/add', views.wishlistAdd, name='wishlist_add'), 
     path('wishlist/<int:id>/remove', views.wishlistRemove, name='wishlist_remove'), 
     path('wishlist/clear', views.wishlistClear, name='wishlist_clear'),
+    path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',  views.activate, name='activate'),  
 ]

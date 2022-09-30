@@ -18,6 +18,7 @@
 .lightbox-next {
   cursor: pointer;
   position: absolute;
+  text-decoration: none;
   top: 40%;
   width: auto;
   padding: 16px;
@@ -79,4 +80,15 @@
 .lightbox-active,
 .lightbox-demo:hover {
   opacity: 1;
+}
+
+
+.lightbox-fade {
+  animation-name: fade;
+  animation-duration: 1.5s;
+}
+
+@keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
 }

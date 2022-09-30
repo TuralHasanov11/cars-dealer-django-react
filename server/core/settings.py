@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'django.contrib.sites',
     'account',
     "cars",
     "payment",
@@ -219,3 +219,9 @@ STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", '')
 # STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", '')
 # STRIPE_ENDPOINT_SECRET = os.environ.get("STRIPE_ENDPOINT_SECRET", '')
+
+EMAIL_USE_TLS = True  
+EMAIL_HOST = 'smtp.gmail.com'  
+EMAIL_HOST_USER = 'youremail@gmail.com'  
+EMAIL_HOST_PASSWORD = 'yourpassword'  
+EMAIL_PORT = 587  

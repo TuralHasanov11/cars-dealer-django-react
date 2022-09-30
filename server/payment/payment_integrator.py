@@ -1,23 +1,31 @@
+from abc import ABC
 from dataclasses import dataclass
 import os
-import stripe
 from django.contrib.auth import get_user_model
 
+@dataclass
+class PaymentData(ABC):
+    pass
+
+class PaymentIntegrator(ABC):
+    pass
+
+### STRIPE
+import stripe
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", None)
 
 @dataclass
-class StripePaymentData:
+class CardPaymentData(PaymentData):
     customer:str
     amount:int
     currency:str 
     
-class StripeException(Exception):
+class CardException(Exception):
     pass
 
-class Stripe:
+class CardPayment(PaymentIntegrator):
     @staticmethod
-    def createPayment(data:StripePaymentData):
-        print(data)
+    def createPayment(data:CardPaymentData):
         try:
             payment = stripe.PaymentIntent.create(
                 amount= data.amount,
@@ -27,7 +35,7 @@ class Stripe:
 
             return payment
         except Exception as e:
-            raise StripeException(e.user_message)
+            raise CardException(e.user_message)
     
     @staticmethod
     def getPayment(paymentId: str):
@@ -35,7 +43,7 @@ class Stripe:
             payment = stripe.PaymentIntent.retrieve(paymentId)
             return payment
         except Exception as e:
-            raise StripeException(e.user_message)
+            raise CardException(e.user_message)
     
     @staticmethod
     def pay(paymentId: str, paymentMethod: str):
@@ -47,7 +55,7 @@ class Stripe:
 
             return payment
         except Exception as e:
-            raise StripeException(e.user_message)
+            raise CardException(e.user_message)
 
     @staticmethod
     def getOrCreateCustomer(user: get_user_model()):
@@ -66,7 +74,7 @@ class Stripe:
 
             return customer
         except Exception as e:
-            raise StripeException(e.user_message)
+            raise CardException(e.user_message)
 
     @staticmethod
     def getPaymentMethods(customerId: str, type: str = "card"):
@@ -78,7 +86,7 @@ class Stripe:
 
             return paymentMethods
         except Exception as e:
-            raise StripeException(e.user_message)
+            raise CardException(e.user_message)
 
     @staticmethod
     def attachPaymentMethod(customerId: str, paymentMethodId: str):
@@ -90,4 +98,4 @@ class Stripe:
 
             return paymentMethod
         except Exception as e:
-            raise StripeException(e.user_message)
+            raise CardException(e.user_message)

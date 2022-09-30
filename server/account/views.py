@@ -1,12 +1,16 @@
-from rest_framework import generics, permissions as rest_permissions, decorators as rest_decorators, response, exceptions as apiExceptions
+from rest_framework import generics, permissions as rest_permissions, decorators as rest_decorators, response, exceptions as apiExceptions, status
 from rest_framework_simplejwt import tokens, serializers as jwt_serializers, views as jwt_views, exceptions as jwt_exceptions
-from account import models, serializers
+from account import models, serializers, email_verification
 from cars import models as carModels, serializers as carSerializers,  permissions as carPermissions
 from django.middleware import csrf
 from django.contrib import auth
 from django.conf import settings
 from account import exceptions as accountExceptions
 from cars import exceptions as carExceptions
+from django.utils import encoding, http 
+from django.views.decorators import csrf as csrf_decorator
+from django.db.models import signals as modelSignals
+from django.dispatch import receiver
 
 def get_tokens_for_user(user):
     refresh = tokens.RefreshToken.for_user(user)
@@ -54,6 +58,7 @@ def loginView(request):
     user = auth.authenticate(email=email, password=password)
     if user is not None:
         if user.is_active:
+
             data = get_tokens_for_user(user)
             res.set_cookie(
                 key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
@@ -103,12 +108,37 @@ def register(request):
             )
             res["X-CSRFToken"] = csrf.get_token(request)
             res.data = data
+            res.data["message"] = "Please confirm your email address to complete the registration"
             return res
         else:
             raise apiExceptions.PermissionDenied("Account is not activated!")
     else:
         raise apiExceptions.AuthenticationFailed("Invalid credentials!")
-            
+
+@receiver(modelSignals.post_save, sender=auth.get_user_model())
+def account_created(sender, instance, created, **kwargs):
+    if created:
+        email_verification.sendEmailVerification(user=instance)
+
+
+@rest_decorators.api_view(['GET'])
+@rest_decorators.authentication_classes([])
+@rest_decorators.permission_classes([])
+@csrf_decorator.csrf_exempt
+def activate(request, uidb64, token):  
+    User = auth.get_user_model()  
+    try:  
+        uid = encoding.force_text(http.urlsafe_base64_decode(uidb64))  
+        user = User.objects.get(pk=uid)  
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):  
+        user = None  
+    if user is not None and email_verification.account_activation_token.check_token(user, token):  
+        user.is_active = True  
+        user.save()  
+        return response.Response('Thank you for your email confirmation. Now you can login your account.')  
+    else:  
+        return response.Response('Activation link is invalid!', status=status.HTTP_400_BAD_REQUEST)         
+
 
 @rest_decorators.api_view(['POST'])
 @rest_decorators.authentication_classes([])

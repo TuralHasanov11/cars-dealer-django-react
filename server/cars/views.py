@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, exceptions as apiExceptions
 from cars import models, serializers, pagination, backends, permissions
-from payment import stripe
+from payment import payment_integrator
 from rest_framework import generics, permissions as rest_permissions, decorators as rest_decorators, response, status
      
 class CarListCreateView(generics.ListCreateAPIView):
@@ -21,13 +21,11 @@ class CarListCreateView(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            # payment = stripe.Stripe.pay(
-            #     paymentMethod=request.data["payment_method_id"], 
-            #     paymentId=request.data["payment_id"]
-            # )
-
-            payment = {"id": request.data["payment_method_id"]}
-        except stripe.StripeException as err:
+            payment = payment_integrator.CardPayment.pay(
+                paymentMethod=request.data["payment_method_id"], 
+                paymentId=request.data["payment_id"]
+            )
+        except Exception as err:
             return response.Response(str(err), status=status.HTTP_400_BAD_REQUEST) 
         return self.create(request, *args, **kwargs)
         

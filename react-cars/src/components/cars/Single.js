@@ -23,7 +23,7 @@ export default function Car({car}){
     }
 
     return <>
-        <div className="d-sm-flex align-items-end align-items-md-center justify-content-between position-relative" style={{'zIndex': '102'}}>
+        <div className="d-sm-flex mb-4 align-items-end align-items-md-center justify-content-between position-relative" style={{'zIndex': '102'}}>
             <div className="me-3">
                 <h1 className="h2 text-light mb-md-0">{car?.car_model?.brand?.name + ' ' + car?.car_model?.name}</h1>
                 <div className="d-md-none">
@@ -49,22 +49,7 @@ export default function Car({car}){
          <div className="row">
             <div className="col-md-7">
                 <LightboxCarousel images={car?.car_images} />
-                {/* <div className="tns-carousel-wrapper">
-                    <div className="tns-slides-count text-light"><i className="fi-image fs-lg me-2"></i>
-                        <div className="ps-1"><span className="tns-current-slide fs-5 fw-bold"></span><span className="fs-5 fw-bold">/</span><span className="tns-total-slides fs-5 fw-bold">{car?.car_images?.length}</span></div>
-                    </div>
-                    <div className="tns-carousel-inner" data-carousel-options="{&quot;navAsThumbnails&quot;: true, &quot;navContainer&quot;: &quot;#thumbnails&quot;, &quot;gutter&quot;: 12, &quot;responsive&quot;: {&quot;0&quot;:{&quot;controls&quot;: false},&quot;500&quot;:{&quot;controls&quot;: true}}}">
-                        {car?.car_images?.map((image, index) => (
-                            <div key={index}><img className="rounded-3" src={image.image} alt={image.image}/></div>
-                        ))}
-                    </div>
-                </div>
-                <ul className="tns-thumbnails" id="thumbnails">
-                    {car?.car_images?.map((image, index) => (
-                        <li key={index} className="tns-thumbnail"><img src={image.image} alt="Thumbnail"/></li>
-                    ))}
-                </ul> */}
-                <div className="py-3 mb-3">
+                <div className="py-4 mb-3">
                     <h2 className="h4 text-light mb-4">Specifications</h2>
                     <div className="row text-light">
                         <div className="col-sm-6 col-md-12 col-lg-6">
@@ -106,7 +91,6 @@ export default function Car({car}){
                 <div className="d-flex flex-wrap border-top border-light fs-sm text-light pt-4 pb-5 pb-md-2">
                 <div className="border-end border-light pe-3 me-3"><span className="opacity-70">Published: <strong>{getFullDate(car?.created_at)}</strong></span></div>
                 <div className="border-end border-light pe-3 me-3"><span className="opacity-70">Ad number: <strong>{car?.id}</strong></span></div>
-                <div className="opacity-70">Views: <strong>57</strong></div>
                 </div>
             </div>
 

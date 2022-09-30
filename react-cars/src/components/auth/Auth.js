@@ -5,12 +5,13 @@ import {useInput} from '../../hooks/useInput'
 import { validations } from '../../hooks/useValidation'
 import AuthContext from '../../store/auth-context'
 import sumServerErrors from "../../helpers/sumServerErrors"
+import useMessages, { messageTypes } from '../../hooks/useMessages'
 
 const LOGIN_URL = 'auth/login';
 const REGISTER_URL = 'auth/register';
 
 function Auth(){
-
+    const messages = useMessages()
     const navigate = useNavigate()
     const {setUser, setAccessToken, setCSRFToken} = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
@@ -133,7 +134,7 @@ function Auth(){
         resetConfirmPassword()
         resetPhone()
         setLoading(false)
-        navigate(from, { replace: true });
+        messages.setMessages([{message: response.data.message, type:messageTypes.SUCCESS}])
       } catch (err) {
         setRegisterErrMessages(sumServerErrors(err.response.data));
         registerErrRef.current?.focus();
@@ -205,6 +206,7 @@ function Auth(){
                     ?
                     (<div className="text-light mt-sm-4 pt-md-3">
                         <span className="opacity-60">You signed up successfully!</span>
+                        {messages.result}
                         <h3><a className="text-light" href="#signin-modal" data-bs-toggle="modal" data-bs-dismiss="modal">Sign in to your account</a></h3>
                       </div>
                     )

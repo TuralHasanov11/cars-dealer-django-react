@@ -1,15 +1,12 @@
 from rest_framework import permissions as rest_permissions, decorators as rest_decorators, response, status, exceptions as apiExceptions
-
-from payment import stripe as stripeContainer, serializers
-from payment import config
-
+from payment import payment_integrator, config, serializers
 
 @rest_decorators.api_view(['GET'])
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
-def stripeGetPaymentMethods(request):
+def cardGetPaymentMethods(request):
     try:
-        customer = stripeContainer.Stripe.getOrCreateCustomer(user=request.user)
-        paymentMethods = stripeContainer.Stripe.getPaymentMethods(customerId=customer["id"])
+        customer = payment_integrator.CardPayment.getOrCreateCustomer(user=request.user)
+        paymentMethods = payment_integrator.CardPayment.getPaymentMethods(customerId=customer["id"])
         return response.Response(paymentMethods)
     except Exception as err:
         return response.Response(str(err), status=status.HTTP_400_BAD_REQUEST) 
@@ -17,13 +14,13 @@ def stripeGetPaymentMethods(request):
 
 @rest_decorators.api_view(['POST'])
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
-def stripeAttachPaymentMethod(request):
+def cardAttachPaymentMethod(request):
     try:
         serializer = serializers.PaymentMethodAttach(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        customer = stripeContainer.Stripe.getOrCreateCustomer(user=request.user)
-        paymentMethod = stripeContainer.Stripe.attachPaymentMethod(customerId=customer["id"], paymentMethodId = serializer.validated_data.get("payment_method_id"))
+        customer = payment_integrator.CardPayment.getOrCreateCustomer(user=request.user)
+        paymentMethod = payment_integrator.CardPayment.attachPaymentMethod(customerId=customer["id"], paymentMethodId = serializer.validated_data.get("payment_method_id"))
 
         return response.Response(paymentMethod)
     except Exception as err:
@@ -32,16 +29,16 @@ def stripeAttachPaymentMethod(request):
 
 @rest_decorators.api_view(['POST'])
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
-def stripeCreatePayment(request):
+def cardCreatePayment(request):
     try:
-        customer = stripeContainer.Stripe.getOrCreateCustomer(user=request.user)
+        customer = payment_integrator.CardPayment.getOrCreateCustomer(user=request.user)
         sessionId = request.POST.get("session_id", None)
 
         if sessionId:
-            payment = stripeContainer.Stripe.getPayment(paymentId=sessionId)
+            payment = payment_integrator.CardPayment.getPayment(paymentId=sessionId)
         else:
-            payment = stripeContainer.Stripe.createPayment(
-                stripeContainer.StripePaymentData(
+            payment = payment_integrator.CardPayment.createPayment(
+                payment_integrator.CardPaymentData(
                     amount=config.CarPaymentConfig.AMOUNT.value, 
                     currency= config.CarPaymentConfig.CURRENCY.value, 
                     customer=customer["id"]

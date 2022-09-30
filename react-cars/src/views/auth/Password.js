@@ -1,12 +1,15 @@
 import { useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useInput } from "../../hooks/useInput";
+import useMessages, {messageTypes} from "../../hooks/useMessages";
 import { validations } from "../../hooks/useValidation";
+import sumServerErrors from "../../helpers/sumServerErrors"
 
 function Password(){
 
     const [loading, setLoading] = useState(false)
     const axiosPrivate = useAxiosPrivate()
+    const messages = useMessages()
 
     const {
         value: oldPassword, 
@@ -14,6 +17,7 @@ function Password(){
         hasError:oldPasswordHasError, 
         valueChange: onOldPasswordChange, 
         valueBlur: onOldPasswordBlur,
+        reset: onOldPasswordReset,
         messages:oldPasswordMessages,
       } = useInput({validations, rules:{required:true}})
   
@@ -23,6 +27,7 @@ function Password(){
         hasError:newPassword1HasError, 
         valueChange: onNewPassword1Change, 
         valueBlur: onNewPassword1Blur,
+        reset: onNewPassword1Reset,
         messages:newPassword1Messages,
     } = useInput({validations, rules:{required:true, minLength:6}})
     
@@ -32,10 +37,17 @@ function Password(){
         hasError:newPassword2HasError, 
         valueChange: onNewPassword2Change, 
         valueBlur: onNewPassword2Blur,
+        reset: onNewPassword2Reset,
         messages:newPassword2Messages,
     } = useInput({validations, rules:{required:true, sameAs:newPassword1}})
   
     let formIsValid = (oldPasswordIsValid && newPassword1IsValid && newPassword2IsValid)
+
+    function resetForm(){
+        onOldPasswordReset()
+        onNewPassword1Reset()
+        onNewPassword2Reset()
+    }
 
     async function submitForm(e){
         e.preventDefault()
@@ -52,9 +64,12 @@ function Password(){
                 new_password1: newPassword1, 
                 new_password2: newPassword2
             })
-            // TODO: success
+
+            setLoading(false)
+            resetForm()
+            messages.setMessages([{message: data.message, type:messageTypes.SUCCESS}])
         } catch (error) {
-            // TODO: error
+            messages.setMessages(sumServerErrors(error.response.data).map(el=>{return {message: el, type:messageTypes.ERROR}}))
             setLoading(false)
         }    
     }
@@ -64,6 +79,7 @@ function Password(){
         <h1 className="h2 text-light">Password &amp; Security</h1>
         <p className="text-light pt-1">Manage your password settings and secure your account.</p>
         <h2 className="h5 text-light">Password</h2>
+        {messages.result}
         <form onSubmit={submitForm} className="needs-validation pb-4">
             <div className="row align-items-end mb-2">
                 <div className="col-sm-6 mb-2">

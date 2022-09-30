@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from cars import models, exceptions as carExceptions, backends
+from cars import models, backends
 from account import serializers as accountSerializers
-from payment import stripe, config
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:

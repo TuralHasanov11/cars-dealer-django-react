@@ -1,4 +1,5 @@
 export function getFullDate(date){
-  return new Date(date).toISOString().replace(/T.*/,'').split('-').reverse().join('-')
+  date = new Date(date)
+  return date.toLocaleDateString('en-US')
 }
 
