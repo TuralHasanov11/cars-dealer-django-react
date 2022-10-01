@@ -17,7 +17,7 @@ account_activation_token = EmailVerificationTokenGenerator()
 def sendEmailVerification(user):
     currentSite = Site.objects.get_current()
     subject = 'Activation link has been sent to your email id'  
-    message = render_to_string('account_active_email.html', {  
+    message = render_to_string('account/account_active_email.html', {  
         'user': user,  
         'domain': currentSite.domain,  
         'uid':urlsafe_base64_encode(encoding.force_bytes(user.id)),  
@@ -25,4 +25,5 @@ def sendEmailVerification(user):
     })  
     toEmail = user.email
     email = mail.EmailMessage(subject, message, to=[toEmail])  
+    print(email)
     email.send()  

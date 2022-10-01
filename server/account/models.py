@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.core import validators
 
 class AccountManager(BaseUserManager):
     
@@ -39,7 +40,7 @@ class Account(AbstractBaseUser):
     email = models.EmailField(verbose_name='email', null=False, blank=False, unique=True)
     username= models.CharField(max_length=50, null=False, blank=False)
     is_admin = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     created_at=models.DateTimeField(auto_now_add=True)
@@ -62,7 +63,7 @@ class Account(AbstractBaseUser):
 
 
 class Profile(models.Model):
-    phone= models.CharField(max_length=50, null=False, blank=False, unique=False)
+    phone= models.CharField(validators=[validators.RegexValidator(regex=r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$', message="Phone number must be entered in the format: '+xx xxx xxxx'. Up to 13 digits allowed.")], max_length=17, blank=False, null=False, unique=True)
     user = models.OneToOneField(Account, null=True, on_delete=models.CASCADE,  related_name='account_profile')
     
     def __str__(self):

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from account import views
 from rest_framework_simplejwt import views as jwt_views
 
@@ -6,7 +6,7 @@ app_name='account'
 
 urlpatterns = [
     path('register', views.register, name='register'), 
-    path('logout/blacklist', views.blackListToken, name='blacklist'), 
+    path('logout', views.logout, name='logout'), 
     path('login', views.loginView, name="login"),
     path('token/refresh', views.CookieTokenRefreshView.as_view(), name='token_refresh'),
     path('change-password', views.passwordChange, name='password_change'), 
@@ -17,5 +17,5 @@ urlpatterns = [
     path('wishlist/<int:id>/add', views.wishlistAdd, name='wishlist_add'), 
     path('wishlist/<int:id>/remove', views.wishlistRemove, name='wishlist_remove'), 
     path('wishlist/clear', views.wishlistClear, name='wishlist_clear'),
-    path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',  views.activate, name='activate'),  
+    path('activate/<uidb64>/<token>',  views.activate, name='activate'),  
 ]

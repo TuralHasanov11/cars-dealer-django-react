@@ -67,7 +67,7 @@ class CarGetUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class BrandListView(generics.ListAPIView):
-    queryset = models.Brand.objects.all()
+    queryset = models.Brand.objects.order_by("name")
     serializer_class = serializers.BrandSerializer
 
 
@@ -76,45 +76,45 @@ class CarModelListView(generics.ListAPIView):
 
     def get_queryset(self):
         brand = models.Brand.objects.get(id=self.kwargs['brand'])
-        return models.CarModel.objects.filter(brand=brand)
+        return models.CarModel.objects.filter(brand=brand).order_by("name")
     
 
 class CityListView(generics.ListAPIView):
-    queryset = models.City.objects.all()
+    queryset = models.City.objects.order_by("name")
     serializer_class = serializers.CitySerializer
 
 
 class CarBodyListView(generics.ListAPIView):
-    queryset = models.CarBody.objects.all()
+    queryset = models.CarBody.objects.order_by("name")
     serializer_class = serializers.CarBodySerializer
 
 class ColorListView(generics.ListAPIView):
-    queryset = models.Color.objects.all()
+    queryset = models.Color.objects.order_by("name")
     serializer_class = serializers.ColorSerializer
 
 
 class EngineListView(generics.ListAPIView):
-    queryset = models.Engine.objects.all()
+    queryset = models.Engine.objects.order_by("volume")
     serializer_class = serializers.EngineSerializer
 
 
 class EquipmentListView(generics.ListAPIView):
-    queryset = models.Equipment.objects.all()
+    queryset = models.Equipment.objects.order_by("name")
     serializer_class = serializers.EquipmentSerializer
 
 
 class GearLeverListView(generics.ListAPIView):
-    queryset = models.GearLever.objects.all()
+    queryset = models.GearLever.objects.order_by("name")
     serializer_class = serializers.GearLeverSerializer
 
 
 class TransmissionListView(generics.ListAPIView):
-    queryset = models.Transmission.objects.all()
+    queryset = models.Transmission.objects.order_by("name")
     serializer_class = serializers.TransmissionSerializer
 
 
 class FuelListView(generics.ListAPIView):
-    queryset = models.Fuel.objects.all()
+    queryset = models.Fuel.objects.order_by("name")
     serializer_class = serializers.FuelSerializer
 
 

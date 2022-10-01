@@ -11,6 +11,8 @@ from django.utils import encoding, http
 from django.views.decorators import csrf as csrf_decorator
 from django.db.models import signals as modelSignals
 from django.dispatch import receiver
+from django.shortcuts import render
+
 
 def get_tokens_for_user(user):
     refresh = tokens.RefreshToken.for_user(user)
@@ -95,23 +97,10 @@ def register(request):
 
     user = serializer.save()
     res = response.Response()
+    
     if user is not None:
-        if user.is_active:
-            data = get_tokens_for_user(user)
-            res.set_cookie(
-                key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-                value = data["access_token"],
-                expires = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
-                secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
-            )
-            res["X-CSRFToken"] = csrf.get_token(request)
-            res.data = data
-            res.data["message"] = "Please confirm your email address to complete the registration"
-            return res
-        else:
-            raise apiExceptions.PermissionDenied("Account is not activated!")
+        res.data["message"] = "Please confirm your email address to complete the registration"
+        return res
     else:
         raise apiExceptions.AuthenticationFailed("Invalid credentials!")
 
@@ -128,14 +117,14 @@ def account_created(sender, instance, created, **kwargs):
 def activate(request, uidb64, token):  
     User = auth.get_user_model()  
     try:  
-        uid = encoding.force_text(http.urlsafe_base64_decode(uidb64))  
+        uid = encoding.force_str(http.urlsafe_base64_decode(uidb64))  
         user = User.objects.get(pk=uid)  
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):  
         user = None  
-    if user is not None and email_verification.account_activation_token.check_token(user, token):  
+    if user and email_verification.account_activation_token.check_token(user, token): 
         user.is_active = True  
         user.save()  
-        return response.Response('Thank you for your email confirmation. Now you can login your account.')  
+        return render(request, "account/account_activated.html", context={"message": "Thank you for your email confirmation. Now you can login your account.", "clientUrl":settings.CLIENT_SITE_URL})  
     else:  
         return response.Response('Activation link is invalid!', status=status.HTTP_400_BAD_REQUEST)         
 
@@ -143,7 +132,7 @@ def activate(request, uidb64, token):
 @rest_decorators.api_view(['POST'])
 @rest_decorators.authentication_classes([])
 @rest_decorators.permission_classes([])
-def blackListToken(request):
+def logout(request):
     try:
         refreshToken = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
         token = tokens.RefreshToken(refreshToken)

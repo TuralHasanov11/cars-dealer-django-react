@@ -6,7 +6,7 @@ const useLogout = () => {
 
     const logout = async () => {
         try {
-            const response = await axios.post('/auth/logout/blacklist');
+            const response = await axios.post('/auth/logout');
             setUser({});
             setAccessToken()
             setCSRFToken()

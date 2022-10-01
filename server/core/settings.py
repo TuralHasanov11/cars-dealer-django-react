@@ -59,7 +59,9 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'templates'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -132,10 +134,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'account.Account'
-
-
-# Email setting
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # REST FRAMEWORK SETUP
 REST_FRAMEWORK = {
@@ -220,8 +218,21 @@ STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", '')
 # STRIPE_ENDPOINT_SECRET = os.environ.get("STRIPE_ENDPOINT_SECRET", '')
 
-EMAIL_USE_TLS = True  
-EMAIL_HOST = 'smtp.gmail.com'  
-EMAIL_HOST_USER = 'youremail@gmail.com'  
-EMAIL_HOST_PASSWORD = 'yourpassword'  
-EMAIL_PORT = 587  
+# Email setting
+# EMAIL_USE_TLS = True  
+# EMAIL_HOST = 'smtp.gmail.com'  
+# EMAIL_HOST_USER = 'youremail@gmail.com'  
+# EMAIL_HOST_PASSWORD = 'yourpassword'  
+# EMAIL_PORT = 587  
+
+# Mailtrap
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = 'f438cec8cb65b0'
+EMAIL_HOST_PASSWORD = '9ccd52eccdab5a'
+EMAIL_PORT = '2525'
+
+
+SITE_ID = 1
+
+CLIENT_SITE_URL =  os.environ.get('CLIENT_SITE_URL', None)
