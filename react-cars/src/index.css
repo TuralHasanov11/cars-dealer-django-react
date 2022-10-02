@@ -90,3 +90,28 @@ code {
 button:disabled{
   cursor:not-allowed !important;
 }
+
+
+.card-img-top img{
+  width: 100%;
+  height: 200px;
+}
+
+@media (max-width: 576px) {
+  .card-img-top img{
+    height: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-img-top img{
+    height: 150px;
+  }
+}
+
+
+@media (max-width: 992px) {
+  .card-img-top img{
+    height: 180px;
+  }
+}

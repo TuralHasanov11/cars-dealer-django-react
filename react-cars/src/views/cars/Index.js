@@ -7,6 +7,7 @@ import CarsContext from '../../store/cars-context'
 import { useContext, useEffect, useState } from 'react'
 import ItemsContext from '../../store/items-context'
 import Loading from '../../components/inc/Loading'
+import CarVerticalCard from '../../components/ui/cards/CarVertical'
 
 
 function CarsIndexView(){
@@ -102,7 +103,12 @@ function CarsIndexView(){
                     <Sorting/>
                 </div>
 
-                <Cars cars={cars?.results} searchParams={searchParams}/>
+                <div className="row">
+                    {cars?.results.map((car, index)=><div className="col-lg-4 col-md-6 col-sm-12 mb-4" key={index}>
+                        <CarVerticalCard car={car} searchParams={searchParams}/>
+                    </div>)}
+                </div>
+
                 <div className="d-flex align-items-center justify-content-between py-2">
                     <Sorting/>
                     <Pagination 

@@ -3,9 +3,14 @@
   position: relative;
 }
 
+
 /* Hide the images by default */
 .lightbox-mySlides {
   display: none;
+}
+
+.lightbox-mySlides img{
+  height: 450px;
 }
 
 /* Add a pointer when hovering over the thumbnail images */
@@ -66,6 +71,10 @@
   clear: both;
 }
 
+.lightbox-row img {
+  height: 70px;
+}
+
 /* Six columns side by side */
 .lightbox-column {
   float: left;
@@ -91,4 +100,37 @@
 @keyframes fade {
   from {opacity: .4}
   to {opacity: 1}
+}
+
+@media (max-width: 420px) {
+  
+  .lightbox-mySlides img{
+    height: 200px;
+  }
+
+}
+
+@media (max-width: 576px) {
+  
+  .lightbox-mySlides img{
+    height: 300px;
+  }
+
+}
+
+@media (max-width: 768px) {
+  
+  .lightbox-mySlides img{
+    height: 350px;
+  }
+
+}
+
+
+@media (max-width: 992px) {
+  
+  .lightbox-mySlides img{
+    height: 400px;
+  }
+
 }

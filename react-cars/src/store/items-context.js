@@ -39,7 +39,7 @@ export function ItemsContextProvider(props){
     const [gearLevers, setGearLevers] = useState([])
     const [transmissions, setTransmissions] = useState([])
     const [fuels, setFuels] = useState([])
-    const [years, setYears] = useState([2013,2021,2022])
+    const [years, setYears] = useState([2010, 2011, 2012, 2013,2014,2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022])
 
     async function getItems(){
         try {

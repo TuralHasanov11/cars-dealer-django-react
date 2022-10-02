@@ -23,7 +23,7 @@ export function AuthContextProvider(props){
     const [refreshToken, setRefreshToken] = useState()
     const [user, setUser] = useState()
     const [csrfToken, setCSRFToken] = useState()
-    const isAuth = user
+    const isAuth = user?.id
 
     const [wishlist, setWishlist] = useState([])
     const wishlistIds = wishlist?.map(el => el.id)

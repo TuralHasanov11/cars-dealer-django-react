@@ -5,11 +5,13 @@ import { useState } from "react";
 import WishlistButton from "../ui/WishlistButton"
 import { getFullDate } from "../../helpers/date";
 import LightboxCarousel from "../ui/LightboxCarousel"
+import useAuth from "../../hooks/useAuth";
 
 export default function Car({car}){
     
     const navigate = useNavigate()
     const axiosPrivate = useAxiosPrivate()
+    const {isAuth, user} = useAuth()
     const [deleteLoading, setDeleteLoading] = useState(false) 
 
     async function deleteCar(){
@@ -39,16 +41,18 @@ export default function Car({car}){
                     </div>
                 </div>
             </div>
-            <div className="pt-3 pt-sm-0">
+            {isAuth && (<div className="pt-3 pt-sm-0">
                 <WishlistButton car={car} />
-                <Link to={`/cars/${car?.id}/edit`} className="btn btn-info btn-sm ms-2 order-lg-3"><i className="fi-edit me-2"></i>Edit</Link>
-                <button disabled={deleteLoading} onClick={()=>{deleteCar()}} className="btn btn-danger btn-sm ms-2 order-lg-3" type="button"><i className="fi-trash me-2"></i>Delete</button>
-            </div>
+                {user?.id === car?.user?.id && <>
+                    <Link to={`/cars/${car?.id}/edit`} className="btn btn-info btn-sm ms-2 order-lg-3"><i className="fi-edit me-2"></i>Edit</Link>
+                    <button disabled={deleteLoading} onClick={()=>{deleteCar()}} className="btn btn-danger btn-sm ms-2 order-lg-3" type="button"><i className="fi-trash me-2"></i>Delete</button>
+                </>}
+            </div>)}
         </div>
         
          <div className="row">
             <div className="col-md-7">
-                <LightboxCarousel images={car?.car_images} />
+                {car?.car_images && <LightboxCarousel images={car?.car_images} />}
                 <div className="py-4 mb-3">
                     <h2 className="h4 text-light mb-4">Specifications</h2>
                     <div className="row text-light">
@@ -84,7 +88,7 @@ export default function Car({car}){
                     <h2 className="h4 text-light pt-4 mt-3">Description</h2>
                     <p className="text-light opacity-70 mb-1">{car?.description}</p>
                     <div className="collapse" id="seeMoreDescription">
-                        <p className="text-light opacity-70 mb-1">{car?.description}</p>
+                        <p className="text-light opacity-70 mb-1"></p>
                     </div>
                     <a className="collapse-label collapsed" href="#seeMoreDescription" data-bs-toggle="collapse" data-bs-label-collapsed="Show more" data-bs-label-expanded="Show less" role="button" aria-expanded="false" aria-controls="seeMoreDescription"></a>
                 </div>

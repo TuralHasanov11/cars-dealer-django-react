@@ -42,7 +42,7 @@ function Auth(){
       valueBlur: onUsernameBlur,
       reset:resetUsername,
       messages:usernameMessages,
-    } = useInput({validations, initialState:'test2', rules:{required:true,}})
+    } = useInput({validations, initialState:'', rules:{required:true,}})
   
     const {
       value: email, 
@@ -52,7 +52,7 @@ function Auth(){
       valueBlur: onEmailBlur,
       reset:resetEmail,
       messages:emailMessages,
-    } = useInput({validations, initialState:'test1@test.com', rules:{required:true, email:true}})
+    } = useInput({validations, initialState:'', rules:{required:true, email:true}})
 
     const {
       value: phone, 
@@ -62,7 +62,7 @@ function Auth(){
       valueBlur: onPhoneBlur,
       reset:resetPhone,
       messages:phoneMessages,
-    } = useInput({validations, initialState:'123456789', rules:{required:true,}})
+    } = useInput({validations, initialState:'', rules:{required:true,}})
 
     const {
       value: password, 
@@ -72,7 +72,7 @@ function Auth(){
       valueBlur: onPasswordBlur,
       reset:resetPassword,
       messages:passwordMessages,
-    } = useInput({validations, initialState:'hidraC137', rules:{required:true,minLength:6}})
+    } = useInput({validations, initialState:'', rules:{required:true,minLength:6}})
 
     const {
       value: confirmPassword, 
@@ -82,7 +82,7 @@ function Auth(){
       valueBlur: onConfirmPasswordBlur,
       reset:resetConfirmPassword,
       messages:confirmPasswordMessages,
-    } = useInput({validations, initialState:'hidraC137', rules:{required:true,sameAs:password}})
+    } = useInput({validations, initialState:'', rules:{required:true,sameAs:password}})
 
 
     let loginFormIsValid = (emailIsValid && passwordIsValid)
@@ -107,6 +107,7 @@ function Auth(){
         resetPassword()
         setLoading(false)
         setRegisterSuccess(true)
+        navigate(from, { replace: true });
       } catch (err) {
         setLoginErrMessages(sumServerErrors(err.response.data));
         loginErrRef.current?.focus();

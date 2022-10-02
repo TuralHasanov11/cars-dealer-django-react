@@ -32,7 +32,7 @@ export default function CarVerticalCard({car}){
                 <img src={car?.car_images.find(el => el.is_front === true)?.image}/>
                 </div>
                 <div className="card-body position-relative">
-                  {car?.user?.id === authUser?.id&&(
+                  {authUser?.id && car?.user?.id === authUser?.id&&(
                     <div className="dropdown position-absolute zindex-5 top-0 end-0 mt-3 me-3">
                         <button className="btn btn-icon btn-translucent-light btn-xs rounded-circle" type="button" id="contextMenu2" data-bs-toggle="dropdown" aria-expanded="false"><i className="fi-dots-vertical"></i></button>
                         <ul className="dropdown-menu dropdown-menu-dark my-1" aria-labelledby="contextMenu2">

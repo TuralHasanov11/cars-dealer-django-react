@@ -9,7 +9,7 @@ function LatestCars({cars}){
           <h2 className="h3 text-light mb-3 mb-sm-0">Latest cars</h2>
         </div>
         <div className="row">
-            {cars.map((car, index)=>(<div className="col-12 col-sm-6 col-md-4 mb-4" key={index}>
+            {cars.map((car, index)=>(<div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4" key={index}>
                 <CarVerticalCard car={car}/>
             </div>))}
         </div>

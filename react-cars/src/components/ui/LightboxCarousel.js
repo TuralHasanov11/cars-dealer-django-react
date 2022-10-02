@@ -39,8 +39,6 @@ export default function LightboxCarousel({images}) {
     for (i = 0; i < demo.current.length; i++) {
       demo.current[i].className = demo.current[i].className.replace(" lightbox-active", "");
     }
-    console.log(currentIndex)
-    console.log(demo.current[currentIndex-1],  mySlides.current[currentIndex-1])
     mySlides.current[currentIndex-1].style.display = "block";
     demo.current[currentIndex-1].className += " lightbox-active";
   }

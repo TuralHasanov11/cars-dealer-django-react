@@ -5,6 +5,7 @@ from cars import models, exceptions as carExceptions
 class CarSearchFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         self.query = request.query_params or None
+        self.queryResult = queryset
         if self.query:
             queryset = (self.
                 filter_currency().
@@ -24,7 +25,8 @@ class CarSearchFilterBackend(filters.BaseFilterBackend):
                 filter_fuel(request=request).
                 filter_transmission(request=request).
                 filter_gear_lever(request=request).
-                filter_car_body(request=request)).queryResult
+                filter_car_body(request=request).
+                filter_is_new().queryResult)
         return queryset
 
     def filter_currency(self):
@@ -88,7 +90,7 @@ class CarSearchFilterBackend(filters.BaseFilterBackend):
         return self
 
     def filter_is_new(self):
-        if self.query.get('is_new') == 'true':
+        if self.query.get('is_new')=="true":
             self.queryResult=self.queryResult.filter(distance=0)
         return self
 

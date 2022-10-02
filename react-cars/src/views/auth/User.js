@@ -4,10 +4,11 @@ import AuthContext from '../../store/auth-context'
 import UserContext from '../../store/user-context'
 import Loading from '../../components/inc/Loading'
 import useAxiosPrivate from "../../hooks/useAxiosPrivate"
+import axios from '../../axios'
 
 function User(){
 
-    const {user: authUser, wishlist} = useContext(AuthContext)
+    const {user: authUser, wishlist, isAuth} = useContext(AuthContext)
     const {user, setUser, setCars} = useContext(UserContext)
     const {userId} = useParams()
     const [loading, setLoading] = useState(true)
@@ -16,7 +17,8 @@ function User(){
 
     useEffect(()=>{
       async function getUserAndCarsHandler(){
-        await Promise.all([axiosPrivate.get(`auth/${userId}`), axiosPrivate.get(`auth/${userId}/cars`, {params:Object.fromEntries([...searchParams])})])
+        if(isAuth && authUser?.id){
+          await Promise.all([axiosPrivate.get(`auth/${userId}`), axiosPrivate.get(`auth/${userId}/cars`, {params:Object.fromEntries([...searchParams])})])
             .then(responses=>{
                 setUser(responses[0].data)
                 setCars(responses[1].data)
@@ -24,30 +26,23 @@ function User(){
             .catch(errors => {
                 return errors
             });
+        }else{
+          await Promise.all([axios.get(`auth/${userId}`), axios.get(`auth/${userId}/cars`, {params:Object.fromEntries([...searchParams])})])
+            .then(responses=>{
+                setUser(responses[0].data)
+                setCars(responses[1].data)
+            })
+            .catch(errors => {
+                return errors
+            });
+        }
       }
       
       getUserAndCarsHandler()
       setLoading(false)
 
       return function cleanup() {}
-    },[userId])
-
-    useEffect(()=>{
-      async function getCarsHandler(){
-        await Promise.all([axiosPrivate.get(`auth/${userId}/cars`, {params:Object.fromEntries([...searchParams])})])
-            .then(responses=>{
-                setCars(responses[0].data)
-            })
-            .catch(errors => {
-                return errors
-            });
-      }
-      
-      getCarsHandler()
-      setLoading(false)
-
-      return function cleanup() {}
-    },[searchParams])
+    },[userId, searchParams])
 
     return loading?<Loading />:<div className="container pt-5 pb-lg-4 mt-5 mb-sm-2">
     <div className="row">

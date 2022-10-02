@@ -58,7 +58,7 @@ export function CarsContextProvider(props){
     }
 
     async function getLatestCars(query={}){
-        const {data} = await axios.get(`auto/cars`,{params:{page_size:10}})
+        const {data} = await axios.get(`auto/cars`,{params:{page_size:20}})
         setLatestCars(data)
     }
 

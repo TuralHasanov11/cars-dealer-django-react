@@ -186,11 +186,12 @@ class UserCarListView(generics.ListAPIView):
     ordering=["-created_at"]
 
     def get_queryset(self):
-        queryset = carModels.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine', 'user').prefetch_related('car_images')
-        if(self.request.user.id == self.kwargs['id']):
-            q = self.request.query_params or None
-            if q and q.get('is_pending'):
-                return queryset.filter(is_active=False)
+        queryset = carModels.Car.cars.select_related('car_model', 'car_model__brand', 'city', 'gear_lever', 'fuel', 'engine', 'user').prefetch_related('car_images').filter(user_id = self.kwargs['id'])
+        if self.request.user.is_authenticated:
+            if(self.request.user.id == self.kwargs['id']):
+                q = self.request.query_params or None
+                if q and q.get('is_pending'):
+                    return queryset.filter(is_active=False)
         return queryset
 
 

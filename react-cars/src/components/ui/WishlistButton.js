@@ -28,7 +28,7 @@ export default function WishlistButton({car}) {
 
   return (wishlist&&<button onClick={()=>{toggleCarToWishlist(car.id)}} className="btn btn-icon btn-light btn-xs text-primary rounded-circle" 
     type="button" data-bs-toggle="tooltip" data-bs-placement="left" 
-    title={wishlistIds?.includes(car.id)?"Add to Wishlist":"Remove from Wishlist"}
+    title={wishlistIds?.includes(car.id)?"Remove from Wishlist":"Add to Wishlist"}
   >
     {wishlistIds?.includes(car.id)?<i className="fi-heart-filled"></i>:<i className="fi-heart"></i>}
   </button>);

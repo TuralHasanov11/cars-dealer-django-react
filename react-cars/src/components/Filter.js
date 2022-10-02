@@ -116,18 +116,22 @@ function Filter(props){
 
     function onMinEngineChange(e){
         updateFilterData({minEngine:e.target.value})
+        updateFilterData({minEngine:e.target.value})
     }
 
     function onMaxEngineChange(e){
+        updateFilterData({maxEngine:e.target.value})
         updateFilterData({maxEngine:e.target.value})
     }
 
     function onMinDistanceChange(e){
         setMinDistance(e.target.value)
+        updateFilterData({minDistance:e.target.value})
     }
 
     function onMaxDistanceChange(e){
         setMaxDistance(e.target.value)
+        updateFilterData({maxDistance:e.target.value})
     }
 
     function onMinDistanceBlur(e){
@@ -141,11 +145,11 @@ function Filter(props){
     }
 
     function onMinYearChange(e){
-        updateFilterData({minYear:e.target.value})
+        updateFilterData({minMadeAt:e.target.value})
     }
 
     function onMaxYearChange(e){
-        updateFilterData({maxYear:e.target.value})
+        updateFilterData({maxMadeAt:e.target.value})
     }
 
 
@@ -190,7 +194,7 @@ function Filter(props){
             </select>
             <div className="mx-2">&mdash;</div>
             <select onChange={onMaxYearChange} defaultValue={filterData?.maxMadeAt} className="form-select form-select-light w-100" id="max_made_at">
-                <option value="" disabled>To</option>
+                <option value="">To</option>
                 {props.years.map((year, index)=>(<option key={index} value={year}>{year}</option>))}
             </select>
             </div>
